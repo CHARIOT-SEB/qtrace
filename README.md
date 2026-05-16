@@ -1,4 +1,4 @@
-# Scatter V
+# QTrace
 
 A modern, browser-based SAXS data analysis tool — a spiritual successor to [Scatter IV](https://bl1231.als.lbl.gov/scatter/) by Rob Rambo.
 
