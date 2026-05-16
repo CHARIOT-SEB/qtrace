@@ -101,7 +101,7 @@ export const KratkyChart = memo(function KratkyChart({ data }: Props) {
 					<Scatter
 						data={pts}
 						isAnimationActive={false}
-						shape={Dot as React.FC}
+						shape={Dot as any}
 					/>
 				</ScatterChart>
 			</ResponsiveContainer>

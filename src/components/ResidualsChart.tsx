@@ -68,7 +68,7 @@ export const ResidualsChart = memo(function ResidualsChart({ result }: Props) {
           />
           <Tooltip content={TIP as React.FC} cursor={{ strokeDasharray: '3 3', stroke: CHART.gridColor }} />
           <ReferenceLine y={0} stroke="rgba(255,255,255,0.2)" strokeWidth={1} />
-          <Scatter data={resid} isAnimationActive={false} shape={Dot as React.FC} />
+          <Scatter data={resid} isAnimationActive={false} shape={Dot as any} />
         </ScatterChart>
       </ResponsiveContainer>
     </Card>

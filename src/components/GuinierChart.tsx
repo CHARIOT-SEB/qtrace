@@ -75,9 +75,9 @@ export const GuinierChart = memo(function GuinierChart({ data, result }: Props) 
           />
           <Tooltip content={TIP as React.FC} cursor={{ strokeDasharray: '3 3', stroke: CHART.gridColor }} />
           {/* All background scatter points */}
-          <Scatter data={all} isAnimationActive={false} shape={Dot(CHART.dataGray) as React.FC} />
+          <Scatter data={all} isAnimationActive={false} shape={Dot(CHART.dataGray) as any} />
           {/* Guinier region highlighted */}
-          <Scatter data={region} isAnimationActive={false} shape={Dot(CHART.dataGreen, 3) as React.FC} />
+          <Scatter data={region} isAnimationActive={false} shape={Dot(CHART.dataGreen, 3) as any} />
           {/* Fit line uses chart-level data={fitLine} */}
           <Line
             dataKey="y"
