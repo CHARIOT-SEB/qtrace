@@ -43,6 +43,7 @@ import {
 	RightColumn,
 	ResidualsWrapper,
 	EmptyStateWrapper,
+	EmptyStateLogo,
 	ErrorCallout,
 	SecDivider,
 	NoFitCard,
@@ -309,7 +310,12 @@ export function App() {
 					{frames.length === 0 && (
 						<EmptyStateWrapper>
 							<NonIdealState
-								icon='document'
+								icon={
+									<EmptyStateLogo
+										src={`${import.meta.env.BASE_URL}assets/qtrace-logo.png`}
+										alt=''
+									/>
+								}
 								title='No data loaded'
 								description='Drop .dat frame files above or load the sample SEC run to begin.'
 							/>

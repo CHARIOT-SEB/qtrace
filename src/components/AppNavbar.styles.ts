@@ -3,20 +3,24 @@ import { Button, Navbar, Tag } from '@blueprintjs/core'
 import { palette, media } from '../theme'
 
 export const NavHeading = styled(Navbar.Heading)`
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-
-  sup {
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0;
-    vertical-align: super;
-  }
+  display: flex;
+  align-items: center;
+  padding: 0;
 
   ${media.sm} {
-    font-size: 16px;
     margin-right: 8px;
+  }
+`
+
+export const NavLogo = styled.img`
+  height: 28px;
+  width: 28px;
+  object-fit: contain;
+  display: block;
+
+  ${media.sm} {
+    height: 24px;
+    width: 24px;
   }
 `
 

@@ -136,6 +136,13 @@ export const EmptyStateWrapper = styled.div`
   justify-content: center;
 `
 
+export const EmptyStateLogo = styled.img`
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  opacity: 0.85;
+`
+
 export const ErrorCallout = styled(Callout)`
   margin-bottom: 16px;
 `

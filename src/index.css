@@ -38,9 +38,9 @@ body {
 
 /* ── Blueprint overrides - Navbar ────────────────────────────────── */
 .bp6-navbar {
-  background-color: var(--c1) !important;
+  background-color: var(--c2) !important;
   box-shadow: none !important;
-  border-bottom: 1px solid #1f3040 !important;
+  border-bottom: 1px solid var(--c1) !important;
 }
 .bp6-navbar .bp6-navbar-heading,
 .bp6-navbar .bp6-text-muted {

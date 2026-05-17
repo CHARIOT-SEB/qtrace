@@ -1,5 +1,12 @@
 import { Alignment, ButtonVariant, Navbar } from '@blueprintjs/core'
-import { NavHeading, SubtitleSpan, FramesTag, SnapshotsButton, HideOnMobile } from './AppNavbar.styles'
+import {
+	NavHeading,
+	NavLogo,
+	SubtitleSpan,
+	FramesTag,
+	SnapshotsButton,
+	HideOnMobile,
+} from './AppNavbar.styles'
 
 interface AppNavbarProps {
 	framesCount: number
@@ -7,12 +14,20 @@ interface AppNavbarProps {
 	onToggleHistory: () => void
 }
 
-export function AppNavbar({ framesCount, isHistoryOpen, onToggleHistory }: AppNavbarProps) {
+export function AppNavbar({
+	framesCount,
+	isHistoryOpen,
+	onToggleHistory,
+}: AppNavbarProps) {
 	return (
 		<Navbar>
 			<Navbar.Group align={Alignment.LEFT}>
 				<NavHeading>
-					<sup>Q</sup>Trace
+					<NavLogo
+						src={`${import.meta.env.BASE_URL}assets/qtrace-logo.png`}
+						alt='QTrace'
+					/>
+					Trace
 				</NavHeading>
 				<HideOnMobile>
 					<Navbar.Divider />
