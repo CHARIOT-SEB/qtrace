@@ -37,6 +37,7 @@ import { SecTrace } from './components/SecTrace'
 import { StatsRow } from './components/StatsRow'
 import { AnalysisInsights } from './components/AnalysisInsights'
 import { autoFindGuinierRegion, computeGuinier } from './lib/guinier'
+import { computePorod } from './lib/porod'
 import { collectInsights } from './lib/analysisHeuristics'
 import { autoDetectRegions, averageFrames, subtractBuffer } from './lib/secSaxs'
 import { generateSampleSecFrames } from './lib/sampleData'
@@ -103,6 +104,12 @@ export function App() {
 		() =>
 			activeCurve ? computeGuinier(activeCurve, deferredLo, deferredHi) : null,
 		[activeCurve, deferredLo, deferredHi],
+	)
+
+	const porodResult = useMemo(
+		() =>
+			activeCurve && guinierResult ? computePorod(activeCurve, guinierResult.I0) : null,
+		[activeCurve, guinierResult],
 	)
 
 	const rawInsights = useMemo(
@@ -248,6 +255,7 @@ export function App() {
 				stageIndex: 1,
 				frameCount: newFrames.length,
 				parsedCount: newFrames.length,
+				isSample: true,
 			})
 			await tick(120)
 		}
@@ -331,6 +339,33 @@ export function App() {
 
 	function handleDismiss() {
 		setModal(INITIAL_MODAL_STATE)
+	}
+
+	function handleExportCSV() {
+		if (!guinierResult) return
+		const filename = activeCurve?.filename ?? 'unknown'
+		const { Rg, dRg, I0, dI0, qRgMax, fit, iMin, iMax, xs } = guinierResult
+		const header = 'filename,Rg_A,dRg_A,I0,dI0,qRg_max,R2,n_points,fit_iMin,fit_iMax,timestamp'
+		const row = [
+			`"${filename}"`,
+			Rg.toFixed(4),
+			Number.isFinite(dRg) ? dRg.toFixed(4) : '',
+			I0.toFixed(4),
+			Number.isFinite(dI0) ? dI0.toFixed(4) : '',
+			qRgMax.toFixed(4),
+			fit.r2.toFixed(6),
+			xs.length,
+			iMin,
+			iMax,
+			new Date().toISOString(),
+		].join(',')
+		const blob = new Blob([header + '\n' + row], { type: 'text/csv' })
+		const url = URL.createObjectURL(blob)
+		const a = document.createElement('a')
+		a.href = url
+		a.download = `qtrace-${filename.replace(/\.dat$/i, '')}-${Date.now()}.csv`
+		a.click()
+		URL.revokeObjectURL(url)
 	}
 
 	function handleAutoFind() {
@@ -420,6 +455,13 @@ export function App() {
 								>
 									Save Snapshot
 								</Button>
+								<Button
+									icon='download'
+									onClick={handleExportCSV}
+									disabled={!guinierResult}
+								>
+									Export CSV
+								</Button>
 							</ButtonGroup>
 						</Card>
 					</div>
@@ -432,7 +474,7 @@ export function App() {
 
 					{/* Empty state */}
 					{frames.length === 0 && (
-						<div style={{ marginTop: 60 }}>
+						<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 							<NonIdealState
 								icon='document'
 								title='No data loaded'
@@ -482,7 +524,7 @@ export function App() {
 										className='guinier-controls'
 										style={{ flex: 1 }}
 									>
-										<p className='chart-card-title'>Guinier fit range</p>
+										<p className='chart-card-title'>Guinier Fit Range</p>
 										<RangeControls
 											data={activeCurve}
 											iMin={iMin}
@@ -492,31 +534,61 @@ export function App() {
 												setIMax(b)
 											}}
 										/>
+										<div className='guinier-range-readout'>
+											<div className='guinier-range-q'>
+												<span className='guinier-range-label'>q min</span>
+												<span className='guinier-range-val'>
+													{activeCurve.q[lo]?.toFixed(4)}
+													<span className='guinier-range-unit'> Å⁻¹</span>
+												</span>
+											</div>
+											<div className='guinier-range-arrow'>→</div>
+											<div className='guinier-range-q'>
+												<span className='guinier-range-label'>q max</span>
+												<span className='guinier-range-val'>
+													{activeCurve.q[hi]?.toFixed(4)}
+													<span className='guinier-range-unit'> Å⁻¹</span>
+												</span>
+											</div>
+											<div className='guinier-range-pts'>{hi - lo + 1} pts</div>
+										</div>
 										<Button
 											icon='locate'
-											variant={ButtonVariant.MINIMAL}
+											fill
 											onClick={handleAutoFind}
-											style={{ marginTop: 8 }}
+											style={{ marginTop: 16 }}
 										>
 											Auto-find Guinier region
 										</Button>
+										<Divider style={{ margin: '20px 0 16px' }} />
+										<div className='guinier-guidance'>
+											<p className='guinier-guidance-title'>How to use</p>
+											<p className='guinier-guidance-text'>
+												Drag the handles to select the low-q linear region of the
+												ln I(q) vs q² plot. The fit is valid while q·R<sub>g</sub> ≤ 1.3 —
+												valid points are highlighted green in the Guinier plot.
+											</p>
+										</div>
 									</Card>
 									{guinierResult && (
 										<StatsRow
 											result={guinierResult}
 											pointsUsed={deferredHi - deferredLo + 1}
+											porodResult={porodResult ?? undefined}
 										/>
 									)}
 								</div>
 
 								{/* Right column */}
 								<div
-									style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+									style={{ display: 'flex', flexDirection: 'column', gap: 16, minHeight: 0 }}
 								>
 									{guinierResult ? (
 										<>
 											<GuinierChart data={activeCurve} result={guinierResult} />
-											<ResidualsChart result={guinierResult} />
+											<div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 200 }}>
+												<ResidualsChart result={guinierResult} />
+											</div>
 										</>
 									) : (
 										<Card elevation={Elevation.ONE} style={{ flex: 1 }}>
