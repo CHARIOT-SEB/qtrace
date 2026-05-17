@@ -18,9 +18,9 @@ export const CHART = {
   dataRedInvalid: 'rgba(240,100,100,0.6)',// Guinier invalid zone (qRg > 1.5)
   dataViolet:     '#C5A4FF',              // residuals
 
-  // SEC chromatogram: palette tones from dark to light
-  barSignal: 'rgba(47,  69,  80,  0.85)', // signal — charcoal blue
-  barBuffer: 'rgba(88,  111, 124, 0.65)', // buffer — blue slate
+  // SEC chromatogram: distinct hues so buffer/signal pop against inactive frames
+  barSignal: '#2f4550',                   // signal — charcoal blue (primary)
+  barBuffer: '#6FA8B1',                   // buffer — medium teal accent
   barOther:  'rgba(184, 219, 217, 0.70)', // inactive — light blue
 
   // Tooltip chrome
