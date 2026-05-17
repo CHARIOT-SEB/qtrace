@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { Button, Dialog, Icon, Intent, Spinner } from '@blueprintjs/core'
+import { Button, Callout, Dialog, Icon, Intent, Spinner } from '@blueprintjs/core'
 
 export const PROCESSING_STAGES = [
 	'Uploading files',
@@ -17,6 +17,7 @@ export interface ModalState {
 	frameCount?: number
 	parsedCount?: number
 	errorMessage?: string
+	isSample?: boolean
 }
 
 export const INITIAL_MODAL_STATE: ModalState = {
@@ -38,7 +39,7 @@ export const ProcessingModal = memo(function ProcessingModal({
 	onRetry,
 	onDismiss,
 }: Props) {
-	const { isOpen, status, stageIndex, frameCount, parsedCount, errorMessage } =
+	const { isOpen, status, stageIndex, frameCount, parsedCount, errorMessage, isSample } =
 		state
 
 	return (
@@ -105,6 +106,14 @@ export const ProcessingModal = memo(function ProcessingModal({
 							)
 						})}
 					</ul>
+				)}
+
+				{status === 'success' && isSample && (
+					<Callout intent={Intent.PRIMARY} icon='info-sign' style={{ marginBottom: 16, textAlign: 'left' }}>
+						<strong>This is synthetic demo data.</strong> The 30 frames were generated
+						mathematically to simulate a SEC-SAXS run — no real experimental data has
+						been loaded. Drop your own <code>.dat</code> files above to analyse real data.
+					</Callout>
 				)}
 
 				<div className='processing-modal-actions'>
