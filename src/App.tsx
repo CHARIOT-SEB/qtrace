@@ -29,6 +29,7 @@ import { computeGuinier } from './lib/guinier'
 import { computePorod } from './lib/porod'
 import { collectInsights } from './lib/analysisHeuristics'
 import { autoDetectRegions, averageFrames, subtractBuffer } from './lib/secSaxs'
+import { buildExportCsv, downloadCsv } from './lib/csvExport'
 import { generateSampleSecFrames } from './lib/sampleData'
 import type { SaxsData } from './types/saxs'
 import {
@@ -213,31 +214,19 @@ export function App() {
 	}
 
 	function handleExportCSV() {
-		if (!guinierResult) return
-		const filename = activeCurve?.filename ?? 'unknown'
-		const { Rg, dRg, I0, dI0, qRgMax, fit, iMin, iMax, xs } = guinierResult
-		const header =
-			'filename,Rg_A,dRg_A,I0,dI0,qRg_max,R2,n_points,fit_iMin,fit_iMax,timestamp'
-		const row = [
-			`"${filename}"`,
-			Rg.toFixed(4),
-			Number.isFinite(dRg) ? dRg.toFixed(4) : '',
-			I0.toFixed(4),
-			Number.isFinite(dI0) ? dI0.toFixed(4) : '',
-			qRgMax.toFixed(4),
-			fit.r2.toFixed(6),
-			xs.length,
-			iMin,
-			iMax,
-			new Date().toISOString(),
-		].join(',')
-		const blob = new Blob([header + '\n' + row], { type: 'text/csv' })
-		const url = URL.createObjectURL(blob)
-		const a = document.createElement('a')
-		a.href = url
-		a.download = `qtrace-${filename.replace(/\.dat$/i, '')}-${Date.now()}.csv`
-		a.click()
-		URL.revokeObjectURL(url)
+		if (frames.length === 0) return
+		const built = buildExportCsv({
+			frames,
+			isSec,
+			bufferRange,
+			signalRange,
+			bufferCurve,
+			signalCurve,
+			activeCurve,
+			guinierResult,
+			porodResult,
+		})
+		downloadCsv(built)
 	}
 
 	function handleClear() {
@@ -296,7 +285,7 @@ export function App() {
 								<Button
 									icon='download'
 									onClick={handleExportCSV}
-									disabled={!guinierResult}
+									disabled={frames.length === 0}
 								>
 									Export CSV
 								</Button>
