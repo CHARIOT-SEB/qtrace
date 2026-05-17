@@ -69,8 +69,9 @@ export const GuinierChart = memo(function GuinierChart({ data, result }: Props) 
             dataKey="y"
             type="number"
             domain={[yMin - 0.5, yMax + 0.5]}
+            tickFormatter={(v: number) => v.toFixed(1)}
             tick={AXIS_STYLE.tick}
-            width={48}
+            width={64}
             label={{ value: 'ln I(q)', angle: -90, position: 'insideLeft', offset: 12, ...AXIS_STYLE.label }}
           />
           <Tooltip content={TIP as React.FC} cursor={{ strokeDasharray: '3 3', stroke: CHART.gridColor }} />

@@ -43,11 +43,12 @@ export const ResidualsChart = memo(function ResidualsChart({ result }: Props) {
   const absMax = Math.max(...resid.map(p => Math.abs(p.y))) * 1.3;
 
   return (
-    <Card elevation={Elevation.ONE} className="chart-card">
+    <Card elevation={Elevation.ONE} className="chart-card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
       <div className="chart-card-title">
         <span>Fit residuals</span>
       </div>
-      <ResponsiveContainer width="100%" height={320}>
+      <div style={{ flex: 1, minHeight: 0 }}>
+      <ResponsiveContainer width="100%" height="100%">
         <ScatterChart margin={{ top: 8, right: 20, bottom: 32, left: 20 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={CHART.gridColor} />
           <XAxis
@@ -62,8 +63,9 @@ export const ResidualsChart = memo(function ResidualsChart({ result }: Props) {
             dataKey="y"
             type="number"
             domain={[-absMax, absMax]}
+            tickFormatter={(v: number) => v.toExponential(1)}
             tick={AXIS_STYLE.tick}
-            width={48}
+            width={72}
             label={{ value: 'residual', angle: -90, position: 'insideLeft', offset: 12, ...AXIS_STYLE.label }}
           />
           <Tooltip content={TIP as React.FC} cursor={{ strokeDasharray: '3 3', stroke: CHART.gridColor }} />
@@ -71,6 +73,7 @@ export const ResidualsChart = memo(function ResidualsChart({ result }: Props) {
           <Scatter data={resid} isAnimationActive={false} shape={Dot as any} />
         </ScatterChart>
       </ResponsiveContainer>
+      </div>
     </Card>
   );
 })
