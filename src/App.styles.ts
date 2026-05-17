@@ -80,18 +80,177 @@ export const ToolbarCard = styled(Card)`
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   justify-content: center;
-  padding: 20px 150px 20px 150px;
+  padding: 18px 20px;
+  background: #fff;
+  border: 1px solid rgba(47, 69, 80, 0.08);
 
-  ${media.lg} {
-    padding: 20px 60px;
-  }
   ${media.md} {
     padding: 14px 16px;
+    gap: 10px;
   }
+`
+
+export const ToolbarHeader = styled.div`
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: ${palette.c2};
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      rgba(88, 111, 124, 0.18),
+      transparent 75%
+    );
+  }
+`
+
+export const PrimaryAction = styled.button`
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  color: #fff;
+  background: ${palette.c1};
+  padding: 9px 14px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 1px 2px rgba(47, 69, 80, 0.14);
+  transition:
+    background 120ms ease,
+    box-shadow 120ms ease,
+    transform 80ms ease;
+
+  & .bp6-icon {
+    color: ${palette.c4};
+    flex-shrink: 0;
+  }
+
+  & > .pa-label {
+    flex: 1;
+  }
+
+  & > .pa-chevron {
+    opacity: 0.55;
+    transition: transform 160ms ease, opacity 160ms ease;
+  }
+
+  &:hover:not(:disabled) {
+    background: #3a5562;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.10),
+      0 2px 8px rgba(47, 69, 80, 0.18);
+  }
+  &:hover:not(:disabled) > .pa-chevron {
+    transform: translateX(2px);
+    opacity: 0.85;
+  }
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 1px 1px rgba(47, 69, 80, 0.10);
+  }
+  &:focus-visible {
+    outline: 2px solid ${palette.c3};
+    outline-offset: 2px;
+  }
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+`
+
+export const SecondaryRow = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+`
+
+type ToolbarIntent = 'export' | 'snapshot' | 'destructive'
+
+const TOOLBAR_INTENT_ACCENT: Record<ToolbarIntent, string> = {
+  export: '#1f8a52',
+  snapshot: '#7c5cd6',
+  destructive: '#c0392b',
+}
+
+export const SecondaryAction = styled.button<{ $intent: ToolbarIntent }>`
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  color: ${palette.c2};
+  background: rgba(244, 244, 249, 0.55);
+  border: 1px solid rgba(47, 69, 80, 0.10);
+  padding: 7px 10px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  transition:
+    color 120ms ease,
+    background 120ms ease,
+    border-color 120ms ease;
+
+  & .bp6-icon {
+    color: ${palette.c3};
+    transition: color 120ms ease;
+    flex-shrink: 0;
+  }
+  & > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover:not(:disabled) {
+    color: ${({ $intent }) => TOOLBAR_INTENT_ACCENT[$intent]};
+    border-color: ${({ $intent }) => TOOLBAR_INTENT_ACCENT[$intent]}40;
+    background: ${({ $intent }) => TOOLBAR_INTENT_ACCENT[$intent]}10;
+  }
+  &:hover:not(:disabled) .bp6-icon {
+    color: ${({ $intent }) => TOOLBAR_INTENT_ACCENT[$intent]};
+  }
+  &:active:not(:disabled) {
+    background: ${({ $intent }) => TOOLBAR_INTENT_ACCENT[$intent]}1c;
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ $intent }) => TOOLBAR_INTENT_ACCENT[$intent]};
+    outline-offset: 1px;
+  }
+  &:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+  }
+
   ${media.sm} {
-    padding: 12px 12px;
+    padding: 8px 6px;
+    & > span {
+      display: none;
+    }
   }
 `
 

@@ -1,10 +1,5 @@
 import { useCallback, useDeferredValue, useMemo, useState } from 'react'
-import {
-	Button,
-	ButtonGroup,
-	Elevation,
-	NonIdealState,
-} from '@blueprintjs/core'
+import { Alert, Elevation, Icon, Intent, NonIdealState } from '@blueprintjs/core'
 import { FileDropZone } from './components/FileDropZone'
 import {
 	ProcessingModal,
@@ -39,6 +34,10 @@ import {
 	TopRow,
 	DropZoneWrap,
 	ToolbarCard,
+	ToolbarHeader,
+	PrimaryAction,
+	SecondaryRow,
+	SecondaryAction,
 	AnalysisGrid,
 	LeftColumn,
 	RightColumn,
@@ -57,6 +56,7 @@ export function App() {
 	const [error, setError] = useState<string | null>(null)
 	const [hoveredQ, setHoveredQ] = useState<number | null>(null)
 	const [modal, setModal] = useState<ModalState>(INITIAL_MODAL_STATE)
+	const [isConfirmingClear, setIsConfirmingClear] = useState(false)
 
 	const handleHoverQ = useCallback((q: number | null) => setHoveredQ(q), [])
 
@@ -261,35 +261,54 @@ export function App() {
 							/>
 						</DropZoneWrap>
 						<ToolbarCard elevation={Elevation.ONE}>
-							<ButtonGroup vertical fill>
-								<Button
-									icon='lab-test'
-									onClick={() => loadFrames(generateSampleSecFrames(), true)}
-								>
-									Load sample SEC run
-								</Button>
-								<Button
-									icon='trash'
-									onClick={handleClear}
-									disabled={frames.length === 0}
-								>
-									Clear
-								</Button>
-								<Button
-									icon='bookmark'
-									onClick={() => hist.setIsSavingSnapshot(true)}
-									disabled={frames.length === 0 || hist.isSavingSnapshot}
-								>
-									Save Snapshot
-								</Button>
-								<Button
-									icon='download'
+							<ToolbarHeader>Actions</ToolbarHeader>
+							<PrimaryAction
+								type='button'
+								onClick={() => loadFrames(generateSampleSecFrames(), true)}
+							>
+								<Icon icon='lab-test' size={14} />
+								<span className='pa-label'>Load sample SEC run</span>
+								<Icon
+									icon='arrow-right'
+									size={12}
+									className='pa-chevron'
+								/>
+							</PrimaryAction>
+							<SecondaryRow>
+								<SecondaryAction
+									type='button'
+									$intent='export'
 									onClick={handleExportCSV}
 									disabled={frames.length === 0}
+									aria-label='Export current analysis as CSV'
+									title='Export current analysis as CSV'
 								>
-									Export CSV
-								</Button>
-							</ButtonGroup>
+									<Icon icon='download' size={13} />
+									<span>Export</span>
+								</SecondaryAction>
+								<SecondaryAction
+									type='button'
+									$intent='snapshot'
+									onClick={() => hist.setIsSavingSnapshot(true)}
+									disabled={frames.length === 0 || hist.isSavingSnapshot}
+									aria-label='Save snapshot of current session'
+									title='Save snapshot of current session'
+								>
+									<Icon icon='bookmark' size={13} />
+									<span>Snapshot</span>
+								</SecondaryAction>
+								<SecondaryAction
+									type='button'
+									$intent='destructive'
+									onClick={() => setIsConfirmingClear(true)}
+									disabled={frames.length === 0}
+									aria-label='Clear loaded data'
+									title='Clear loaded data'
+								>
+									<Icon icon='trash' size={13} />
+									<span>Clear</span>
+								</SecondaryAction>
+							</SecondaryRow>
 						</ToolbarCard>
 					</TopRow>
 
@@ -423,6 +442,28 @@ export function App() {
 				onSave={hist.handleSaveSnapshot}
 				onCancel={hist.cancelSnapshot}
 			/>
+
+			<Alert
+				isOpen={isConfirmingClear}
+				icon='trash'
+				intent={Intent.DANGER}
+				confirmButtonText='Clear data'
+				cancelButtonText='Cancel'
+				onCancel={() => setIsConfirmingClear(false)}
+				onConfirm={() => {
+					setIsConfirmingClear(false)
+					handleClear()
+				}}
+			>
+				<p>
+					<strong>Clear the current session?</strong>
+				</p>
+				<p>
+					This will remove all loaded frames, the selected buffer and signal
+					regions, the Guinier fit range, and the snapshot history for this
+					session. This action cannot be undone.
+				</p>
+			</Alert>
 		</AppRoot>
 	)
 }
