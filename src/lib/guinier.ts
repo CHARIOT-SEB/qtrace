@@ -8,15 +8,9 @@ export function linearFit(xs: number[], ys: number[]): LinearFit | null {
   const n = xs.length;
   if (n < 3) return null;
 
-  let sx = 0;
-  let sy = 0;
-  let sxx = 0;
-  let sxy = 0;
+  let sx = 0, sy = 0, sxx = 0, sxy = 0;
   for (let i = 0; i < n; i++) {
-    sx += xs[i];
-    sy += ys[i];
-    sxx += xs[i] * xs[i];
-    sxy += xs[i] * ys[i];
+    sx += xs[i]; sy += ys[i]; sxx += xs[i] * xs[i]; sxy += xs[i] * ys[i];
   }
   const denom = n * sxx - sx * sx;
   if (denom === 0) return null;
@@ -24,17 +18,58 @@ export function linearFit(xs: number[], ys: number[]): LinearFit | null {
   const slope = (n * sxy - sx * sy) / denom;
   const intercept = (sy - slope * sx) / n;
 
-  let ssRes = 0;
-  let ssTot = 0;
+  let ssRes = 0, ssTot = 0;
   const ym = sy / n;
   for (let i = 0; i < n; i++) {
-    const yhat = slope * xs[i] + intercept;
-    ssRes += (ys[i] - yhat) ** 2;
+    ssRes += (ys[i] - (slope * xs[i] + intercept)) ** 2;
     ssTot += (ys[i] - ym) ** 2;
   }
-  const r2 = ssTot > 0 ? 1 - ssRes / ssTot : 0;
+  return { slope, intercept, r2: ssTot > 0 ? 1 - ssRes / ssTot : 0 };
+}
 
-  return { slope, intercept, r2 };
+/**
+ * Weighted least-squares linear fit.
+ * Weights ws[i] = (I[i] / err[i])², the inverse-variance weights on ln I.
+ * Returns slope/intercept/r² plus the diagonal variances of the covariance
+ * matrix, which propagate to δRg and δI(0).
+ * Falls back to OLS (uniform weights) when all errors are zero or invalid.
+ */
+function weightedLinearFit(
+  xs: number[],
+  ys: number[],
+  ws: number[],
+): (LinearFit & { varSlope: number; varIntercept: number }) | null {
+  const n = xs.length;
+  if (n < 3) return null;
+
+  const allUniform = ws.every((w) => !Number.isFinite(w) || w === 0);
+  const effectiveWs = allUniform ? new Array(n).fill(1) : ws.map((w) => (Number.isFinite(w) && w > 0 ? w : 0));
+
+  let S = 0, Sx = 0, Sy = 0, Sxx = 0, Sxy = 0;
+  for (let i = 0; i < n; i++) {
+    S += effectiveWs[i]; Sx += effectiveWs[i] * xs[i]; Sy += effectiveWs[i] * ys[i];
+    Sxx += effectiveWs[i] * xs[i] * xs[i]; Sxy += effectiveWs[i] * xs[i] * ys[i];
+  }
+  const denom = S * Sxx - Sx * Sx;
+  if (denom === 0) return null;
+
+  const slope = (S * Sxy - Sx * Sy) / denom;
+  const intercept = (Sy - slope * Sx) / S;
+
+  let ssRes = 0, ssTot = 0;
+  const ym = Sy / S;
+  for (let i = 0; i < n; i++) {
+    ssRes += effectiveWs[i] * (ys[i] - (slope * xs[i] + intercept)) ** 2;
+    ssTot += effectiveWs[i] * (ys[i] - ym) ** 2;
+  }
+
+  return {
+    slope,
+    intercept,
+    r2: ssTot > 0 ? 1 - ssRes / ssTot : 0,
+    varSlope: S / denom,
+    varIntercept: Sxx / denom,
+  };
 }
 
 /**
@@ -54,20 +89,27 @@ export function computeGuinier(
 ): GuinierResult | null {
   const xs: number[] = [];
   const ys: number[] = [];
+  const ws: number[] = [];
   for (let i = iMin; i <= iMax; i++) {
     if (data.I[i] > 0) {
       xs.push(data.q[i] * data.q[i]);
       ys.push(Math.log(data.I[i]));
+      // weight = (I / σ_I)² — inverse-variance on ln I (σ_{ln I} = σ_I / I)
+      const w = data.err[i] > 0 ? (data.I[i] / data.err[i]) ** 2 : 0;
+      ws.push(w);
     }
   }
-  const fit = linearFit(xs, ys);
-  if (!fit) return null;
+  const wfit = weightedLinearFit(xs, ys, ws);
+  if (!wfit) return null;
 
+  const { varSlope, varIntercept, ...fit } = wfit;
   const Rg = fit.slope < 0 ? Math.sqrt(-3 * fit.slope) : NaN;
   const I0 = Math.exp(fit.intercept);
+  const dRg = Number.isFinite(Rg) && Rg > 0 ? (3 / (2 * Rg)) * Math.sqrt(varSlope) : NaN;
+  const dI0 = I0 * Math.sqrt(varIntercept);
   const qRgMax = data.q[iMax] * Rg;
 
-  return { xs, ys, fit, Rg, I0, qRgMax, iMin, iMax };
+  return { xs, ys, fit, Rg, dRg, I0, dI0, qRgMax, iMin, iMax };
 }
 
 /**

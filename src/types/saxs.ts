@@ -20,6 +20,13 @@ export interface LinearFit {
   r2: number;
 }
 
+export interface PorodResult {
+  /** Porod invariant Q = ∫ q²·I(q) dq */
+  porodInvariant: number;
+  /** Estimated hydrated particle volume Vp = 2π²·I(0) / Q, in ų */
+  porodVolume: number;
+}
+
 export interface GuinierResult {
   /** x-values used for fit (q²) */
   xs: number[];
@@ -28,8 +35,12 @@ export interface GuinierResult {
   fit: LinearFit;
   /** Radius of gyration in Å */
   Rg: number;
+  /** 1-σ uncertainty on Rg from WLS covariance (NaN if unavailable) */
+  dRg: number;
   /** Forward scattering intensity */
   I0: number;
+  /** 1-σ uncertainty on I(0) from WLS covariance (NaN if unavailable) */
+  dI0: number;
   /** q · Rg at the upper end of the fit window (validity metric) */
   qRgMax: number;
   /** Inclusive index range in the parent dataset */

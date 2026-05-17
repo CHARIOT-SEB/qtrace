@@ -1,17 +1,18 @@
 import { memo } from 'react';
 import { Card, Elevation, Intent, Tag } from '@blueprintjs/core';
-import type { GuinierResult } from '../types/saxs';
+import type { GuinierResult, PorodResult } from '../types/saxs';
 
 interface Props {
   result: GuinierResult;
   pointsUsed: number;
+  porodResult?: PorodResult;
 }
 
 function fmt(n: number, d = 2) {
   return Number.isFinite(n) ? n.toFixed(d) : '—';
 }
 
-export const StatsRow = memo(function StatsRow({ result, pointsUsed }: Props) {
+export const StatsRow = memo(function StatsRow({ result, pointsUsed, porodResult }: Props) {
   const qrgIntent = !Number.isFinite(result.qRgMax)
     ? Intent.DANGER
     : result.qRgMax <= 1.3
@@ -28,11 +29,17 @@ export const StatsRow = memo(function StatsRow({ result, pointsUsed }: Props) {
           {fmt(result.Rg, 2)}
           <span className="stat-unit">Å</span>
         </div>
+        {Number.isFinite(result.dRg) && (
+          <div className="stat-uncertainty">± {fmt(result.dRg, 2)} Å</div>
+        )}
       </Card>
 
       <Card elevation={Elevation.ONE} className="stat-card">
         <div className="stat-label">I(0)</div>
         <div className="stat-value">{fmt(result.I0, 2)}</div>
+        {Number.isFinite(result.dI0) && (
+          <div className="stat-uncertainty">± {fmt(result.dI0, 2)}</div>
+        )}
       </Card>
 
       <Card elevation={Elevation.ONE} className="stat-card">
@@ -53,6 +60,14 @@ export const StatsRow = memo(function StatsRow({ result, pointsUsed }: Props) {
       <Card elevation={Elevation.ONE} className="stat-card">
         <div className="stat-label">Points used</div>
         <div className="stat-value">{pointsUsed}</div>
+      </Card>
+
+      <Card elevation={Elevation.ONE} className="stat-card">
+        <div className="stat-label">Vp</div>
+        <div className="stat-value">
+          {porodResult ? fmt(porodResult.porodVolume, 0) : '—'}
+          <span className="stat-unit">Å³</span>
+        </div>
       </Card>
     </div>
   );
