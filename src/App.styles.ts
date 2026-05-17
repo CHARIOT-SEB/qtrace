@@ -247,9 +247,13 @@ export const SecondaryAction = styled.button<{ $intent: ToolbarIntent }>`
   }
 
   ${media.sm} {
-    padding: 8px 6px;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 6px;
+    min-height: 54px;
     & > span {
-      display: none;
+      font-size: 11px;
+      line-height: 1.1;
     }
   }
 `
