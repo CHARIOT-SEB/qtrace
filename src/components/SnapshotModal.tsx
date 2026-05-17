@@ -1,4 +1,5 @@
-import { Button, Dialog, InputGroup, Intent } from '@blueprintjs/core'
+import { Button, InputGroup, Intent } from '@blueprintjs/core'
+import { SnapDialog, SnapBody, SnapHint, SnapActions } from './SnapshotModal.styles'
 
 interface Props {
 	isOpen: boolean
@@ -16,17 +17,16 @@ export function SnapshotModal({
 	onCancel,
 }: Props) {
 	return (
-		<Dialog
+		<SnapDialog
 			isOpen={isOpen}
 			onClose={onCancel}
 			title='Save snapshot'
 			icon='bookmark'
-			className='snapshot-modal'
 		>
-			<div className='snapshot-modal-body'>
-				<p className='snapshot-modal-hint'>
+			<SnapBody>
+				<SnapHint>
 					Give this analysis state a name so you can return to it later.
-				</p>
+				</SnapHint>
 				<InputGroup
 					autoFocus
 					large
@@ -38,7 +38,7 @@ export function SnapshotModal({
 						if (e.key === 'Escape') onCancel()
 					}}
 				/>
-				<div className='snapshot-modal-actions'>
+				<SnapActions>
 					<Button
 						intent={Intent.PRIMARY}
 						icon='bookmark'
@@ -48,8 +48,8 @@ export function SnapshotModal({
 						Save snapshot
 					</Button>
 					<Button onClick={onCancel}>Cancel</Button>
-				</div>
-			</div>
-		</Dialog>
+				</SnapActions>
+			</SnapBody>
+		</SnapDialog>
 	)
 }

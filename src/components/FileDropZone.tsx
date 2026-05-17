@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
-import { Card, Elevation, Icon } from '@blueprintjs/core'
+import { Elevation } from '@blueprintjs/core'
 import { parseDat } from '../lib/parseDat'
 import type { SaxsData } from '../types/saxs'
+import { DropCard, DropIcon, DropPrimary, DropSecondary, HiddenInput } from './FileDropZone.styles'
 
 interface Props {
 	onLoad: (data: SaxsData[]) => void
@@ -59,9 +60,9 @@ export function FileDropZone({
 	}
 
 	return (
-		<Card
+		<DropCard
 			elevation={Elevation.ONE}
-			className={`drop-zone-card ${drag ? 'drag-active' : ''}`}
+			$isDragging={drag}
 			onClick={() => inputRef.current?.click()}
 			onDragOver={(e) => {
 				e.preventDefault()
@@ -73,25 +74,23 @@ export function FileDropZone({
 				setDrag(false)
 				readFiles(e.dataTransfer.files)
 			}}
-			style={{ textAlign: 'center' }}
 		>
-			<Icon icon='upload' size={20} className='drop-icon' />
-			<p style={{ margin: '4px 0 2px', fontWeight: 500 }}>
+			<DropIcon icon='upload' size={20} />
+			<DropPrimary>
 				Drop <code>.dat</code> frame files here, or click to browse
-			</p>
-			<p style={{ margin: 0, fontSize: 12, color: '#5C7080' }}>
+			</DropPrimary>
+			<DropSecondary>
 				Multiple files accepted — sorted by filename for SEC-SAXS frame order
-			</p>
-			<input
+			</DropSecondary>
+			<HiddenInput
 				ref={inputRef}
 				type='file'
 				accept='.dat,.txt,.csv'
 				multiple
-				style={{ display: 'none' }}
 				onChange={(e) => {
 					if (e.target.files) readFiles(e.target.files)
 				}}
 			/>
-		</Card>
+		</DropCard>
 	)
 }

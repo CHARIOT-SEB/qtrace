@@ -9,9 +9,11 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { Card, Elevation } from '@blueprintjs/core';
+import { Elevation } from '@blueprintjs/core';
 import { AXIS_STYLE, CHART } from '../chartTheme';
 import type { GuinierResult } from '../types/saxs';
+import { ChartCardTitle } from '../styles/shared.styles';
+import { ResidualsCard, ChartInner, TooltipBox, TooltipRow } from './ResidualsChart.styles';
 
 interface Props { result: GuinierResult; }
 
@@ -25,10 +27,10 @@ const TIP = ({ active, payload }: { active?: boolean; payload?: { payload: { x: 
   if (!active || !payload?.length) return null;
   const { x, y } = payload[0].payload;
   return (
-    <div style={{ background: CHART.tooltipBg, border: `1px solid ${CHART.tooltipBorder}`, padding: '6px 10px', fontSize: 12, borderRadius: 4 }}>
-      <div style={{ color: CHART.tickColor }}>q² = {x.toExponential(3)}</div>
-      <div style={{ color: CHART.dataViolet }}>residual = {y.toFixed(4)}</div>
-    </div>
+    <TooltipBox>
+      <TooltipRow $color={CHART.tickColor}>q² = {x.toExponential(3)}</TooltipRow>
+      <TooltipRow $color={CHART.dataViolet}>residual = {y.toFixed(4)}</TooltipRow>
+    </TooltipBox>
   );
 };
 
@@ -43,37 +45,37 @@ export const ResidualsChart = memo(function ResidualsChart({ result }: Props) {
   const absMax = Math.max(...resid.map(p => Math.abs(p.y))) * 1.3;
 
   return (
-    <Card elevation={Elevation.ONE} className="chart-card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-      <div className="chart-card-title">
+    <ResidualsCard elevation={Elevation.ONE}>
+      <ChartCardTitle>
         <span>Fit residuals</span>
-      </div>
-      <div style={{ flex: 1, minHeight: 0 }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <ScatterChart margin={{ top: 8, right: 20, bottom: 32, left: 20 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={CHART.gridColor} />
-          <XAxis
-            dataKey="x"
-            type="number"
-            domain={[xMin * 0.95, xMax * 1.05]}
-            tickFormatter={(v: number) => v.toExponential(1)}
-            tick={AXIS_STYLE.tick}
-            label={{ value: 'q²', position: 'insideBottom', offset: -18, ...AXIS_STYLE.label }}
-          />
-          <YAxis
-            dataKey="y"
-            type="number"
-            domain={[-absMax, absMax]}
-            tickFormatter={(v: number) => v.toExponential(1)}
-            tick={AXIS_STYLE.tick}
-            width={72}
-            label={{ value: 'residual', angle: -90, position: 'insideLeft', offset: 12, ...AXIS_STYLE.label }}
-          />
-          <Tooltip content={TIP as React.FC} cursor={{ strokeDasharray: '3 3', stroke: CHART.gridColor }} />
-          <ReferenceLine y={0} stroke="rgba(255,255,255,0.2)" strokeWidth={1} />
-          <Scatter data={resid} isAnimationActive={false} shape={Dot as any} />
-        </ScatterChart>
-      </ResponsiveContainer>
-      </div>
-    </Card>
+      </ChartCardTitle>
+      <ChartInner>
+        <ResponsiveContainer width="100%" height="100%">
+          <ScatterChart margin={{ top: 8, right: 20, bottom: 32, left: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART.gridColor} />
+            <XAxis
+              dataKey="x"
+              type="number"
+              domain={[xMin * 0.95, xMax * 1.05]}
+              tickFormatter={(v: number) => v.toExponential(1)}
+              tick={AXIS_STYLE.tick}
+              label={{ value: 'q²', position: 'insideBottom', offset: -18, ...AXIS_STYLE.label }}
+            />
+            <YAxis
+              dataKey="y"
+              type="number"
+              domain={[-absMax, absMax]}
+              tickFormatter={(v: number) => v.toExponential(1)}
+              tick={AXIS_STYLE.tick}
+              width={72}
+              label={{ value: 'residual', angle: -90, position: 'insideLeft', offset: 12, ...AXIS_STYLE.label }}
+            />
+            <Tooltip content={TIP as React.FC} cursor={{ strokeDasharray: '3 3', stroke: CHART.gridColor }} />
+            <ReferenceLine y={0} stroke="rgba(255,255,255,0.2)" strokeWidth={1} />
+            <Scatter data={resid} isAnimationActive={false} shape={Dot as any} />
+          </ScatterChart>
+        </ResponsiveContainer>
+      </ChartInner>
+    </ResidualsCard>
   );
 })

@@ -11,10 +11,20 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { Button, ButtonGroup, Card, Elevation, RangeSlider, Tag } from '@blueprintjs/core';
+import { Button, ButtonGroup, Elevation, RangeSlider, Tag } from '@blueprintjs/core';
 import { frameIntensity } from '../lib/secSaxs';
 import { AXIS_STYLE, CHART } from '../chartTheme';
 import type { SaxsData } from '../types/saxs';
+import { ChartCard, ChartCardTitle } from '../styles/shared.styles';
+import {
+  SecRanges,
+  SecRangeHeading,
+  Swatch,
+  SecSummary,
+  ChartTitleControls,
+  TooltipBox,
+  TooltipRow,
+} from './SecTrace.styles';
 
 interface Props {
   frames: SaxsData[];
@@ -35,10 +45,10 @@ const TIP = ({
 }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: CHART.tooltipBg, border: `1px solid ${CHART.tooltipBorder}`, padding: '6px 10px', fontSize: 12, borderRadius: 4 }}>
-      <div style={{ color: CHART.tickColor, marginBottom: 2 }}>{label}</div>
-      <div style={{ color: '#e5e8eb' }}>mean I: {payload[0].value.toExponential(3)}</div>
-    </div>
+    <TooltipBox>
+      <TooltipRow $color={CHART.tickColor}>{label}</TooltipRow>
+      <TooltipRow $color='#e5e8eb'>mean I: {payload[0].value.toExponential(3)}</TooltipRow>
+    </TooltipBox>
   );
 };
 
@@ -90,17 +100,17 @@ export function SecTrace({ frames, bufferRange, signalRange, onBufferChange, onS
   const labelStep = Math.max(1, Math.floor(last / 10));
 
   return (
-    <Card elevation={Elevation.ONE} className="chart-card">
-      <div className="chart-card-title">
+    <ChartCard elevation={Elevation.ONE}>
+      <ChartCardTitle>
         <span>SEC Chromatogram</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <ChartTitleControls>
           <ButtonGroup>
             <Button size="small" active={viewMode === 'bars'} onClick={() => setViewMode('bars')} icon="timeline-bar-chart">Bars</Button>
             <Button size="small" active={viewMode === 'dots'} onClick={() => setViewMode('dots')} icon="scatter-plot">Dots</Button>
           </ButtonGroup>
           <Tag minimal>{frames.length} frames</Tag>
-        </div>
-      </div>
+        </ChartTitleControls>
+      </ChartCardTitle>
 
       <ResponsiveContainer width="100%" height={320}>
         {viewMode === 'bars' ? (
@@ -139,12 +149,12 @@ export function SecTrace({ frames, bufferRange, signalRange, onBufferChange, onS
         )}
       </ResponsiveContainer>
 
-      <div className="sec-ranges">
+      <SecRanges>
         <div>
-          <div className="sec-range-heading">
-            <span className="swatch" style={{ background: CHART.barBuffer }} />
+          <SecRangeHeading>
+            <Swatch $color={CHART.barBuffer} />
             Buffer region
-          </div>
+          </SecRangeHeading>
           <RangeSlider
             min={0}
             max={last}
@@ -155,17 +165,17 @@ export function SecTrace({ frames, bufferRange, signalRange, onBufferChange, onS
             onChange={setLocalBuffer}
             onRelease={onBufferChange}
           />
-          <div className="sec-summary">
+          <SecSummary>
             <span>Frames {bStart + 1}–{bEnd + 1}</span>
             <span>({bEnd - bStart + 1} frames averaged)</span>
-          </div>
+          </SecSummary>
         </div>
 
         <div>
-          <div className="sec-range-heading">
-            <span className="swatch" style={{ background: CHART.barSignal }} />
+          <SecRangeHeading>
+            <Swatch $color={CHART.barSignal} />
             Signal (protein)
-          </div>
+          </SecRangeHeading>
           <RangeSlider
             min={0}
             max={last}
@@ -176,12 +186,12 @@ export function SecTrace({ frames, bufferRange, signalRange, onBufferChange, onS
             onChange={setLocalSignal}
             onRelease={onSignalChange}
           />
-          <div className="sec-summary">
+          <SecSummary>
             <span>Frames {sStart + 1}–{sEnd + 1}</span>
             <span>({sEnd - sStart + 1} frames averaged)</span>
-          </div>
+          </SecSummary>
         </div>
-      </div>
-    </Card>
+      </SecRanges>
+    </ChartCard>
   );
 }

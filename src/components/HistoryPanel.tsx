@@ -1,5 +1,18 @@
 import { Button, Icon } from '@blueprintjs/core'
 import type { HistoryEntry, SessionExport } from '../types/history'
+import {
+	Panel,
+	PanelHeader,
+	PanelTitle,
+	PanelHeaderActions,
+	PanelEntries,
+	EmptyNotice,
+	Entry,
+	EntryTop,
+	EntryIcon,
+	EntryLabel,
+	EntryTime,
+} from './HistoryPanel.styles'
 
 function formatTime(ts: number): string {
   return new Date(ts).toLocaleTimeString([], {
@@ -22,8 +35,8 @@ export function HistoryPanel({
   entries,
   activeId,
   onRestore,
-  onExport,
   onImport,
+  onExport,
   onClose,
 }: Props) {
   function handleImportClick() {
@@ -49,10 +62,10 @@ export function HistoryPanel({
   const reversed = [...entries].reverse()
 
   return (
-    <div className='history-panel'>
-      <div className='history-panel-header'>
-        <span className='history-panel-title'>Snapshots</span>
-        <div style={{ display: 'flex', gap: 2 }}>
+    <Panel>
+      <PanelHeader>
+        <PanelTitle>Snapshots</PanelTitle>
+        <PanelHeaderActions>
           <Button
             minimal
             small
@@ -69,37 +82,34 @@ export function HistoryPanel({
             title='Import snapshots from JSON'
           />
           <Button minimal small icon='cross' onClick={onClose} />
-        </div>
-      </div>
+        </PanelHeaderActions>
+      </PanelHeader>
 
-      <div className='history-panel-entries'>
+      <PanelEntries>
         {entries.length === 0 ? (
-          <p className='history-empty'>No snapshots saved yet.</p>
+          <EmptyNotice>No snapshots saved yet.</EmptyNotice>
         ) : (
           reversed.map((entry) => {
             const isActive = entry.id === activeId
             return (
-              <div
+              <Entry
                 key={entry.id}
-                className={[
-                  'history-entry',
-                  isActive ? 'history-entry--active' : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
+                $isActive={isActive}
                 onClick={() => onRestore(entry.id)}
                 title='Click to restore this snapshot'
               >
-                <div className='history-entry-top'>
-                  <Icon icon='bookmark' size={12} className='history-entry-icon' />
-                  <span className='history-entry-label'>{entry.name ?? entry.label}</span>
-                </div>
-                <div className='history-entry-time'>{formatTime(entry.timestamp)}</div>
-              </div>
+                <EntryTop>
+                  <EntryIcon>
+                    <Icon icon='bookmark' size={12} />
+                  </EntryIcon>
+                  <EntryLabel $isActive={isActive}>{entry.name ?? entry.label}</EntryLabel>
+                </EntryTop>
+                <EntryTime>{formatTime(entry.timestamp)}</EntryTime>
+              </Entry>
             )
           })
         )}
-      </div>
-    </div>
+      </PanelEntries>
+    </Panel>
   )
 }

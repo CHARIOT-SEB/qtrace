@@ -1,5 +1,22 @@
 import { memo } from 'react'
-import { Button, Callout, Dialog, Icon, Intent, Spinner } from '@blueprintjs/core'
+import { Button, Icon, Intent, Spinner } from '@blueprintjs/core'
+import {
+	ProcessingDialog,
+	ModalBody,
+	ModalIndicator,
+	SuccessIconWrap,
+	ModalTitle,
+	ModalErrorDesc,
+	StageList,
+	StageItem,
+	StageIcon,
+	StageDot,
+	StageLabel,
+	StageCount,
+	ModalActions,
+	ModalErrorActions,
+	SampleCallout,
+} from './ProcessingModal.styles'
 
 export const PROCESSING_STAGES = [
 	'Uploading files',
@@ -43,80 +60,77 @@ export const ProcessingModal = memo(function ProcessingModal({
 		state
 
 	return (
-		<Dialog
+		<ProcessingDialog
 			isOpen={isOpen}
 			isCloseButtonShown={false}
 			canEscapeKeyClose={false}
 			canOutsideClickClose={false}
-			className='processing-modal'
 		>
-			<div className='processing-modal-body'>
-				<div className='processing-modal-indicator'>
+			<ModalBody>
+				<ModalIndicator>
 					{status === 'processing' && (
 						<Spinner size={40} intent={Intent.PRIMARY} />
 					)}
 					{status === 'success' && (
-						<div className='processing-success-icon'>
+						<SuccessIconWrap>
 							<Icon icon='tick-circle' size={40} color='#238551' />
-						</div>
+						</SuccessIconWrap>
 					)}
 					{status === 'error' && (
 						<Icon icon='error' size={40} color='#cd4246' />
 					)}
-				</div>
+				</ModalIndicator>
 
-				<h4 className='processing-modal-title'>
+				<ModalTitle>
 					{status === 'processing' && 'Processing…'}
 					{status === 'success' && 'Your analysis is ready'}
 					{status === 'error' && 'Processing failed'}
-				</h4>
+				</ModalTitle>
 
 				{status === 'error' && errorMessage && (
-					<p className='processing-modal-error-desc'>{errorMessage}</p>
+					<ModalErrorDesc>{errorMessage}</ModalErrorDesc>
 				)}
 
 				{status !== 'error' && (
-					<ul className='processing-stage-list'>
+					<StageList>
 						{PROCESSING_STAGES.map((label, i) => {
 							const done = status === 'success' || i < stageIndex
 							const active = status === 'processing' && i === stageIndex
 							const pending = !done && !active
+							const stage = done ? 'done' : active ? 'active' : 'pending'
 							const showCount =
 								active &&
 								(i === 0 || i === 1) &&
 								frameCount != null &&
 								parsedCount != null
 							return (
-								<li
-									key={label}
-									className={`pstage ${done ? 'pstage--done' : active ? 'pstage--active' : 'pstage--pending'}`}
-								>
-									<span className='pstage-icon'>
+								<StageItem key={label} $stage={stage}>
+									<StageIcon $stage={stage}>
 										{done && <Icon icon='small-tick' size={14} />}
 										{active && <Spinner size={10} />}
-										{pending && <span className='pstage-dot' />}
-									</span>
-									<span className='pstage-label'>{label}</span>
+										{pending && <StageDot />}
+									</StageIcon>
+									<StageLabel>{label}</StageLabel>
 									{showCount && (
-										<span className='pstage-count'>
+										<StageCount>
 											{parsedCount}/{frameCount}
-										</span>
+										</StageCount>
 									)}
-								</li>
+								</StageItem>
 							)
 						})}
-					</ul>
+					</StageList>
 				)}
 
 				{status === 'success' && isSample && (
-					<Callout intent={Intent.PRIMARY} icon='info-sign' style={{ marginBottom: 16, textAlign: 'left' }}>
+					<SampleCallout intent={Intent.PRIMARY} icon='info-sign'>
 						<strong>This is synthetic demo data.</strong> The 30 frames were generated
 						mathematically to simulate a SEC-SAXS run — no real experimental data has
 						been loaded. Drop your own <code>.dat</code> files above to analyse real data.
-					</Callout>
+					</SampleCallout>
 				)}
 
-				<div className='processing-modal-actions'>
+				<ModalActions>
 					{status === 'success' && (
 						<Button
 							intent={Intent.PRIMARY}
@@ -128,15 +142,15 @@ export const ProcessingModal = memo(function ProcessingModal({
 						</Button>
 					)}
 					{status === 'error' && (
-						<div className='processing-modal-error-actions'>
+						<ModalErrorActions>
 							<Button intent={Intent.PRIMARY} onClick={onRetry}>
 								Retry
 							</Button>
 							<Button onClick={onDismiss}>Dismiss</Button>
-						</div>
+						</ModalErrorActions>
 					)}
-				</div>
-			</div>
-		</Dialog>
+				</ModalActions>
+			</ModalBody>
+		</ProcessingDialog>
 	)
 })

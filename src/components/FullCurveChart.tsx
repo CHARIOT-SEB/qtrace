@@ -9,9 +9,11 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts'
-import { Card, Elevation } from '@blueprintjs/core'
+import { Elevation } from '@blueprintjs/core'
 import { AXIS_STYLE, CHART } from '../chartTheme'
 import type { GuinierResult, SaxsData } from '../types/saxs'
+import { ChartCard, ChartCardTitle } from '../styles/shared.styles'
+import { TooltipBox, TooltipRow, InFitRow } from './FullCurveChart.styles'
 
 interface Props {
 	data: SaxsData
@@ -59,37 +61,19 @@ const TIP = ({
 	if (!active || !payload?.length) return null
 	const { x, y, q2, lnI, inFit, qRg, residual } = payload[0].payload
 	return (
-		<div
-			style={{
-				background: CHART.tooltipBg,
-				border: `1px solid ${CHART.tooltipBorder}`,
-				padding: '6px 10px',
-				fontSize: 12,
-				borderRadius: 4,
-				lineHeight: 1.6,
-			}}
-		>
-			<div style={{ color: CHART.tickColor }}>q = {x.toFixed(4)} Å⁻¹</div>
-			<div style={{ color: CHART.tickColor }}>q² = {q2.toExponential(3)} Å⁻²</div>
-			<div style={{ color: '#e5e8eb' }}>I = {y.toExponential(3)}</div>
-			<div style={{ color: '#e5e8eb' }}>ln I = {lnI.toFixed(3)}</div>
+		<TooltipBox>
+			<TooltipRow $color={CHART.tickColor}>q = {x.toFixed(4)} Å⁻¹</TooltipRow>
+			<TooltipRow $color={CHART.tickColor}>q² = {q2.toExponential(3)} Å⁻²</TooltipRow>
+			<TooltipRow $color='#e5e8eb'>I = {y.toExponential(3)}</TooltipRow>
+			<TooltipRow $color='#e5e8eb'>ln I = {lnI.toFixed(3)}</TooltipRow>
 			{inFit && qRg != null && (
-				<div style={{ color: CHART.tickColor }}>q·Rg = {qRg.toFixed(3)}</div>
+				<TooltipRow $color={CHART.tickColor}>q·Rg = {qRg.toFixed(3)}</TooltipRow>
 			)}
 			{inFit && residual != null && (
-				<div style={{ color: CHART.dataViolet }}>residual = {residual.toFixed(4)}</div>
+				<TooltipRow $color={CHART.dataViolet}>residual = {residual.toFixed(4)}</TooltipRow>
 			)}
-			<div
-				style={{
-					marginTop: 3,
-					color: inFit ? CHART.dataGreen : CHART.dataGray,
-					fontWeight: 600,
-					fontSize: 11,
-				}}
-			>
-				{inFit ? 'IN FIT' : 'excluded'}
-			</div>
-		</div>
+			<InFitRow $inFit={inFit}>{inFit ? 'IN FIT' : 'excluded'}</InFitRow>
+		</TooltipBox>
 	)
 }
 
@@ -129,10 +113,10 @@ export const FullCurveChart = memo(function FullCurveChart({ data, result, title
 	const ticks = logTicks(yMin, yMax)
 
 	return (
-		<Card elevation={Elevation.ONE} className='chart-card'>
-			<div className='chart-card-title'>
+		<ChartCard elevation={Elevation.ONE}>
+			<ChartCardTitle>
 				<span>{title ?? 'Scattering curve — log I(q) vs q'}</span>
-			</div>
+			</ChartCardTitle>
 			<ResponsiveContainer width='100%' height={460}>
 				<ScatterChart
 					margin={{ top: 8, right: 20, bottom: 32, left: 20 }}
@@ -210,6 +194,6 @@ export const FullCurveChart = memo(function FullCurveChart({ data, result, title
 					)}
 				</ScatterChart>
 			</ResponsiveContainer>
-		</Card>
+		</ChartCard>
 	)
 })

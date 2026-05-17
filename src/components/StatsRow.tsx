@@ -1,6 +1,16 @@
 import { memo } from 'react';
-import { Card, Elevation, Intent, Tag } from '@blueprintjs/core';
+import { Elevation, Intent } from '@blueprintjs/core';
 import type { GuinierResult, PorodResult } from '../types/saxs';
+import {
+  StatsGrid,
+  StatCard,
+  StatLabel,
+  StatValue,
+  StatUnit,
+  StatUncertainty,
+  QRgValueRow,
+  QRgTag,
+} from './StatsRow.styles';
 
 interface Props {
   result: GuinierResult;
@@ -22,53 +32,55 @@ export const StatsRow = memo(function StatsRow({ result, pointsUsed, porodResult
         : Intent.DANGER;
 
   return (
-    <div className="stats-grid">
-      <Card elevation={Elevation.ONE} className="stat-card">
-        <div className="stat-label">Rg</div>
-        <div className="stat-value">
+    <StatsGrid>
+      <StatCard elevation={Elevation.ONE}>
+        <StatLabel>Rg</StatLabel>
+        <StatValue>
           {fmt(result.Rg, 2)}
-          <span className="stat-unit">Å</span>
-        </div>
+          <StatUnit>Å</StatUnit>
+        </StatValue>
         {Number.isFinite(result.dRg) && (
-          <div className="stat-uncertainty">± {fmt(result.dRg, 2)} Å</div>
+          <StatUncertainty>± {fmt(result.dRg, 2)} Å</StatUncertainty>
         )}
-      </Card>
+      </StatCard>
 
-      <Card elevation={Elevation.ONE} className="stat-card">
-        <div className="stat-label">I(0)</div>
-        <div className="stat-value">{fmt(result.I0, 2)}</div>
+      <StatCard elevation={Elevation.ONE}>
+        <StatLabel>I(0)</StatLabel>
+        <StatValue>{fmt(result.I0, 2)}</StatValue>
         {Number.isFinite(result.dI0) && (
-          <div className="stat-uncertainty">± {fmt(result.dI0, 2)}</div>
+          <StatUncertainty>± {fmt(result.dI0, 2)}</StatUncertainty>
         )}
-      </Card>
+      </StatCard>
 
-      <Card elevation={Elevation.ONE} className="stat-card">
-        <div className="stat-label">q · Rg max</div>
-        <div className="stat-value" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-          {fmt(result.qRgMax, 2)}
-          <Tag intent={qrgIntent} minimal style={{ fontSize: 9 }}>
-            {qrgIntent === Intent.SUCCESS ? 'OK' : qrgIntent === Intent.WARNING ? 'WARN' : 'BAD'}
-          </Tag>
-        </div>
-      </Card>
+      <StatCard elevation={Elevation.ONE}>
+        <StatLabel>q · Rg max</StatLabel>
+        <StatValue>
+          <QRgValueRow>
+            {fmt(result.qRgMax, 2)}
+            <QRgTag intent={qrgIntent} minimal>
+              {qrgIntent === Intent.SUCCESS ? 'OK' : qrgIntent === Intent.WARNING ? 'WARN' : 'BAD'}
+            </QRgTag>
+          </QRgValueRow>
+        </StatValue>
+      </StatCard>
 
-      <Card elevation={Elevation.ONE} className="stat-card">
-        <div className="stat-label">R²</div>
-        <div className="stat-value">{fmt(result.fit.r2, 4)}</div>
-      </Card>
+      <StatCard elevation={Elevation.ONE}>
+        <StatLabel>R²</StatLabel>
+        <StatValue>{fmt(result.fit.r2, 4)}</StatValue>
+      </StatCard>
 
-      <Card elevation={Elevation.ONE} className="stat-card">
-        <div className="stat-label">Points used</div>
-        <div className="stat-value">{pointsUsed}</div>
-      </Card>
+      <StatCard elevation={Elevation.ONE}>
+        <StatLabel>Points used</StatLabel>
+        <StatValue>{pointsUsed}</StatValue>
+      </StatCard>
 
-      <Card elevation={Elevation.ONE} className="stat-card">
-        <div className="stat-label">Vp</div>
-        <div className="stat-value">
+      <StatCard elevation={Elevation.ONE}>
+        <StatLabel>Vp</StatLabel>
+        <StatValue>
           {porodResult ? fmt(porodResult.porodVolume, 0) : '—'}
-          <span className="stat-unit">Å³</span>
-        </div>
-      </Card>
-    </div>
+          <StatUnit>Å³</StatUnit>
+        </StatValue>
+      </StatCard>
+    </StatsGrid>
   );
 })

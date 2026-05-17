@@ -9,9 +9,11 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { Card, Elevation, Tag } from '@blueprintjs/core';
+import { Elevation, Tag } from '@blueprintjs/core';
 import { AXIS_STYLE, CHART } from '../chartTheme';
 import type { GuinierResult, SaxsData } from '../types/saxs';
+import { ChartCard, ChartCardTitle } from '../styles/shared.styles';
+import { TooltipBox, TooltipRow } from './GuinierChart.styles';
 
 interface Props {
   data: SaxsData;
@@ -28,10 +30,10 @@ const TIP = ({ active, payload }: { active?: boolean; payload?: { payload: { x: 
   if (!active || !payload?.length) return null;
   const { x, y } = payload[0].payload;
   return (
-    <div style={{ background: CHART.tooltipBg, border: `1px solid ${CHART.tooltipBorder}`, padding: '6px 10px', fontSize: 12, borderRadius: 4 }}>
-      <div style={{ color: CHART.tickColor }}>q² = {x.toExponential(3)} Å⁻²</div>
-      <div style={{ color: '#e5e8eb' }}>ln I = {y.toFixed(3)}</div>
-    </div>
+    <TooltipBox>
+      <TooltipRow $color={CHART.tickColor}>q² = {x.toExponential(3)} Å⁻²</TooltipRow>
+      <TooltipRow $color='#e5e8eb'>ln I = {y.toFixed(3)}</TooltipRow>
+    </TooltipBox>
   );
 };
 
@@ -49,11 +51,11 @@ export const GuinierChart = memo(function GuinierChart({ data, result }: Props) 
   const yMax = Math.max(...all.map(p => p.y));
 
   return (
-    <Card elevation={Elevation.ONE} className="chart-card">
-      <div className="chart-card-title">
+    <ChartCard elevation={Elevation.ONE}>
+      <ChartCardTitle>
         <span>Guinier plot — ln I(q) vs q²</span>
         <Tag minimal>pts {result.iMin + 1}–{result.iMax + 1} / {data.q.length}</Tag>
-      </div>
+      </ChartCardTitle>
       <ResponsiveContainer width="100%" height={460}>
         <ComposedChart data={fitLine} margin={{ top: 8, right: 20, bottom: 32, left: 20 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={CHART.gridColor} />
@@ -91,6 +93,6 @@ export const GuinierChart = memo(function GuinierChart({ data, result }: Props) 
           />
         </ComposedChart>
       </ResponsiveContainer>
-    </Card>
+    </ChartCard>
   );
 })

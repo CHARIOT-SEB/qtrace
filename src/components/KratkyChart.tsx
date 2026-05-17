@@ -8,9 +8,11 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts'
-import { Card, Elevation } from '@blueprintjs/core'
+import { Elevation } from '@blueprintjs/core'
 import { AXIS_STYLE, CHART } from '../chartTheme'
 import type { SaxsData } from '../types/saxs'
+import { ChartCard, ChartCardTitle } from '../styles/shared.styles'
+import { TooltipBox, TooltipRow } from './KratkyChart.styles'
 
 interface Props {
 	data: SaxsData
@@ -34,18 +36,10 @@ const TIP = ({
 	if (!active || !payload?.length) return null
 	const { x, y } = payload[0].payload
 	return (
-		<div
-			style={{
-				background: CHART.tooltipBg,
-				border: `1px solid ${CHART.tooltipBorder}`,
-				padding: '6px 10px',
-				fontSize: 12,
-				borderRadius: 4,
-			}}
-		>
-			<div style={{ color: CHART.tickColor }}>q = {x.toFixed(4)} Å⁻¹</div>
-			<div style={{ color: '#e5e8eb' }}>q²·I = {y.toExponential(3)}</div>
-		</div>
+		<TooltipBox>
+			<TooltipRow $color={CHART.tickColor}>q = {x.toFixed(4)} Å⁻¹</TooltipRow>
+			<TooltipRow $color='#e5e8eb'>q²·I = {y.toExponential(3)}</TooltipRow>
+		</TooltipBox>
 	)
 }
 
@@ -60,10 +54,10 @@ export const KratkyChart = memo(function KratkyChart({ data }: Props) {
 	const yMax = Math.max(...pts.map((p) => p.y))
 
 	return (
-		<Card elevation={Elevation.ONE} className='chart-card'>
-			<div className='chart-card-title'>
+		<ChartCard elevation={Elevation.ONE}>
+			<ChartCardTitle>
 				<span>Kratky plot — q²·I(q) vs q</span>
-			</div>
+			</ChartCardTitle>
 			<ResponsiveContainer width='100%' height={460}>
 				<ScatterChart margin={{ top: 8, right: 20, bottom: 32, left: 20 }}>
 					<CartesianGrid strokeDasharray='3 3' stroke={CHART.gridColor} />
@@ -105,6 +99,6 @@ export const KratkyChart = memo(function KratkyChart({ data }: Props) {
 					/>
 				</ScatterChart>
 			</ResponsiveContainer>
-		</Card>
+		</ChartCard>
 	)
 })

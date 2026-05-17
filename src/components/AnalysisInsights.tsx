@@ -1,6 +1,17 @@
 import { memo, useState } from 'react'
-import { Button, Callout, Card, Elevation, Intent } from '@blueprintjs/core'
+import { Elevation, Intent } from '@blueprintjs/core'
 import type { AnalysisInsight, InsightSeverity } from '../lib/analysisHeuristics'
+import {
+  InsightsCard,
+  InsightsHeader,
+  InsightsTitle,
+  InsightsBadge,
+  InsightCallout,
+  InsightHeader,
+  InsightMessage,
+  InsightWhyBtn,
+  InsightExplanation,
+} from './AnalysisInsights.styles'
 
 function toIntent(severity: InsightSeverity): Intent {
   if (severity === 'error') return Intent.DANGER
@@ -20,26 +31,24 @@ const InsightCard = memo(
     const [open, setOpen] = useState(false)
 
     return (
-      <Callout
+      <InsightCallout
         intent={toIntent(insight.severity)}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         icon={toIcon(insight.severity) as any}
-        className='insight-callout'
       >
-        <div className='insight-header'>
-          <span className='insight-message'>{insight.message}</span>
-          <Button
+        <InsightHeader>
+          <InsightMessage>{insight.message}</InsightMessage>
+          <InsightWhyBtn
             minimal
             small
-            className='insight-why-btn'
             onClick={() => setOpen((o) => !o)}
           >
             {open ? 'Less' : 'Why?'}
-          </Button>
-        </div>
+          </InsightWhyBtn>
+        </InsightHeader>
         {/* Plain conditional — no Collapse/useLayoutEffect layout reads */}
-        {open && <p className='insight-explanation'>{insight.explanation}</p>}
-      </Callout>
+        {open && <InsightExplanation>{insight.explanation}</InsightExplanation>}
+      </InsightCallout>
     )
   },
   (prev, next) =>
@@ -62,25 +71,23 @@ export const AnalysisInsights = memo(function AnalysisInsights({
   const warnCount = insights.filter((i) => i.severity === 'warning').length
 
   return (
-    <Card elevation={Elevation.ONE} className='insights-card'>
-      <div className='insights-header'>
-        <span className='chart-card-title' style={{ margin: 0 }}>
-          Analysis Insights
-        </span>
+    <InsightsCard elevation={Elevation.ONE}>
+      <InsightsHeader>
+        <InsightsTitle>Analysis Insights</InsightsTitle>
         {errorCount > 0 && (
-          <span className='insights-badge insights-badge--error'>
+          <InsightsBadge $variant='error'>
             {errorCount} issue{errorCount > 1 ? 's' : ''}
-          </span>
+          </InsightsBadge>
         )}
         {warnCount > 0 && (
-          <span className='insights-badge insights-badge--warning'>
+          <InsightsBadge $variant='warning'>
             {warnCount} warning{warnCount > 1 ? 's' : ''}
-          </span>
+          </InsightsBadge>
         )}
-      </div>
+      </InsightsHeader>
       {insights.map((insight) => (
         <InsightCard key={insight.id} insight={insight} />
       ))}
-    </Card>
+    </InsightsCard>
   )
 })
