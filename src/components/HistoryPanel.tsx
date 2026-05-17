@@ -2,6 +2,7 @@ import { Button, Icon } from '@blueprintjs/core'
 import type { HistoryEntry, SessionExport } from '../types/history'
 import {
 	Panel,
+	PanelBackdrop,
 	PanelHeader,
 	PanelTitle,
 	PanelHeaderActions,
@@ -62,6 +63,8 @@ export function HistoryPanel({
   const reversed = [...entries].reverse()
 
   return (
+    <>
+    <PanelBackdrop onClick={onClose} />
     <Panel>
       <PanelHeader>
         <PanelTitle>Snapshots</PanelTitle>
@@ -111,5 +114,6 @@ export function HistoryPanel({
         )}
       </PanelEntries>
     </Panel>
+    </>
   )
 }

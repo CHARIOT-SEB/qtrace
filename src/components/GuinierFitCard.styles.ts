@@ -1,14 +1,21 @@
 import styled from 'styled-components'
 import { Button, Card, Divider } from '@blueprintjs/core'
-import { palette } from '../theme'
+import { palette, media } from '../theme'
 
 export const GuinierCard = styled(Card)`
   flex: 1;
   margin-top: 16px;
   overflow: visible !important;
+  min-width: 0;
 
   .bp6-slider {
     margin: 28px 8px 8px;
+  }
+
+  ${media.sm} {
+    .bp6-slider {
+      margin: 28px 4px 8px;
+    }
   }
 `
 
@@ -21,6 +28,12 @@ export const RangeReadout = styled.div`
   background: ${palette.c5};
   border-radius: 6px;
   border: 1px solid ${palette.c4};
+  flex-wrap: wrap;
+
+  ${media.sm} {
+    gap: 8px;
+    padding: 10px 12px;
+  }
 `
 
 export const RangeQ = styled.div`
@@ -28,6 +41,7 @@ export const RangeQ = styled.div`
   flex-direction: column;
   align-items: center;
   flex: 1;
+  min-width: 70px;
 `
 
 export const RangeLabel = styled.span`
@@ -43,6 +57,10 @@ export const RangeVal = styled.span`
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: ${palette.c1};
+
+  ${media.sm} {
+    font-size: 15px;
+  }
 `
 
 export const RangeUnit = styled.span`

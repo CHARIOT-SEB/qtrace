@@ -15,7 +15,7 @@ import { Button, ButtonGroup, Elevation, RangeSlider, Tag } from '@blueprintjs/c
 import { frameIntensity } from '../lib/secSaxs';
 import { AXIS_STYLE, CHART } from '../chartTheme';
 import type { SaxsData } from '../types/saxs';
-import { ChartCard, ChartCardTitle } from '../styles/shared.styles';
+import { ChartCard, ChartCardTitle, ChartFrame } from '../styles/shared.styles';
 import {
   SecRanges,
   SecRangeHeading,
@@ -97,7 +97,9 @@ export function SecTrace({ frames, bufferRange, signalRange, onBufferChange, onS
     return <circle cx={cx} cy={cy} r={4} fill={payload.color} fillOpacity={0.9} />;
   };
 
-  const labelStep = Math.max(1, Math.floor(last / 10));
+  // Aim for ~5 labels across the slider so labels stay readable
+  // on narrow viewports without overlapping.
+  const labelStep = Math.max(1, Math.ceil((last + 1) / 5));
 
   return (
     <ChartCard elevation={Elevation.ONE}>
@@ -112,7 +114,8 @@ export function SecTrace({ frames, bufferRange, signalRange, onBufferChange, onS
         </ChartTitleControls>
       </ChartCardTitle>
 
-      <ResponsiveContainer width="100%" height={320}>
+      <ChartFrame>
+      <ResponsiveContainer width="100%" height="100%">
         {viewMode === 'bars' ? (
           <BarChart data={barData} margin={{ top: 8, right: 20, bottom: 8, left: 20 }} barCategoryGap={1}>
             <CartesianGrid strokeDasharray="3 3" stroke={CHART.gridColor} vertical={false} />
@@ -148,6 +151,7 @@ export function SecTrace({ frames, bufferRange, signalRange, onBufferChange, onS
           </ScatterChart>
         )}
       </ResponsiveContainer>
+      </ChartFrame>
 
       <SecRanges>
         <div>

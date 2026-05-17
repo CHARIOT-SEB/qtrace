@@ -12,7 +12,7 @@ import {
 import { Elevation } from '@blueprintjs/core'
 import { AXIS_STYLE, CHART } from '../chartTheme'
 import type { GuinierResult, SaxsData } from '../types/saxs'
-import { ChartCard, ChartCardTitle } from '../styles/shared.styles'
+import { ChartCard, ChartCardTitle, ChartFrame } from '../styles/shared.styles'
 import { TooltipBox, TooltipRow, InFitRow } from './FullCurveChart.styles'
 
 interface Props {
@@ -117,7 +117,8 @@ export const FullCurveChart = memo(function FullCurveChart({ data, result, title
 			<ChartCardTitle>
 				<span>{title ?? 'Scattering curve — log I(q) vs q'}</span>
 			</ChartCardTitle>
-			<ResponsiveContainer width='100%' height={460}>
+			<ChartFrame $tall>
+			<ResponsiveContainer width='100%' height='100%'>
 				<ScatterChart
 					margin={{ top: 8, right: 20, bottom: 32, left: 20 }}
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -194,6 +195,7 @@ export const FullCurveChart = memo(function FullCurveChart({ data, result, title
 					)}
 				</ScatterChart>
 			</ResponsiveContainer>
+			</ChartFrame>
 		</ChartCard>
 	)
 })

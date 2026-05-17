@@ -1,5 +1,5 @@
 import { Alignment, ButtonVariant, Navbar } from '@blueprintjs/core'
-import { NavHeading, SubtitleSpan, FramesTag, SnapshotsButton } from './AppNavbar.styles'
+import { NavHeading, SubtitleSpan, FramesTag, SnapshotsButton, HideOnMobile } from './AppNavbar.styles'
 
 interface AppNavbarProps {
 	framesCount: number
@@ -14,7 +14,9 @@ export function AppNavbar({ framesCount, isHistoryOpen, onToggleHistory }: AppNa
 				<NavHeading>
 					<sup>Q</sup>Trace
 				</NavHeading>
-				<Navbar.Divider />
+				<HideOnMobile>
+					<Navbar.Divider />
+				</HideOnMobile>
 				<SubtitleSpan className='bp6-text-muted'>
 					SEC-SAXS Analysis
 				</SubtitleSpan>

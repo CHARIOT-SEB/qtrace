@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { Button, Callout, Card } from '@blueprintjs/core'
-import { palette } from '../theme'
+import { palette, media } from '../theme'
 
 export const InsightsCard = styled(Card)`
   margin-top: 16px;
@@ -11,6 +11,7 @@ export const InsightsHeader = styled.div`
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
+  flex-wrap: wrap;
 `
 
 export const InsightsTitle = styled.span`
@@ -59,6 +60,11 @@ export const InsightHeader = styled.div`
   justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
+  flex-wrap: wrap;
+
+  ${media.sm} {
+    gap: 6px;
+  }
 `
 
 export const InsightMessage = styled.span`

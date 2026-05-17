@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { palette } from '../theme'
+import { palette, media } from '../theme'
 import { CHART } from '../chartTheme'
 
 export const SecRanges = styled.div`
@@ -9,6 +9,11 @@ export const SecRanges = styled.div`
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid ${palette.c4};
+
+  ${media.md} {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
 `
 
 export const SecRangeHeading = styled.div`
@@ -42,6 +47,11 @@ export const SecSummary = styled.div`
   margin-top: 16px;
   font-size: 12px;
   color: ${palette.c3};
+  flex-wrap: wrap;
+
+  ${media.sm} {
+    gap: 12px;
+  }
 `
 
 export const ChartTitleControls = styled.div`

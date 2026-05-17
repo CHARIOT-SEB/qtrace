@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components'
 import { Callout, Dialog } from '@blueprintjs/core'
-import { palette } from '../theme'
+import { palette, media } from '../theme'
 
 export const popIn = keyframes`
   from { transform: scale(0.5); opacity: 0; }
@@ -10,6 +10,7 @@ export const popIn = keyframes`
 export const ProcessingDialog = styled(Dialog)`
   &.bp6-dialog {
     width: 360px;
+    max-width: calc(100vw - 32px);
     padding: 0;
     border-radius: 8px;
     background: #fff;
@@ -23,6 +24,11 @@ export const ModalBody = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 20px;
+
+  ${media.sm} {
+    padding: 24px 20px 20px;
+    gap: 16px;
+  }
 `
 
 export const ModalIndicator = styled.div`

@@ -12,7 +12,7 @@ import {
 import { Elevation, Tag } from '@blueprintjs/core';
 import { AXIS_STYLE, CHART } from '../chartTheme';
 import type { GuinierResult, SaxsData } from '../types/saxs';
-import { ChartCard, ChartCardTitle } from '../styles/shared.styles';
+import { ChartCard, ChartCardTitle, ChartFrame } from '../styles/shared.styles';
 import { TooltipBox, TooltipRow } from './GuinierChart.styles';
 
 interface Props {
@@ -56,7 +56,8 @@ export const GuinierChart = memo(function GuinierChart({ data, result }: Props) 
         <span>Guinier plot — ln I(q) vs q²</span>
         <Tag minimal>pts {result.iMin + 1}–{result.iMax + 1} / {data.q.length}</Tag>
       </ChartCardTitle>
-      <ResponsiveContainer width="100%" height={460}>
+      <ChartFrame $tall>
+      <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={fitLine} margin={{ top: 8, right: 20, bottom: 32, left: 20 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={CHART.gridColor} />
           <XAxis
@@ -93,6 +94,7 @@ export const GuinierChart = memo(function GuinierChart({ data, result }: Props) 
           />
         </ComposedChart>
       </ResponsiveContainer>
+      </ChartFrame>
     </ChartCard>
   );
 })

@@ -5,6 +5,7 @@ import { palette } from '../theme'
 export const SnapDialog = styled(Dialog)`
   &.bp6-dialog {
     width: 400px;
+    max-width: calc(100vw - 32px);
   }
 `
 

@@ -11,7 +11,7 @@ import {
 import { Elevation } from '@blueprintjs/core'
 import { AXIS_STYLE, CHART } from '../chartTheme'
 import type { SaxsData } from '../types/saxs'
-import { ChartCard, ChartCardTitle } from '../styles/shared.styles'
+import { ChartCard, ChartCardTitle, ChartFrame } from '../styles/shared.styles'
 import { TooltipBox, TooltipRow } from './KratkyChart.styles'
 
 interface Props {
@@ -58,13 +58,15 @@ export const KratkyChart = memo(function KratkyChart({ data }: Props) {
 			<ChartCardTitle>
 				<span>Kratky plot — q²·I(q) vs q</span>
 			</ChartCardTitle>
-			<ResponsiveContainer width='100%' height={460}>
+			<ChartFrame $tall>
+			<ResponsiveContainer width='100%' height='100%'>
 				<ScatterChart margin={{ top: 8, right: 20, bottom: 32, left: 20 }}>
 					<CartesianGrid strokeDasharray='3 3' stroke={CHART.gridColor} />
 					<XAxis
 						dataKey='x'
 						type='number'
 						domain={[xMin * 0.98, xMax * 1.02]}
+						tickFormatter={(v: number) => v.toFixed(2)}
 						tick={AXIS_STYLE.tick}
 						label={{
 							value: 'q (Å⁻¹)',
@@ -99,6 +101,7 @@ export const KratkyChart = memo(function KratkyChart({ data }: Props) {
 					/>
 				</ScatterChart>
 			</ResponsiveContainer>
+			</ChartFrame>
 		</ChartCard>
 	)
 })

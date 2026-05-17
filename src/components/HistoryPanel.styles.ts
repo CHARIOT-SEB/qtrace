@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { palette } from '../theme'
+import { palette, media } from '../theme'
 
 export const Panel = styled.div`
   width: 256px;
@@ -9,6 +9,28 @@ export const Panel = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+
+  ${media.md} {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(320px, 85vw);
+    z-index: 30;
+    box-shadow: -6px 0 18px rgba(47, 69, 80, 0.15);
+  }
+`
+
+export const PanelBackdrop = styled.div`
+  display: none;
+
+  ${media.md} {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: rgba(47, 69, 80, 0.35);
+    z-index: 20;
+  }
 `
 
 export const PanelHeader = styled.div`

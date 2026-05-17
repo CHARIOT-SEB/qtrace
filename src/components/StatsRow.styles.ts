@@ -1,17 +1,30 @@
 import styled from 'styled-components'
 import { Card, Tag } from '@blueprintjs/core'
-import { palette } from '../theme'
+import { palette, media } from '../theme'
 
 export const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 10px;
   margin-bottom: 16px;
+
+  ${media.lg} {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  ${media.sm} {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
 `
 
 export const StatCard = styled(Card)`
   text-align: center;
   padding: 10px 12px !important;
+  min-width: 0;
+
+  ${media.sm} {
+    padding: 8px 10px !important;
+  }
 `
 
 export const StatLabel = styled.div`
@@ -28,6 +41,10 @@ export const StatValue = styled.div`
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
   color: ${palette.c1};
+
+  ${media.sm} {
+    font-size: 18px;
+  }
 `
 
 export const StatUnit = styled.span`
