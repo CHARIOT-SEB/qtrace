@@ -1,10 +1,10 @@
 /* ── Palette tokens ───────────────────────────────────────────────── */
 :root {
-  --c1: #2f4550; /* charcoal-blue — text, navbar, primary data       */
-  --c2: #586f7c; /* blue-slate    — secondary text, axis labels      */
-  --c3: #8aaab5; /* mid-tone      — muted labels, buffer bars        */
-  --c4: #b8dbd9; /* light-blue    — borders, dividers, grid lines    */
-  --c5: #f4f4f9; /* ghost-white   — app background, hover fills      */
+  --c1: #2f4550; /* charcoal-blue - text, navbar, primary data       */
+  --c2: #586f7c; /* blue-slate    - secondary text, axis labels      */
+  --c3: #8aaab5; /* mid-tone      - muted labels, buffer bars        */
+  --c4: #b8dbd9; /* light-blue    - borders, dividers, grid lines    */
+  --c5: #f4f4f9; /* ghost-white   - app background, hover fills      */
 }
 
 /* ── Global resets ───────────────────────────────────────────────── */
@@ -36,7 +36,7 @@ body {
   }
 }
 
-/* ── Blueprint overrides — Navbar ────────────────────────────────── */
+/* ── Blueprint overrides - Navbar ────────────────────────────────── */
 .bp6-navbar {
   background-color: var(--c1) !important;
   box-shadow: none !important;
@@ -50,14 +50,14 @@ body {
   border-color: var(--c2) !important;
 }
 
-/* ── Blueprint overrides — Cards ─────────────────────────────────── */
+/* ── Blueprint overrides - Cards ─────────────────────────────────── */
 .bp6-card {
   background-color: #ffffff !important;
   border: 1px solid var(--c4) !important;
   box-shadow: 0 1px 3px rgba(47,69,80,0.08) !important;
 }
 
-/* ── Blueprint overrides — Buttons ──────────────────────────────── */
+/* ── Blueprint overrides - Buttons ──────────────────────────────── */
 .bp6-button:not([class*='bp6-intent']) {
   color: var(--c1) !important;
   background: #fff !important;
@@ -69,13 +69,13 @@ body {
   border-color: var(--c3) !important;
 }
 
-/* ── Blueprint overrides — Tags ──────────────────────────────────── */
+/* ── Blueprint overrides - Tags ──────────────────────────────────── */
 .bp6-tag {
   background: var(--c4) !important;
   color: var(--c1) !important;
 }
 
-/* ── Blueprint overrides — Slider ────────────────────────────────── */
+/* ── Blueprint overrides - Slider ────────────────────────────────── */
 .bp6-slider-progress.bp6-intent-primary {
   background: var(--c2) !important;
 }
@@ -101,7 +101,7 @@ body {
   font-size: 11px;
 }
 
-/* ── Blueprint overrides — Callout ───────────────────────────────── */
+/* ── Blueprint overrides - Callout ───────────────────────────────── */
 .bp6-callout {
   background: var(--c5) !important;
   border: 1px solid var(--c4) !important;
@@ -127,12 +127,12 @@ body {
 }
 .bp6-callout.bp6-intent-primary .bp6-icon { color: #4c90f0 !important; }
 
-/* ── Blueprint overrides — Divider ───────────────────────────────── */
+/* ── Blueprint overrides - Divider ───────────────────────────────── */
 .bp6-divider {
   border-color: var(--c4) !important;
 }
 
-/* ── Blueprint overrides — Non-ideal state ───────────────────────── */
+/* ── Blueprint overrides - Non-ideal state ───────────────────────── */
 .bp6-non-ideal-state-title {
   color: var(--c1) !important;
 }

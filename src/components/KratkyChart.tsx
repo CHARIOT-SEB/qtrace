@@ -56,51 +56,47 @@ export const KratkyChart = memo(function KratkyChart({ data }: Props) {
 	return (
 		<ChartCard elevation={Elevation.ONE}>
 			<ChartCardTitle>
-				<span>Kratky plot — q²·I(q) vs q</span>
+				<span>Kratky plot - q²·I(q) vs q</span>
 			</ChartCardTitle>
 			<ChartFrame $tall>
-			<ResponsiveContainer width='100%' height='100%'>
-				<ScatterChart margin={{ top: 8, right: 20, bottom: 32, left: 20 }}>
-					<CartesianGrid strokeDasharray='3 3' stroke={CHART.gridColor} />
-					<XAxis
-						dataKey='x'
-						type='number'
-						domain={[xMin * 0.98, xMax * 1.02]}
-						tickFormatter={(v: number) => v.toFixed(2)}
-						tick={AXIS_STYLE.tick}
-						label={{
-							value: 'q (Å⁻¹)',
-							position: 'insideBottom',
-							offset: -18,
-							...AXIS_STYLE.label,
-						}}
-					/>
-					<YAxis
-						dataKey='y'
-						type='number'
-						domain={[yMin, yMax * 1.1]}
-						tickFormatter={(v: number) => v.toExponential(1)}
-						tick={AXIS_STYLE.tick}
-						width={56}
-						label={{
-							value: 'q²·I(q)',
-							angle: -90,
-							position: 'insideLeft',
-							offset: 12,
-							...AXIS_STYLE.label,
-						}}
-					/>
-					<Tooltip
-						content={TIP as React.FC}
-						cursor={{ strokeDasharray: '3 3', stroke: CHART.gridColor }}
-					/>
-					<Scatter
-						data={pts}
-						isAnimationActive={false}
-						shape={Dot as any}
-					/>
-				</ScatterChart>
-			</ResponsiveContainer>
+				<ResponsiveContainer width='100%' height='100%'>
+					<ScatterChart margin={{ top: 8, right: 20, bottom: 32, left: 20 }}>
+						<CartesianGrid strokeDasharray='3 3' stroke={CHART.gridColor} />
+						<XAxis
+							dataKey='x'
+							type='number'
+							domain={[xMin * 0.98, xMax * 1.02]}
+							tickFormatter={(v: number) => v.toFixed(2)}
+							tick={AXIS_STYLE.tick}
+							label={{
+								value: 'q (Å⁻¹)',
+								position: 'insideBottom',
+								offset: -18,
+								...AXIS_STYLE.label,
+							}}
+						/>
+						<YAxis
+							dataKey='y'
+							type='number'
+							domain={[yMin, yMax * 1.1]}
+							tickFormatter={(v: number) => v.toExponential(1)}
+							tick={AXIS_STYLE.tick}
+							width={56}
+							label={{
+								value: 'q²·I(q)',
+								angle: -90,
+								position: 'insideLeft',
+								offset: 12,
+								...AXIS_STYLE.label,
+							}}
+						/>
+						<Tooltip
+							content={TIP as React.FC}
+							cursor={{ strokeDasharray: '3 3', stroke: CHART.gridColor }}
+						/>
+						<Scatter data={pts} isAnimationActive={false} shape={Dot as any} />
+					</ScatterChart>
+				</ResponsiveContainer>
 			</ChartFrame>
 		</ChartCard>
 	)

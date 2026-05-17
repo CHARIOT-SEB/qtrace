@@ -1,8 +1,8 @@
 # QTrace
 
-A modern, browser-based SAXS data analysis tool — a spiritual successor to [Scatter IV](https://bl1231.als.lbl.gov/scatter/) by Rob Rambo.
+A modern, browser-based SAXS data analysis tool.
 
-Built with **React + TypeScript + Vite**. Runs entirely in the browser — no backend, no install.
+Built with **React + TypeScript + Vite**. Runs entirely in the browser - no backend, no install.
 
 ## Current state
 
@@ -65,8 +65,8 @@ ln I(q) = ln I(0) − (Rg² / 3) · q²
 
 Fitting ln I vs q² as a straight line gives:
 
-- **R<sub>g</sub>** = √(−3 · slope) — radius of gyration
-- **I(0)** = exp(intercept) — forward scattering intensity
+- **R<sub>g</sub>** = √(−3 · slope) - radius of gyration
+- **I(0)** = exp(intercept) - forward scattering intensity
 
 ## Roadmap
 
@@ -77,6 +77,3 @@ Fitting ln I vs q² as a straight line gives:
 - [ ] SEC-SAXS frame selection
 - [ ] Export results as CSV / report
 
-## Credits
-
-Inspired by Scatter IV (Dr. Rob Rambo, Diamond Light Source / SIBYLS beamline).

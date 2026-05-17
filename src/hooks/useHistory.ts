@@ -8,8 +8,15 @@ interface UseHistoryOptions {
 	setError: (msg: string | null) => void
 }
 
-export function useHistory({ getSnapshot, applySnapshot, setError }: UseHistoryOptions) {
-	const [history, dispatchHistory] = useReducer(historyReducer, initialHistoryState)
+export function useHistory({
+	getSnapshot,
+	applySnapshot,
+	setError,
+}: UseHistoryOptions) {
+	const [history, dispatchHistory] = useReducer(
+		historyReducer,
+		initialHistoryState,
+	)
 	const [isSavingSnapshot, setIsSavingSnapshot] = useState(false)
 	const [snapshotName, setSnapshotName] = useState('')
 	const [isHistoryOpen, setIsHistoryOpen] = useState(false)
@@ -49,7 +56,8 @@ export function useHistory({ getSnapshot, applySnapshot, setError }: UseHistoryO
 
 	function handleExportSession() {
 		if (history.entries.length === 0) return
-		const latestFrames = history.entries[history.entries.length - 1].snapshot.frames
+		const latestFrames =
+			history.entries[history.entries.length - 1].snapshot.frames
 		const exportData: SessionExport = {
 			version: 1,
 			exportedAt: new Date().toISOString(),
@@ -62,7 +70,9 @@ export function useHistory({ getSnapshot, applySnapshot, setError }: UseHistoryO
 				iMax: snapshot.iMax,
 			})),
 		}
-		const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+		const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+			type: 'application/json',
+		})
 		const url = URL.createObjectURL(blob)
 		const a = document.createElement('a')
 		a.href = url
@@ -77,7 +87,7 @@ export function useHistory({ getSnapshot, applySnapshot, setError }: UseHistoryO
 			!Array.isArray(data.frames) ||
 			!Array.isArray(data.entries)
 		) {
-			setError('Invalid session file — unrecognised format.')
+			setError('Invalid session file - unrecognised format.')
 			return
 		}
 		const reconstructed = data.entries.map((e) => ({

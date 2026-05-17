@@ -1,9 +1,4 @@
-import {
-	useCallback,
-	useDeferredValue,
-	useMemo,
-	useState,
-} from 'react'
+import { useCallback, useDeferredValue, useMemo, useState } from 'react'
 import {
 	Button,
 	ButtonGroup,
@@ -17,6 +12,7 @@ import {
 	type ModalState,
 } from './components/ProcessingModal'
 import { SnapshotModal } from './components/SnapshotModal'
+import { WelcomeModal } from './components/WelcomeModal'
 import { AppNavbar } from './components/AppNavbar'
 import { FullCurveChart } from './components/FullCurveChart'
 import { GuinierChart } from './components/GuinierChart'
@@ -78,11 +74,15 @@ export function App() {
 
 	const subtractedCurve = useMemo(
 		() =>
-			signalCurve && bufferCurve ? subtractBuffer(signalCurve, bufferCurve) : null,
+			signalCurve && bufferCurve
+				? subtractBuffer(signalCurve, bufferCurve)
+				: null,
 		[signalCurve, bufferCurve],
 	)
 
-	const activeCurve: SaxsData | null = isSec ? subtractedCurve : (frames[0] ?? null)
+	const activeCurve: SaxsData | null = isSec
+		? subtractedCurve
+		: (frames[0] ?? null)
 
 	const guinier = useGuinierRange(activeCurve)
 
@@ -123,7 +123,9 @@ export function App() {
 
 	const rawInsights = useMemo(
 		() =>
-			activeCurve && guinierResult ? collectInsights(activeCurve, guinierResult) : [],
+			activeCurve && guinierResult
+				? collectInsights(activeCurve, guinierResult)
+				: [],
 		[activeCurve, guinierResult],
 	)
 	const insights = useDeferredValue(rawInsights)
@@ -213,7 +215,8 @@ export function App() {
 		if (!guinierResult) return
 		const filename = activeCurve?.filename ?? 'unknown'
 		const { Rg, dRg, I0, dI0, qRgMax, fit, iMin, iMax, xs } = guinierResult
-		const header = 'filename,Rg_A,dRg_A,I0,dI0,qRg_max,R2,n_points,fit_iMin,fit_iMax,timestamp'
+		const header =
+			'filename,Rg_A,dRg_A,I0,dI0,qRg_max,R2,n_points,fit_iMin,fit_iMax,timestamp'
 		const row = [
 			`"${filename}"`,
 			Rg.toFixed(4),
@@ -247,6 +250,7 @@ export function App() {
 
 	return (
 		<AppRoot>
+			<WelcomeModal />
 			<AppNavbar
 				framesCount={frames.length}
 				isHistoryOpen={hist.isHistoryOpen}
@@ -299,11 +303,7 @@ export function App() {
 						</ToolbarCard>
 					</TopRow>
 
-					{error && (
-						<ErrorCallout icon='warning-sign'>
-							{error}
-						</ErrorCallout>
-					)}
+					{error && <ErrorCallout icon='warning-sign'>{error}</ErrorCallout>}
 
 					{/* Empty state */}
 					{frames.length === 0 && (
@@ -344,8 +344,8 @@ export function App() {
 										result={guinierResult ?? undefined}
 										title={
 											isSec
-												? 'Buffer-subtracted — log I(q)'
-												: 'Scattering curve — log I(q)'
+												? 'Buffer-subtracted - log I(q)'
+												: 'Scattering curve - log I(q)'
 										}
 										hoveredQ={hoveredQ}
 										onHoverQ={handleHoverQ}

@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "A modern, browser-based SAXS data analysis tool — a spiritual successor to Scatter IV.",
+  "description": "A modern, browser-based SAXS data analysis tool.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

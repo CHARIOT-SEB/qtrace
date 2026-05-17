@@ -2,7 +2,13 @@ import { useRef, useState } from 'react'
 import { Elevation } from '@blueprintjs/core'
 import { parseDat } from '../lib/parseDat'
 import type { SaxsData } from '../types/saxs'
-import { DropCard, DropIcon, DropPrimary, DropSecondary, HiddenInput } from './FileDropZone.styles'
+import {
+	DropCard,
+	DropIcon,
+	DropPrimary,
+	DropSecondary,
+	HiddenInput,
+} from './FileDropZone.styles'
 
 interface Props {
 	onLoad: (data: SaxsData[]) => void
@@ -80,7 +86,7 @@ export function FileDropZone({
 				Drop <code>.dat</code> frame files here, or click to browse
 			</DropPrimary>
 			<DropSecondary>
-				Multiple files accepted — sorted by filename for SEC-SAXS frame order
+				Multiple files accepted - sorted by filename for SEC-SAXS frame order
 			</DropSecondary>
 			<HiddenInput
 				ref={inputRef}

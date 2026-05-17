@@ -56,8 +56,15 @@ export const ProcessingModal = memo(function ProcessingModal({
 	onRetry,
 	onDismiss,
 }: Props) {
-	const { isOpen, status, stageIndex, frameCount, parsedCount, errorMessage, isSample } =
-		state
+	const {
+		isOpen,
+		status,
+		stageIndex,
+		frameCount,
+		parsedCount,
+		errorMessage,
+		isSample,
+	} = state
 
 	return (
 		<ProcessingDialog
@@ -124,20 +131,16 @@ export const ProcessingModal = memo(function ProcessingModal({
 
 				{status === 'success' && isSample && (
 					<SampleCallout intent={Intent.PRIMARY} icon='info-sign'>
-						<strong>This is synthetic demo data.</strong> The 30 frames were generated
-						mathematically to simulate a SEC-SAXS run — no real experimental data has
-						been loaded. Drop your own <code>.dat</code> files above to analyse real data.
+						<strong>This is synthetic demo data.</strong> The 30 frames were
+						generated mathematically to simulate a SEC-SAXS run - no real
+						experimental data has been loaded. Drop your own <code>.dat</code>{' '}
+						files above to analyse real data.
 					</SampleCallout>
 				)}
 
 				<ModalActions>
 					{status === 'success' && (
-						<Button
-							intent={Intent.PRIMARY}
-							large
-							fill
-							onClick={onViewAnalysis}
-						>
+						<Button intent={Intent.PRIMARY} large fill onClick={onViewAnalysis}>
 							View Analysis
 						</Button>
 					)}

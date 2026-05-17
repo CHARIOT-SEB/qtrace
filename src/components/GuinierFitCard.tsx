@@ -39,7 +39,12 @@ export function GuinierFitCard({
 	return (
 		<GuinierCard elevation={Elevation.ONE}>
 			<ChartCardTitle>Guinier Fit Range</ChartCardTitle>
-			<RangeControls data={activeCurve} iMin={iMin} iMax={iMax} onChange={onChange} />
+			<RangeControls
+				data={activeCurve}
+				iMin={iMin}
+				iMax={iMax}
+				onChange={onChange}
+			/>
 			<RangeReadout>
 				<RangeQ>
 					<RangeLabel>q min</RangeLabel>
@@ -65,9 +70,9 @@ export function GuinierFitCard({
 			<div>
 				<GuidanceTitle>How to use</GuidanceTitle>
 				<GuidanceText>
-					Drag the handles to select the low-q linear region of the ln I(q) vs q² plot. The fit
-					is valid while q·R<sub>g</sub> ≤ 1.3 — valid points are highlighted green in the
-					Guinier plot.
+					Drag the handles to select the low-q linear region of the ln I(q) vs
+					q² plot. The fit is valid while q·R<sub>g</sub> ≤ 1.3 - valid points
+					are highlighted green in the Guinier plot.
 				</GuidanceText>
 			</div>
 		</GuinierCard>
