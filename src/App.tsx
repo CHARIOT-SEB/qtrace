@@ -1,5 +1,12 @@
 import { useCallback, useDeferredValue, useMemo, useState } from 'react'
-import { Alert, Elevation, Icon, Intent, NonIdealState } from '@blueprintjs/core'
+import {
+	Alert,
+	Callout,
+	Elevation,
+	Icon,
+	Intent,
+	NonIdealState,
+} from '@blueprintjs/core'
 import { FileDropZone } from './components/FileDropZone'
 import {
 	ProcessingModal,
@@ -228,6 +235,10 @@ export function App() {
 		})
 		downloadCsv(built)
 	}
+
+	const savedSnapshotCount = hist.history.entries.filter(
+		(e) => e.isNamed,
+	).length
 
 	function handleClear() {
 		setFrames([])
@@ -458,6 +469,18 @@ export function App() {
 				<p>
 					<strong>Clear the current session?</strong>
 				</p>
+				{savedSnapshotCount > 0 && (
+					<Callout
+						intent={Intent.WARNING}
+						icon='warning-sign'
+						style={{ marginBottom: '0.75rem' }}
+					>
+						You will lose the {savedSnapshotCount} saved snapshot
+						{savedSnapshotCount === 1 ? '' : 's'} from this session. Snapshots
+						are not stored between sessions - export the session first if you
+						want to keep {savedSnapshotCount === 1 ? 'it' : 'them'}.
+					</Callout>
+				)}
 				<p>
 					This will remove all loaded frames, the selected buffer and signal
 					regions, the Guinier fit range, and the snapshot history for this
