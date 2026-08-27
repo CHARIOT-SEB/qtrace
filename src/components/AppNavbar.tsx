@@ -21,7 +21,7 @@ export function AppNavbar({
 }: AppNavbarProps) {
 	return (
 		<Navbar>
-			<Navbar.Group align={Alignment.LEFT}>
+			<Navbar.Group align={Alignment.START}>
 				<NavHeading>
 					<NavLogo
 						src={`${import.meta.env.BASE_URL}assets/qtrace-logo.png`}
@@ -36,7 +36,7 @@ export function AppNavbar({
 					SEC-SAXS Analysis
 				</SubtitleSpan>
 			</Navbar.Group>
-			<Navbar.Group align={Alignment.RIGHT}>
+			<Navbar.Group align={Alignment.END}>
 				{framesCount > 0 && (
 					<FramesTag minimal>
 						{framesCount} frame{framesCount !== 1 ? 's' : ''} loaded
