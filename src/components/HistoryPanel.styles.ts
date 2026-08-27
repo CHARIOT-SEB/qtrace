@@ -124,3 +124,47 @@ export const EntryTime = styled.div`
   margin-top: 2px;
   padding-left: 17px;
 `
+
+export const SectionLabel = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: ${palette.c3};
+  padding: 6px 8px 4px;
+`
+
+export const SectionDivider = styled.div`
+  height: 1px;
+  background: ${palette.c4};
+  margin: 8px 4px;
+`
+
+/** Hover-revealed row actions (delete, upload) that sit beside an entry label. */
+export const EntryActions = styled.div`
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.1s;
+
+  ${Entry}:hover &,
+  &:focus-within {
+    opacity: 1;
+  }
+
+  ${media.md} {
+    opacity: 1;
+  }
+`
+
+export const SignedOutNotice = styled.p`
+  font-size: 11px;
+  color: ${palette.c3};
+  line-height: 1.45;
+  margin: 0;
+  padding: 2px 8px 6px;
+`

@@ -23,6 +23,16 @@ export const SnapHint = styled.p`
   line-height: 1.5;
 `
 
+export const CloudRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  .bp6-checkbox {
+    margin-bottom: 0;
+  }
+`
+
 export const SnapActions = styled.div`
   display: flex;
   gap: 8px;

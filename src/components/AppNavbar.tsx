@@ -1,4 +1,5 @@
 import { Alignment, ButtonVariant, Navbar } from '@blueprintjs/core'
+import { AccountMenu } from './AccountMenu'
 import {
 	NavHeading,
 	NavLogo,
@@ -50,6 +51,7 @@ export function AppNavbar({
 				>
 					Snapshots
 				</SnapshotsButton>
+				<AccountMenu />
 			</Navbar.Group>
 		</Navbar>
 	)
