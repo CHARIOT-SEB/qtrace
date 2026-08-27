@@ -2,7 +2,8 @@
 
 A modern, browser-based SAXS data analysis tool.
 
-Built with **React + TypeScript + Vite**. Runs entirely in the browser - no backend, no install.
+Built with **React + TypeScript + Vite**. Analysis runs entirely in the browser - nothing is
+uploaded unless you sign in and explicitly save a snapshot to your account.
 
 ## Current state
 
@@ -25,6 +26,24 @@ npm run dev
 ```
 
 Then open [http://localhost:5173](http://localhost:5173) (Vite should open it for you).
+
+## Accounts (optional)
+
+Without configuration QTrace behaves exactly as before: everything is in-session, and account
+features hide themselves. To enable sign-in and cloud snapshots, point the app at a Supabase
+project:
+
+1. Create a project, run `supabase/schema.sql` in its SQL editor, and create a **private** storage
+   bucket named `datasets` (the file's last policy expects it).
+2. In Auth settings: enable the Email provider with **Confirm email** on, set the Site URL to the
+   deployed app, and add `http://localhost:5173/qtrace/` as a redirect URL. Configure custom SMTP -
+   the built-in sender is rate-limited to a handful of messages per hour.
+3. Copy `.env.example` to `.env.local` (dev) and `.env.production` (for `npm run deploy`), filling
+   in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Both values are public by design; user
+   isolation comes from row-level security. The `service_role` key must never go in this repo.
+
+Snapshots store frames once per dataset as a gzipped blob in storage, with each snapshot a small
+row of ranges pointing at it.
 
 ## Other scripts
 

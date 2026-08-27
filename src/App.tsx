@@ -27,6 +27,7 @@ import { StatsRow } from './components/StatsRow'
 import { AnalysisInsights } from './components/AnalysisInsights'
 import { useGuinierRange } from './hooks/useGuinierRange'
 import { useHistory } from './hooks/useHistory'
+import { useCloudSnapshots } from './hooks/useCloudSnapshots'
 import { computeGuinier } from './lib/guinier'
 import { computePorod } from './lib/porod'
 import { collectInsights } from './lib/analysisHeuristics'
@@ -34,6 +35,7 @@ import { autoDetectRegions, averageFrames, subtractBuffer } from './lib/secSaxs'
 import { buildExportCsv, downloadCsv } from './lib/csvExport'
 import { generateSampleSecFrames } from './lib/sampleData'
 import type { SaxsData } from './types/saxs'
+import type { AnalysisSnapshot, HistoryEntry } from './types/history'
 import {
 	AppRoot,
 	AppBody,
@@ -64,6 +66,7 @@ export function App() {
 	const [hoveredQ, setHoveredQ] = useState<number | null>(null)
 	const [modal, setModal] = useState<ModalState>(INITIAL_MODAL_STATE)
 	const [isConfirmingClear, setIsConfirmingClear] = useState(false)
+	const [saveToCloud, setSaveToCloud] = useState(false)
 
 	const handleHoverQ = useCallback((q: number | null) => setHoveredQ(q), [])
 
@@ -95,24 +98,28 @@ export function App() {
 
 	const guinier = useGuinierRange(activeCurve)
 
-	const hist = useHistory({
-		getSnapshot: () => ({
+	function getSnapshot(): AnalysisSnapshot {
+		return {
 			frames,
 			bufferRange,
 			signalRange,
 			iMin: guinier.iMin,
 			iMax: guinier.iMax,
-		}),
-		applySnapshot: (snapshot) => {
-			guinier.skipGuinierResetRef.current = true
-			setFrames(snapshot.frames)
-			setBufferRange(snapshot.bufferRange)
-			setSignalRange(snapshot.signalRange)
-			guinier.setIMin(snapshot.iMin)
-			guinier.setIMax(snapshot.iMax)
-		},
-		setError,
-	})
+		}
+	}
+
+	function applySnapshot(snapshot: AnalysisSnapshot) {
+		guinier.skipGuinierResetRef.current = true
+		setFrames(snapshot.frames)
+		setBufferRange(snapshot.bufferRange)
+		setSignalRange(snapshot.signalRange)
+		guinier.setIMin(snapshot.iMin)
+		guinier.setIMax(snapshot.iMax)
+	}
+
+	const hist = useHistory({ getSnapshot, applySnapshot, setError })
+
+	const cloud = useCloudSnapshots({ applySnapshot })
 
 	const guinierResult = useMemo(
 		() =>
@@ -240,6 +247,25 @@ export function App() {
 		(e) => e.isNamed,
 	).length
 
+	/**
+	 * Save to the session, and to the account too when the box is ticked. The
+	 * cloud write goes first so a failure leaves the dialog open with the name
+	 * intact rather than silently dropping the upload.
+	 */
+	async function handleSaveSnapshot() {
+		const name = hist.snapshotName.trim()
+		if (!name) return
+		if (saveToCloud && cloud.isSignedIn) {
+			const ok = await cloud.save(name, getSnapshot())
+			if (!ok) return
+		}
+		hist.handleSaveSnapshot()
+	}
+
+	function handleUploadEntry(entry: HistoryEntry) {
+		void cloud.save(entry.name ?? entry.label, entry.snapshot)
+	}
+
 	function handleClear() {
 		setFrames([])
 		setError(null)
@@ -324,6 +350,10 @@ export function App() {
 					</TopRow>
 
 					{error && <ErrorCallout icon='warning-sign'>{error}</ErrorCallout>}
+
+					{cloud.error && (
+						<ErrorCallout icon='cloud'>{cloud.error}</ErrorCallout>
+					)}
 
 					{/* Empty state */}
 					{frames.length === 0 && (
@@ -435,6 +465,16 @@ export function App() {
 						onExport={hist.handleExportSession}
 						onImport={hist.handleImportSession}
 						onClose={() => hist.setIsHistoryOpen(false)}
+						cloud={{
+							isConfigured: cloud.isConfigured,
+							isSignedIn: cloud.isSignedIn,
+							items: cloud.items,
+							isLoading: cloud.isLoading,
+							isBusy: cloud.isBusy,
+							onRestore: (id) => void cloud.restore(id),
+							onDelete: (id) => void cloud.remove(id),
+							onUpload: handleUploadEntry,
+						}}
 					/>
 				)}
 			</AppBody>
@@ -450,8 +490,12 @@ export function App() {
 				isOpen={hist.isSavingSnapshot}
 				name={hist.snapshotName}
 				onChange={hist.setSnapshotName}
-				onSave={hist.handleSaveSnapshot}
+				onSave={handleSaveSnapshot}
 				onCancel={hist.cancelSnapshot}
+				canSaveToCloud={cloud.isSignedIn}
+				saveToCloud={saveToCloud}
+				onToggleCloud={setSaveToCloud}
+				isSaving={cloud.isBusy}
 			/>
 
 			<Alert
@@ -475,10 +519,11 @@ export function App() {
 						icon='warning-sign'
 						style={{ marginBottom: '0.75rem' }}
 					>
-						You will lose the {savedSnapshotCount} saved snapshot
-						{savedSnapshotCount === 1 ? '' : 's'} from this session. Snapshots
-						are not stored between sessions - export the session first if you
-						want to keep {savedSnapshotCount === 1 ? 'it' : 'them'}.
+						You will lose the {savedSnapshotCount} snapshot
+						{savedSnapshotCount === 1 ? '' : 's'} saved in this session.{' '}
+						{cloud.isSignedIn
+							? 'Anything already saved to your account stays there - only session snapshots go.'
+							: 'Session snapshots are not stored between sessions - export them first, or sign in to save them to your account.'}
 					</Callout>
 				)}
 				<p>
