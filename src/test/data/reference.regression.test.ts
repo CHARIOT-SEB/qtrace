@@ -23,7 +23,9 @@ interface Reference {
 	source?: string
 	url?: string
 	licence?: string
-	/** Expected radius of gyration, in angstroms. */
+	/** Units of the q column. Declared, never guessed. */
+	qUnits: 'A^-1' | 'nm^-1'
+	/** Expected radius of gyration, in the length unit implied by `qUnits`. */
 	Rg: number
 	/** Absolute window around `Rg` the fit must land within. */
 	RgTolerance: number
@@ -67,14 +69,17 @@ describe('private reference data stays out of the repository', () => {
 })
 
 describe.skipIf(cases.length === 0)('reference dataset regression', () => {
-	it.each(cases)('$name parses into a usable curve', ({ text }) => {
+	it.each(cases)('$name parses into a usable curve', ({ text, meta }) => {
 		const data = parseDat(text, 'reference.dat')
 		expect(data).not.toBeNull()
 		expect(data!.q.length).toBeGreaterThan(50)
 		expect(data!.q.every(Number.isFinite)).toBe(true)
-		// q ascending, and in inverse angstroms rather than inverse nanometres.
 		expect(data!.q.every((q, i) => i === 0 || q > data!.q[i - 1])).toBe(true)
-		expect(data!.q[0]).toBeLessThan(0.1)
+
+		// q units must be declared rather than sniffed. Diamond B21 emits nm^-1,
+		// so a magnitude heuristic would reject perfectly good data - and Rg
+		// inherits whichever unit q came in.
+		expect(['A^-1', 'nm^-1']).toContain(meta.qUnits)
 	})
 
 	it.each(cases)(

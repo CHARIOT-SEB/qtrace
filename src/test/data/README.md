@@ -30,9 +30,9 @@ A case is a pair of files sharing a stem, in either directory:
 1. **`<name>.dat`** - anything `parseDat` accepts: whitespace or comma separated
    `q  I(q)  [err]`, with `#` or `//` comments.
 
-   **q must be in inverse angstroms.** QTrace assumes it throughout, so an
-   nm^-1 file would silently produce an Rg ten times too large. The parse test
-   checks the first q is below 0.1 as a rough guard against exactly that.
+   Declare the q units in the metadata - they are never guessed. Diamond B21
+   emits nm^-1, so a magnitude heuristic would reject good data. Rg inherits
+   whichever unit q came in, and volumes inherit its cube.
 
 2. **`<name>.json`** - what the file is, and what the analysis should produce:
 
@@ -42,6 +42,7 @@ A case is a pair of files sharing a stem, in either directory:
      "source": "SASBDB SASDXX0",
      "url": "https://www.sasbdb.org/data/SASDXX0/",
      "licence": "check the entry page before committing",
+     "qUnits": "A^-1",
      "Rg": 15.1,
      "RgTolerance": 0.6,
      "I0": null,
