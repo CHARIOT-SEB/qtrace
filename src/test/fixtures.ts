@@ -187,3 +187,44 @@ export function makeSecRun(
 		}
 	})
 }
+
+/**
+ * Add a low-q aggregation upturn to an existing curve: a weak component with a
+ * much larger Rg, which dominates only at the lowest q.
+ *
+ * This is what a real aggregated sample looks like, and what defeats a Guinier
+ * search that cannot move its window away from the very lowest q.
+ */
+export function withAggregation(
+	base: SaxsData,
+	{ Rg, fraction }: { Rg: number; fraction: number },
+): SaxsData {
+	const amplitude = base.I[0] * fraction
+	const I = base.q.map(
+		(q, i) => base.I[i] + amplitude * Math.exp((-q * q * Rg * Rg) / 3),
+	)
+	return {
+		q: base.q,
+		I,
+		err: I.map((v, i) => Math.max((base.err[i] / base.I[i]) * v, v * 1e-3)),
+		filename: `${base.filename ?? 'curve'}-aggregated`,
+	}
+}
+
+/**
+ * A curve on a beamline-density q grid: ~2500 points over the range a Diamond
+ * B21 file covers, rather than the few hundred the other fixtures use.
+ *
+ * Grid density is not cosmetic - a search whose window bounds are expressed in
+ * point counts behaves completely differently here.
+ */
+export function makeBeamlineGridCurve(R = 50): SaxsData {
+	return makeSphereCurve(R, {
+		qMin: 0.0045,
+		qMax: 0.34,
+		n: 2551,
+		noise: 0.01,
+		seed: 21,
+		filename: `sphere-R${R}-beamline-grid.dat`,
+	})
+}

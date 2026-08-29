@@ -130,27 +130,131 @@ export function computeGuinier(
 	return { xs, ys, fit, Rg, dRg, I0, dI0, qRgMax, iMin, iMax }
 }
 
+/** The Guinier approximation is taken to hold while q*Rg stays under this. */
+const QRG_LIMIT = 1.3
+
+/** Below this many points a Guinier fit is not worth trusting. */
+const MIN_FIT_POINTS = 10
+
 /**
- * Search low-q windows for a sensible default Guinier region.
+ * Cap on coarse start candidates. Without it the sweep would scale with grid
+ * density, which is the whole problem this search used to have.
+ */
+const MAX_START_CANDIDATES = 80
+
+/** A candidate fit window and how well it scored. */
+interface Candidate {
+	start: number
+	end: number
+	score: number
+}
+
+/**
+ * Mean residual over the low-q third of a fit.
  *
- * Strategy: try every (start, end) window with start in the first ~15 points
- * and length 8–60, keeping only those where q·Rg ≤ 1.3, then pick the best
- * R² (lightly penalised by distance from q·Rg = 1.0).
+ * Aggregation lifts the lowest-q points above the fitted line, so a positive
+ * value here is the signature of a window that has strayed into an upturn.
+ */
+function lowQResidualBias(r: GuinierResult): number {
+	const n = r.xs.length
+	if (n < 6) return 0
+	const third = Math.max(2, Math.floor(n / 3))
+	let sum = 0
+	for (let i = 0; i < third; i++) {
+		sum += r.ys[i] - (r.fit.slope * r.xs[i] + r.fit.intercept)
+	}
+	return sum / third
+}
+
+/**
+ * Rank a candidate window.
+ *
+ * R2 alone prefers a short window on any locally straight stretch - and an
+ * aggregation upturn is straighter than the real Guinier region, so R2 alone
+ * walks straight into it. Reward coverage towards q*Rg = 1, and penalise the
+ * low-q upturn signature.
+ */
+function scoreRegion(r: GuinierResult): number {
+	const bias = lowQResidualBias(r)
+	return r.fit.r2 - Math.abs(1.0 - r.qRgMax) * 0.05 - (bias > 0 ? bias * 2 : 0)
+}
+
+/**
+ * Search for a sensible default Guinier region.
+ *
+ * The window bounds are expressed in q*Rg and in candidate *positions*, never
+ * in fixed point counts. An earlier version searched starts within the first 15
+ * points and windows of 8-60 points, which silently assumed a few-hundred-point
+ * curve. On a 2551-point Diamond B21 file those windows span barely any q at
+ * all - they sit inside the low-q upturn, where every candidate is rejected for
+ * q*Rg or returns a wildly inflated Rg. Auto-find either did nothing or was
+ * confidently wrong, depending on how strong the upturn was.
+ *
+ * Returns null when no window satisfies the validity limit.
  */
 export function autoFindGuinierRegion(
 	data: SaxsData,
 ): { start: number; end: number } | null {
-	let best: { start: number; end: number; score: number } | null = null
+	const n = data.q.length
+	if (n < MIN_FIT_POINTS) return null
 
-	const maxStart = Math.min(15, data.q.length)
-	for (let start = 0; start < maxStart; start++) {
-		const maxEnd = Math.min(start + 60, data.q.length)
-		for (let end = start + 8; end < maxEnd; end++) {
+	/**
+	 * Best window starting at `start`, growing until q*Rg leaves the valid
+	 * range. Returns null when no window from here is valid.
+	 */
+	const sweepFrom = (start: number): Candidate | null => {
+		let local: Candidate | null = null
+
+		for (let end = start + MIN_FIT_POINTS - 1; end < n; end++) {
 			const r = computeGuinier(data, start, end)
-			if (!r || !Number.isFinite(r.Rg) || r.qRgMax > 1.3) continue
-			const score = r.fit.r2 - Math.abs(1.0 - r.qRgMax) * 0.05
-			if (!best || score > best.score) best = { start, end, score }
+			if (!r) continue
+			const width = end - start + 1
+
+			if (!Number.isFinite(r.Rg)) {
+				// A positive slope across a narrow window is usually just noise;
+				// across a wide one it means there is no Guinier region from here.
+				if (width >= 4 * MIN_FIT_POINTS) break
+				continue
+			}
+
+			if (r.qRgMax > QRG_LIMIT) {
+				// Widening only pushes q*Rg further out, so this start is spent -
+				// but a narrow window may only have a noisy slope, so let it settle
+				// before giving up on the start entirely.
+				if (width >= 2 * MIN_FIT_POINTS) break
+				continue
+			}
+
+			const score = scoreRegion(r)
+			if (!local || score > local.score) local = { start, end, score }
 		}
+
+		return local
 	}
-	return best ? { start: best.start, end: best.end } : null
+
+	let best: Candidate | null = null
+	const keep = (c: Candidate | null) => {
+		if (c && (!best || c.score > best.score)) best = c
+	}
+
+	// Start candidates span the low half of the curve. Bounding this in q would
+	// need an Rg we do not have yet, and a start beyond the Guinier region is
+	// rejected by the q*Rg test anyway, so a generous range is safe: a bad start
+	// costs a handful of fits over a short window.
+	const maxStart = Math.floor(n / 2)
+	const stride = Math.max(1, Math.ceil(maxStart / MAX_START_CANDIDATES))
+	for (let start = 0; start <= maxStart; start += stride) keep(sweepFrom(start))
+
+	if (best === null) return null
+
+	// Refine the start at full resolution around the coarse winner.
+	if (stride > 1) {
+		const coarse: Candidate = best
+		const lo = Math.max(0, coarse.start - stride)
+		const hi = Math.min(maxStart, coarse.start + stride)
+		for (let start = lo; start <= hi; start++) keep(sweepFrom(start))
+	}
+
+	const winner: Candidate = best
+	return { start: winner.start, end: winner.end }
 }

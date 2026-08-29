@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { autoFindGuinierRegion, computeGuinier, linearFit } from './guinier'
-import { makeGuinierCurve, makeSphereCurve, sphereRg } from '../test/fixtures'
+import {
+	makeBeamlineGridCurve,
+	makeGuinierCurve,
+	makeSphereCurve,
+	sphereRg,
+	withAggregation,
+} from '../test/fixtures'
 import type { SaxsData } from '../types/saxs'
 
 describe('linearFit', () => {
@@ -174,6 +180,67 @@ describe('autoFindGuinierRegion', () => {
 		const r = computeGuinier(data, region.start, region.end)!
 		expect(r.qRgMax).toBeLessThanOrEqual(1.3)
 		expect(Math.abs(r.Rg - sphereRg(50)) / sphereRg(50)).toBeLessThan(0.03)
+	})
+
+	it('is not thrown off by the density of the q grid', () => {
+		// The search used to express its window bounds in point counts, so the
+		// same physical curve sampled finely gave a completely different answer
+		// from the same curve sampled coarsely.
+		const truth = sphereRg(50)
+		const recovered = [250, 2551].map((n) => {
+			const data = makeSphereCurve(50, { qMin: 0.0045, qMax: 0.34, n })
+			const region = autoFindGuinierRegion(data)!
+			return computeGuinier(data, region.start, region.end)!.Rg
+		})
+
+		// Absolute accuracy is bounded by the Guinier-vs-sphere bias pinned
+		// above, not by the search. Agreement *between* the two grids is the
+		// invariant that actually matters here.
+		for (const Rg of recovered) {
+			expect(Math.abs(Rg - truth) / truth).toBeLessThan(0.03)
+		}
+		expect(Math.abs(recovered[0] - recovered[1]) / truth).toBeLessThan(0.02)
+	})
+
+	it('uses the q*Rg range available to it on a beamline-density grid', () => {
+		// A window capped at 60 points spans almost no q on a 2551-point file,
+		// which used to leave the fit sitting at q*Rg well below 0.6.
+		const data = makeBeamlineGridCurve(50)
+		const region = autoFindGuinierRegion(data)!
+		const r = computeGuinier(data, region.start, region.end)!
+
+		expect(r.qRgMax).toBeGreaterThan(0.9)
+		expect(r.qRgMax).toBeLessThanOrEqual(1.3)
+		expect(r.xs.length).toBeGreaterThan(100)
+		expect(Math.abs(r.Rg - sphereRg(50)) / sphereRg(50)).toBeLessThan(0.02)
+	})
+
+	it('steps past a low-q aggregation upturn instead of fitting it', () => {
+		// The failure this search was rewritten for: on a fine grid the window
+		// could not reach beyond the upturn, so it fitted the aggregate and
+		// reported an Rg several times too large.
+		const truth = sphereRg(50)
+		const clean = makeBeamlineGridCurve(50)
+
+		for (const fraction of [0.5, 1, 2]) {
+			const data = withAggregation(clean, { Rg: 350, fraction })
+			const region = autoFindGuinierRegion(data)!
+			const r = computeGuinier(data, region.start, region.end)!
+
+			expect(Math.abs(r.Rg - truth) / truth).toBeLessThan(0.03)
+			// The stronger the upturn, the further in the fit must start.
+			expect(data.q[region.start] * truth).toBeGreaterThan(0.2)
+		}
+	})
+
+	it('starts further into the curve as the upturn strengthens', () => {
+		const clean = makeBeamlineGridCurve(50)
+		const starts = [0.25, 0.5, 1, 2].map(
+			(fraction) =>
+				autoFindGuinierRegion(withAggregation(clean, { Rg: 350, fraction }))!
+					.start,
+		)
+		expect(starts).toEqual([...starts].sort((a, b) => a - b))
 	})
 
 	it('returns null when no window yields a physical Rg', () => {
