@@ -3,3 +3,10 @@ dist/
 *.tsbuildinfo
 .DS_Store
 .env.local
+vite.config.js
+vite.config.d.ts
+coverage/
+
+# Private reference datasets. Real experimental data lives here so the
+# regression suite can run against it locally; it must never be committed.
+src/test/data/local/

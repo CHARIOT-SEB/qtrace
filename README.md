@@ -50,7 +50,16 @@ row of ranges pointing at it.
 ```bash
 npm run build      # type-check and bundle for production into ./dist
 npm run preview    # serve the production build locally
+npm run test       # run the analysis test suite
+npm run test:watch # re-run tests on change
+npm run coverage   # test suite with a coverage report
+npm run typecheck  # type-check the app and the tests
+npm run lint       # eslint
 ```
+
+Tests cover `src/lib` - the parsing, fitting and export layer - against seeded
+fixtures with closed-form ground truth (`src/test/fixtures.ts`). A slot for one
+real published dataset sits at `src/test/data/`; see the README there.
 
 ## Project structure
 

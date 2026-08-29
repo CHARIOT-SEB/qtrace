@@ -1,0 +1,20 @@
+{
+  "//": "Type-checks the test suite. Standalone rather than a build reference: tests need Node types and a newer lib than the browser app targets, and keeping those out of tsconfig.app.json stops app code from type-checking against APIs the browser does not have. Run via `npm run typecheck`.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["src"]
+}
