@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #2f4550; background: #f1f4f5;
+         -webkit-font-smoothing: antialiased; }
+  a { color: #0f5b68; text-decoration: none; }
+  a:hover { color: #16262e; }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace; font-variant-numeric: tabular-nums; }
+  .lbl { font-size: 10px; font-weight: 600; letter-spacing: 0.11em; text-transform: uppercase;
+         color: #7d949e; }
+  .card { background: #ffffff; border: 1px solid #dde6e8; border-radius: 8px; }
+
+  body { width: 900px; height: 640px; overflow: hidden; }
+  .box { border: 1.5px solid #9aa5aa; border-radius: 4px; background: #fff; }
+  .fill { background: repeating-linear-gradient(135deg, #eceff0 0 6px, #f6f8f8 6px 12px); }
+  .cap { font-size: 11px; font-weight: 600; color: #55707c; letter-spacing: .02em; }
+  .hand { font-family: 'Caveat', 'Bradley Hand', cursive; font-size: 17px; color: #0f5b68; }
+  .tiny { font-size: 9.5px; color: #8a969b; }
+</style>
+</helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&display=swap">
+<div style="width:900px;height:640px;padding:26px 30px;background:#f7f9f9;display:flex;flex-direction:column">
+  
+<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:16px">
+  <span style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:#16262e;color:#fff;font-size:12px;font-weight:600;flex-shrink:0">C</span>
+  <div>
+    <h1 style="margin:0;font-size:16px;font-weight:600;color:#16262e;letter-spacing:-0.01em">Dark instrument console</h1>
+    <p style="margin:3px 0 0;font-size:12px;line-height:1.5;color:#55707c;max-width:660px;text-wrap:pretty">Everything visible at once on a dark ground, the way beamline control software looks. No rails, no scrolling — a fixed grid of panels plus a command bar, driven by keyboard as much as mouse.</p>
+  </div>
+</div>
+
+  <div style="flex-grow:1;border-radius:6px;background:#16242b;padding:10px;display:flex;flex-direction:column;gap:9px;min-height:0">
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+      <span style="font-size:11px;font-weight:600;color:#8fd3d8">QTRACE</span>
+      <div style="flex-grow:1;height:26px;border-radius:4px;background:#1b2b33;border:1.5px solid #3a4c55;display:flex;align-items:center;padding:0 10px">
+        <span class="mono" style="font-size:10px;color:#6f8992">⌘K  ·  fit 0.017 0.0525  ·  export csv</span>
+      </div>
+      <span class="mono" style="font-size:10px;color:#cfe0e4">Rg 24.82 ± 0.31</span>
+      <span style="padding:2px 7px;border-radius:3px;background:#1d4a38;color:#7fd6a6;font-size:9px;font-weight:600">OK</span>
+    </div>
+
+    <div style="flex-grow:1;display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));grid-template-rows:repeat(2, minmax(0, 1fr));gap:9px;min-height:0">
+      
+<div style="grid-column:span 3;border:1.5px solid #3a4c55;border-radius:4px;background:#1b2b33;padding:8px 10px;display:flex;flex-direction:column;gap:4px;min-height:0">
+  <div style="display:flex;justify-content:space-between;align-items:baseline">
+    <span style="font-size:10px;font-weight:600;color:#cfe0e4;letter-spacing:.03em">CHROMATOGRAM</span>
+    <span style="font-size:9px;color:#6f8992">240 frames</span>
+  </div>
+  <div style="flex-grow:1;border-radius:3px;background:repeating-linear-gradient(135deg,#22343d 0 6px,#1e303a 6px 12px)"></div>
+</div>
+      
+<div style="grid-column:span 1;border:1.5px solid #3a4c55;border-radius:4px;background:#1b2b33;padding:8px 10px;display:flex;flex-direction:column;gap:4px;min-height:0">
+  <div style="display:flex;justify-content:space-between;align-items:baseline">
+    <span style="font-size:10px;font-weight:600;color:#cfe0e4;letter-spacing:.03em">GUINIER</span>
+    <span style="font-size:9px;color:#6f8992">36 pts</span>
+  </div>
+  <div style="flex-grow:1;border-radius:3px;background:repeating-linear-gradient(135deg,#22343d 0 6px,#1e303a 6px 12px)"></div>
+</div>
+      
+<div style="grid-column:span 1;border:1.5px solid #3a4c55;border-radius:4px;background:#1b2b33;padding:8px 10px;display:flex;flex-direction:column;gap:4px;min-height:0">
+  <div style="display:flex;justify-content:space-between;align-items:baseline">
+    <span style="font-size:10px;font-weight:600;color:#cfe0e4;letter-spacing:.03em">RESIDUALS</span>
+    <span style="font-size:9px;color:#6f8992">±2σ</span>
+  </div>
+  <div style="flex-grow:1;border-radius:3px;background:repeating-linear-gradient(135deg,#22343d 0 6px,#1e303a 6px 12px)"></div>
+</div>
+      
+<div style="grid-column:span 1;border:1.5px solid #3a4c55;border-radius:4px;background:#1b2b33;padding:8px 10px;display:flex;flex-direction:column;gap:4px;min-height:0">
+  <div style="display:flex;justify-content:space-between;align-items:baseline">
+    <span style="font-size:10px;font-weight:600;color:#cfe0e4;letter-spacing:.03em">KRATKY</span>
+    <span style="font-size:9px;color:#6f8992">globular</span>
+  </div>
+  <div style="flex-grow:1;border-radius:3px;background:repeating-linear-gradient(135deg,#22343d 0 6px,#1e303a 6px 12px)"></div>
+</div>
+    </div>
+  </div>
+
+  <div class="hand" style="margin-top:8px">dense, keyboard-first — every number on one screen</div>
+
+  
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;padding-top:12px;border-top:1.5px dashed #c3cdd1">
+  <div><div class="cap" style="color:#1d6b45">Wins</div><p style="margin:4px 0 0;font-size:11.5px;line-height:1.5;color:#55707c;text-wrap:pretty">Instantly credible to anyone who has sat at a beamline. Nothing is ever more than one glance away, and it photographs well for a pitch.</p></div>
+  <div><div class="cap" style="color:#8a1f2f">Costs</div><p style="margin:4px 0 0;font-size:11.5px;line-height:1.5;color:#55707c;text-wrap:pretty">Dark UI is hard to read in a bright lab, figures exported from it need re-theming for a paper, and it signals "expert tool" — the opposite of commercial reach.</p></div>
+</div>
+</div>
+</x-dc>
+
+</body>
+</html>

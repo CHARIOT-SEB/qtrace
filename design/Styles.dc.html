@@ -1,0 +1,355 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #2f4550; background: #f1f4f5;
+         -webkit-font-smoothing: antialiased; }
+  a { color: #0f5b68; text-decoration: none; }
+  a:hover { color: #16262e; }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace; font-variant-numeric: tabular-nums; }
+  .lbl { font-size: 10px; font-weight: 600; letter-spacing: 0.11em; text-transform: uppercase;
+         color: #7d949e; }
+  .card { background: #ffffff; border: 1px solid #dde6e8; border-radius: 8px; }
+
+  .grid { stroke: #e8eef0; stroke-width: 1; }
+  .axis { stroke: #c3d4d8; stroke-width: 1; }
+  .tick { font-family: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace; font-size: 9.5px; fill: #7d949e; }
+  .axname { font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 10px; font-weight: 500; fill: #55707c; }
+  .sec-o { fill: #93b7bf; opacity: .5; }
+  .sec-b { fill: #4a8f9d; }
+  .sec-s { fill: #0f5b68; }
+  .g-out { fill: #7d949e; opacity: .38; }
+  .g-in  { fill: #0f5b68; }
+  .fitline { stroke: #16262e; stroke-width: 2; }
+  .res-stem { stroke: #6b5ca8; stroke-width: 1.4; opacity: .34; }
+  .res-dot { fill: #6b5ca8; }
+  .c-out { fill: #7d949e; opacity: .45; }
+  .c-in  { fill: #0f5b68; }
+
+      body { width: 900px; height: 1420px; overflow: hidden; background: #f1f4f5; }
+      .g4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+      .g5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+      .g3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    </style>
+</helmet>
+
+<div style="width:900px;height:1420px;padding:36px 40px;display:flex;flex-direction:column;gap:30px;background:#f1f4f5">
+
+  <header style="display:flex;align-items:flex-start;gap:14px">
+    
+<svg viewBox="0 0 28 28" width="38" height="38" style="display:block;flex-shrink:0">
+  <rect width="28" height="28" rx="7" fill="#16262e"/>
+  <path d="M6 8.5c3.6 0 3.2 11 6.2 11S16 12 22 12" fill="none" stroke="#8fd3d8" stroke-width="2.1" stroke-linecap="round"/>
+  <circle cx="6" cy="8.5" r="1.9" fill="#fff"/>
+</svg>
+    <div style="flex-grow:1">
+      <h1 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-0.02em;color:#16262e">QTrace design system</h1>
+      <p style="margin:5px 0 0;font-size:13px;line-height:1.55;color:#55707c;max-width:600px;text-wrap:pretty">Keeps the charcoal-blue spine the app already uses. What changes: a real saturated accent, hairlines that read as rules, and chart colours picked so the fit-selection encoding and the fit-quality encoding stop competing.</p>
+    </div>
+  </header>
+
+  
+<section style="display:flex;flex-direction:column;gap:14px">
+  <div style="display:flex;align-items:baseline;gap:10px;border-bottom:1px solid #dde6e8;padding-bottom:9px">
+    <span class="mono" style="font-size:11px;font-weight:500;color:#0f5b68">01</span>
+    <h2 style="margin:0;font-size:15px;font-weight:600;color:#16262e;letter-spacing:-0.01em">Typography</h2>
+    <span style="flex-grow:1"></span>
+    <span style="font-size:11px;color:#7d949e;text-align:right;max-width:400px;text-wrap:pretty">IBM Plex Sans + IBM Plex Mono. Every measured value is set in mono with tabular figures, so digits stay aligned as a fit updates.</span>
+  </div>
+  
+    <div>
+      
+<div style="display:flex;align-items:baseline;gap:18px;padding:9px 0;border-bottom:1px solid #dde6e8">
+  <div style="width:104px;flex-shrink:0">
+    <div class="lbl" style="font-size:9.5px">Display</div>
+    <div class="mono" style="font-size:10px;color:#7d949e;margin-top:2px">Sans 25 / 600 / -0.02em</div>
+  </div>
+  <div style="flex-grow:1;min-width:0;font-size:25px;font-weight:600;letter-spacing:-0.02em;color:#16262e">Load a scattering dataset</div>
+</div>
+      
+<div style="display:flex;align-items:baseline;gap:18px;padding:9px 0;border-bottom:1px solid #dde6e8">
+  <div style="width:104px;flex-shrink:0">
+    <div class="lbl" style="font-size:9.5px">Section</div>
+    <div class="mono" style="font-size:10px;color:#7d949e;margin-top:2px">Sans 15 / 600</div>
+  </div>
+  <div style="flex-grow:1;min-width:0;font-size:15px;font-weight:600;color:#16262e">Guinier fit</div>
+</div>
+      
+<div style="display:flex;align-items:baseline;gap:18px;padding:9px 0;border-bottom:1px solid #dde6e8">
+  <div style="width:104px;flex-shrink:0">
+    <div class="lbl" style="font-size:9.5px">Card title</div>
+    <div class="mono" style="font-size:10px;color:#7d949e;margin-top:2px">Sans 12.5 / 600</div>
+  </div>
+  <div style="flex-grow:1;min-width:0;font-size:12.5px;font-weight:600;color:#16262e">SEC chromatogram</div>
+</div>
+      
+<div style="display:flex;align-items:baseline;gap:18px;padding:9px 0;border-bottom:1px solid #dde6e8">
+  <div style="width:104px;flex-shrink:0">
+    <div class="lbl" style="font-size:9.5px">Body</div>
+    <div class="mono" style="font-size:10px;color:#7d949e;margin-top:2px">Sans 13 / 400 / 1.55</div>
+  </div>
+  <div style="flex-grow:1;min-width:0;font-size:13px;line-height:1.55;color:#2f4550">A downturn at very low q usually means interparticle repulsion.</div>
+</div>
+      
+<div style="display:flex;align-items:baseline;gap:18px;padding:9px 0;border-bottom:1px solid #dde6e8">
+  <div style="width:104px;flex-shrink:0">
+    <div class="lbl" style="font-size:9.5px">Label</div>
+    <div class="mono" style="font-size:10px;color:#7d949e;margin-top:2px">Sans 10 / 600 / 0.11em caps</div>
+  </div>
+  <div style="flex-grow:1;min-width:0;font-size:10px;font-weight:600;letter-spacing:0.11em;text-transform:uppercase;color:#7d949e">Frame selection</div>
+</div>
+      
+<div style="display:flex;align-items:baseline;gap:18px;padding:9px 0;border-bottom:1px solid #dde6e8">
+  <div style="width:104px;flex-shrink:0">
+    <div class="lbl" style="font-size:9.5px">Readout</div>
+    <div class="mono" style="font-size:10px;color:#7d949e;margin-top:2px">Mono 34 / 500 / tabular</div>
+  </div>
+  <div style="flex-grow:1;min-width:0;font-family:'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;font-variant-numeric:tabular-nums;font-size:34px;font-weight:500;letter-spacing:-0.02em;color:{{accent}}">24.82</div>
+</div>
+      
+<div style="display:flex;align-items:baseline;gap:18px;padding:9px 0;border-bottom:1px solid #dde6e8">
+  <div style="width:104px;flex-shrink:0">
+    <div class="lbl" style="font-size:9.5px">Data</div>
+    <div class="mono" style="font-size:10px;color:#7d949e;margin-top:2px">Mono 12.5 / 500 / tabular</div>
+  </div>
+  <div style="flex-grow:1;min-width:0;font-family:'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:500;color:#16262e">0.0170 → 0.0525 Å⁻¹   ·   q·Rg 1.27</div>
+</div>
+    </div>
+</section>
+
+  
+<section style="display:flex;flex-direction:column;gap:14px">
+  <div style="display:flex;align-items:baseline;gap:10px;border-bottom:1px solid #dde6e8;padding-bottom:9px">
+    <span class="mono" style="font-size:11px;font-weight:500;color:#0f5b68">02</span>
+    <h2 style="margin:0;font-size:15px;font-weight:600;color:#16262e;letter-spacing:-0.01em">Ink and surface</h2>
+    <span style="flex-grow:1"></span>
+    <span style="font-size:11px;color:#7d949e;text-align:right;max-width:400px;text-wrap:pretty">The app's c1–c5 tokens, with a darker heading ink and a desaturated hairline. The old #b8dbd9 border was too saturated to recede.</span>
+  </div>
+  
+    <div class="g5">
+      
+<div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+  <div style="height:52px;border-radius:6px;background:#16262e;border:1px solid transparent"></div>
+  <div style="min-width:0">
+    <div style="font-size:11px;font-weight:600;color:#16262e">ink-900</div>
+    <div class="mono" style="font-size:10.5px;color:#7d949e;margin-top:1px">#16262e</div>
+    <div style="font-size:10px;color:#55707c;margin-top:2px;line-height:1.4;text-wrap:pretty">Headings, fit line</div>
+  </div>
+</div>
+      
+<div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+  <div style="height:52px;border-radius:6px;background:#2f4550;border:1px solid transparent"></div>
+  <div style="min-width:0">
+    <div style="font-size:11px;font-weight:600;color:#16262e">ink-700</div>
+    <div class="mono" style="font-size:10.5px;color:#7d949e;margin-top:1px">#2f4550</div>
+    <div style="font-size:10px;color:#55707c;margin-top:2px;line-height:1.4;text-wrap:pretty">Body — the app's c1</div>
+  </div>
+</div>
+      
+<div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+  <div style="height:52px;border-radius:6px;background:#55707c;border:1px solid transparent"></div>
+  <div style="min-width:0">
+    <div style="font-size:11px;font-weight:600;color:#16262e">ink-500</div>
+    <div class="mono" style="font-size:10.5px;color:#7d949e;margin-top:1px">#55707c</div>
+    <div style="font-size:10px;color:#55707c;margin-top:2px;line-height:1.4;text-wrap:pretty">Secondary text, axis names</div>
+  </div>
+</div>
+      
+<div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+  <div style="height:52px;border-radius:6px;background:#7d949e;border:1px solid #dde6e8"></div>
+  <div style="min-width:0">
+    <div style="font-size:11px;font-weight:600;color:#16262e">ink-400</div>
+    <div class="mono" style="font-size:10.5px;color:#7d949e;margin-top:1px">#7d949e</div>
+    <div style="font-size:10px;color:#55707c;margin-top:2px;line-height:1.4;text-wrap:pretty">Muted labels, excluded marks</div>
+  </div>
+</div>
+      
+<div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+  <div style="height:52px;border-radius:6px;background:#dde6e8;border:1px solid #dde6e8"></div>
+  <div style="min-width:0">
+    <div style="font-size:11px;font-weight:600;color:#16262e">line</div>
+    <div class="mono" style="font-size:10.5px;color:#7d949e;margin-top:1px">#dde6e8</div>
+    <div style="font-size:10px;color:#55707c;margin-top:2px;line-height:1.4;text-wrap:pretty">Hairlines, card borders</div>
+  </div>
+</div>
+    </div>
+    <div class="g5">
+      
+<div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+  <div style="height:52px;border-radius:6px;background:#ffffff;border:1px solid #dde6e8"></div>
+  <div style="min-width:0">
+    <div style="font-size:11px;font-weight:600;color:#16262e">surface</div>
+    <div class="mono" style="font-size:10.5px;color:#7d949e;margin-top:1px">#ffffff</div>
+    <div style="font-size:10px;color:#55707c;margin-top:2px;line-height:1.4;text-wrap:pretty">Cards, rails</div>
+  </div>
+</div>
+      
+<div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+  <div style="height:52px;border-radius:6px;background:#f1f4f5;border:1px solid #dde6e8"></div>
+  <div style="min-width:0">
+    <div style="font-size:11px;font-weight:600;color:#16262e">canvas</div>
+    <div class="mono" style="font-size:10.5px;color:#7d949e;margin-top:1px">#f1f4f5</div>
+    <div style="font-size:10px;color:#55707c;margin-top:2px;line-height:1.4;text-wrap:pretty">App background</div>
+  </div>
+</div>
+      
+<div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+  <div style="height:52px;border-radius:6px;background:#0f5b68;border:1px solid transparent"></div>
+  <div style="min-width:0">
+    <div style="font-size:11px;font-weight:600;color:#16262e">accent</div>
+    <div class="mono" style="font-size:10.5px;color:#7d949e;margin-top:1px">#0f5b68</div>
+    <div style="font-size:10px;color:#55707c;margin-top:2px;line-height:1.4;text-wrap:pretty">Primary action, active state</div>
+  </div>
+</div>
+      
+<div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+  <div style="height:52px;border-radius:6px;background:#e4eff1;border:1px solid #dde6e8"></div>
+  <div style="min-width:0">
+    <div style="font-size:11px;font-weight:600;color:#16262e">accent-soft</div>
+    <div class="mono" style="font-size:10.5px;color:#7d949e;margin-top:1px">#e4eff1</div>
+    <div style="font-size:10px;color:#55707c;margin-top:2px;line-height:1.4;text-wrap:pretty">Accent fill, selected row</div>
+  </div>
+</div>
+      
+<div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+  <div style="height:52px;border-radius:6px;background:#6b5ca8;border:1px solid transparent"></div>
+  <div style="min-width:0">
+    <div style="font-size:11px;font-weight:600;color:#16262e">violet</div>
+    <div class="mono" style="font-size:10.5px;color:#7d949e;margin-top:1px">#6b5ca8</div>
+    <div style="font-size:10px;color:#55707c;margin-top:2px;line-height:1.4;text-wrap:pretty">Residual marks</div>
+  </div>
+</div>
+    </div>
+</section>
+
+  
+<section style="display:flex;flex-direction:column;gap:14px">
+  <div style="display:flex;align-items:baseline;gap:10px;border-bottom:1px solid #dde6e8;padding-bottom:9px">
+    <span class="mono" style="font-size:11px;font-weight:500;color:#0f5b68">03</span>
+    <h2 style="margin:0;font-size:15px;font-weight:600;color:#16262e;letter-spacing:-0.01em">Chart encodings</h2>
+    <span style="flex-grow:1"></span>
+    <span style="font-size:11px;color:#7d949e;text-align:right;max-width:400px;text-wrap:pretty">Two separate jobs, two separate scales. Selection (which frames, which points) rides an ordinal teal ramp; quality (is this fit trustworthy) rides the status trio.</span>
+  </div>
+  
+    <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:22px">
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <span class="lbl">Selection — ordinal, one hue</span>
+        <div style="display:flex;gap:8px">
+          
+          <div style="flex-grow:1;min-width:0">
+            <div style="height:34px;border-radius:5px;background:#93b7bf"></div>
+            <div style="font-size:10.5px;font-weight:600;color:#16262e;margin-top:5px">Excluded</div>
+            <div class="mono" style="font-size:10px;color:#7d949e">#93b7bf</div>
+          </div>
+          <div style="flex-grow:1;min-width:0">
+            <div style="height:34px;border-radius:5px;background:#4a8f9d"></div>
+            <div style="font-size:10.5px;font-weight:600;color:#16262e;margin-top:5px">Buffer</div>
+            <div class="mono" style="font-size:10px;color:#7d949e">#4a8f9d</div>
+          </div>
+          <div style="flex-grow:1;min-width:0">
+            <div style="height:34px;border-radius:5px;background:#0f5b68"></div>
+            <div style="font-size:10.5px;font-weight:600;color:#16262e;margin-top:5px">Signal / in fit</div>
+            <div class="mono" style="font-size:10px;color:#7d949e">#0f5b68</div>
+          </div>
+        </div>
+        <p style="margin:2px 0 0;font-size:10.5px;line-height:1.5;color:#55707c;text-wrap:pretty">Monotone lightness, single hue, light end clears the surface at 2.15:1 — passes the ordinal check.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <span class="lbl">Quality — status, never colour alone</span>
+        <div style="display:flex;gap:8px">
+          
+          <div style="flex-grow:1;min-width:0">
+            <div style="height:34px;border-radius:5px;background:#4fb37e"></div>
+            <div style="font-size:10.5px;font-weight:600;color:#16262e;margin-top:5px">OK</div>
+            <div class="mono" style="font-size:10px;color:#7d949e">qRg ≤ 1.3</div>
+          </div>
+          <div style="flex-grow:1;min-width:0">
+            <div style="height:34px;border-radius:5px;background:#d08c00"></div>
+            <div style="font-size:10.5px;font-weight:600;color:#16262e;margin-top:5px">WARN</div>
+            <div class="mono" style="font-size:10px;color:#7d949e">≤ 1.5</div>
+          </div>
+          <div style="flex-grow:1;min-width:0">
+            <div style="height:34px;border-radius:5px;background:#9e2436"></div>
+            <div style="font-size:10.5px;font-weight:600;color:#16262e;margin-top:5px">BAD</div>
+            <div class="mono" style="font-size:10px;color:#7d949e">> 1.5</div>
+          </div>
+        </div>
+        <p style="margin:2px 0 0;font-size:10.5px;line-height:1.5;color:#55707c;text-wrap:pretty">Split by lightness, not hue alone, so red and green stay 10.5 ΔE apart under deuteranopia. Always shipped with the word.</p>
+      </div>
+    </div>
+
+    <div style="background:#ffffff;border:1px solid #dde6e8;border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:26px;flex-wrap:wrap">
+      <span class="lbl">Marks</span>
+      <span style="display:inline-flex;align-items:center;gap:8px"><svg width="34" height="14"><circle cx="8" cy="7" r="3.1" fill="#0f5b68"/><circle cx="20" cy="7" r="3.1" fill="#0f5b68"/></svg><span style="font-size:11px;color:#55707c">In fit</span></span><span style="display:inline-flex;align-items:center;gap:8px"><svg width="34" height="14"><circle cx="8" cy="7" r="2.4" fill="#7d949e" opacity=".38"/><circle cx="20" cy="7" r="2.4" fill="#7d949e" opacity=".38"/></svg><span style="font-size:11px;color:#55707c">Excluded</span></span><span style="display:inline-flex;align-items:center;gap:8px"><svg width="34" height="14"><line x1="3" y1="11" x2="31" y2="3" stroke="#16262e" stroke-width="2" stroke-linecap="round"/></svg><span style="font-size:11px;color:#55707c">Fitted line, 2px</span></span><span style="display:inline-flex;align-items:center;gap:8px"><svg width="34" height="14"><line x1="10" y1="7" x2="10" y2="2" stroke="#6b5ca8" stroke-width="1.4" opacity=".34"/><circle cx="10" cy="2" r="2.6" fill="#6b5ca8"/><line x1="24" y1="7" x2="24" y2="11" stroke="#6b5ca8" stroke-width="1.4" opacity=".34"/><circle cx="24" cy="11" r="2.6" fill="#6b5ca8"/></svg><span style="font-size:11px;color:#55707c">Residual</span></span><span style="display:inline-flex;align-items:center;gap:8px"><svg width="34" height="14"><line x1="2" y1="7" x2="32" y2="7" stroke="#e8eef0" stroke-width="1"/></svg><span style="font-size:11px;color:#55707c">Grid, recessive</span></span>
+    </div>
+</section>
+
+  
+<section style="display:flex;flex-direction:column;gap:14px">
+  <div style="display:flex;align-items:baseline;gap:10px;border-bottom:1px solid #dde6e8;padding-bottom:9px">
+    <span class="mono" style="font-size:11px;font-weight:500;color:#0f5b68">04</span>
+    <h2 style="margin:0;font-size:15px;font-weight:600;color:#16262e;letter-spacing:-0.01em">Components</h2>
+    <span style="flex-grow:1"></span>
+    <span style="font-size:11px;color:#7d949e;text-align:right;max-width:400px;text-wrap:pretty">One primary action per surface. Controls sit inside the card they act on, not in a separate toolbar.</span>
+  </div>
+  
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px">
+      <div style="display:flex;flex-direction:column;gap:11px">
+        <span class="lbl">Buttons</span>
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+          <button style="height:32px;padding:0 14px;border-radius:6px;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;background:{{accent}};color:#fff;border:none;box-shadow:0 1px 2px rgba(22,38,46,.16)">Snapshot</button><button style="height:32px;padding:0 14px;border-radius:6px;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;background:#ffffff;color:#2f4550;border:1px solid #dde6e8">Export</button><button style="height:32px;padding:0 14px;border-radius:6px;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;background:#e4eff1;color:#0f5b68;border:1px solid #c4dee2">Auto-find range</button><button style="height:32px;padding:0 14px;border-radius:6px;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;background:#ffffff;color:#8a1f2f;border:1px solid #eec6cb">Clear</button>
+        </div>
+        <span class="lbl" style="margin-top:6px">Status tags</span>
+        <div style="display:flex;gap:9px"><span style="padding:3px 9px;border-radius:4px;background:#eaf6f0;border:1px solid #bfe3d0;color:#1d6b45;font-size:10px;font-weight:600;letter-spacing:0.06em">OK</span><span style="padding:3px 9px;border-radius:4px;background:#fbf3e3;border:1px solid #eddcb4;color:#8a5a00;font-size:10px;font-weight:600;letter-spacing:0.06em">WARN</span><span style="padding:3px 9px;border-radius:4px;background:#fbecee;border:1px solid #eec6cb;color:#8a1f2f;font-size:10px;font-weight:600;letter-spacing:0.06em">BAD</span></div>
+        <span class="lbl" style="margin-top:6px">Fit range control</span>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 13px;background:#ffffff;border:1px solid #dde6e8;border-radius:7px">
+          <div style="flex-grow:1;position:relative;height:4px;background:#dde6e8;border-radius:2px">
+            <div style="position:absolute;left:14%;right:31%;top:0;bottom:0;background:{{accent}};border-radius:2px"></div>
+            <div style="position:absolute;left:14%;top:-6px;width:14px;height:16px;margin-left:-7px;border-radius:4px;background:#ffffff;border:2px solid {{accent}}"></div>
+            <div style="position:absolute;left:69%;top:-6px;width:14px;height:16px;margin-left:-7px;border-radius:4px;background:#ffffff;border:2px solid {{accent}}"></div>
+          </div>
+          <span class="mono" style="font-size:12px;font-weight:500;color:#16262e">36 pts</span>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:11px">
+        <span class="lbl">Result tile</span>
+        <div style="background:#ffffff;border:1px solid #dde6e8;border-radius:8px;padding:13px 14px">
+          <span class="lbl" style="font-size:10px">Radius of gyration</span>
+          <div style="display:flex;align-items:baseline;gap:5px;margin-top:3px">
+            <span class="mono" style="font-size:34px;font-weight:500;line-height:1.05;letter-spacing:-0.02em;color:{{accent}}">24.82</span>
+            <span class="mono" style="font-size:13px;color:#7d949e">Å</span>
+          </div>
+          <span class="mono" style="font-size:11.5px;color:#55707c">± 0.31 Å  (95% CI)</span>
+        </div>
+        <span class="lbl" style="margin-top:6px">Insight callout</span>
+        <div style="border:1px solid #eddcb4;background:#fbf3e3;border-radius:7px;padding:10px 11px;display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <span style="color:#8a5a00;display:flex;margin-top:1px;transform:scale(.85);transform-origin:top left"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg></span>
+            <span style="flex-grow:1;font-size:12.5px;line-height:1.45;color:#16262e">The lowest four points sit below the fitted line.</span>
+          </div>
+          <p style="margin:0 0 0 22px;font-size:11.5px;line-height:1.6;color:#55707c;border-left:2px solid #eddcb4;padding-left:9px">Interparticle repulsion biases Rg low. Try a more dilute frame range.</p>
+        </div>
+      </div>
+    </div>
+</section>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#0f5b68","options":["#0f5b68","#1c6ea8","#7a3d8f","#16262e"],"section":"Theme"},"$preview":{"width":900,"height":1420}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#0f5b68' };
+  }
+}
+</script>
+</body>
+</html>
