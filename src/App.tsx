@@ -1,13 +1,5 @@
 import { useCallback, useDeferredValue, useMemo, useState } from 'react'
-import {
-	Alert,
-	Callout,
-	Elevation,
-	Icon,
-	Intent,
-	NonIdealState,
-} from '@blueprintjs/core'
-import { FileDropZone } from './components/FileDropZone'
+import { Alert, Callout, Icon, Intent } from '@blueprintjs/core'
 import {
 	ProcessingModal,
 	INITIAL_MODAL_STATE,
@@ -15,48 +7,65 @@ import {
 } from './components/ProcessingModal'
 import { SnapshotModal } from './components/SnapshotModal'
 import { WelcomeModal } from './components/WelcomeModal'
-import { AppNavbar } from './components/AppNavbar'
+import { AppTopbar } from './components/AppTopbar'
+import { SessionRail } from './components/SessionRail'
+import { ResultsRail } from './components/ResultsRail'
 import { FullCurveChart } from './components/FullCurveChart'
 import { GuinierChart } from './components/GuinierChart'
-import { GuinierFitCard } from './components/GuinierFitCard'
-import { HistoryPanel } from './components/HistoryPanel'
 import { KratkyChart } from './components/KratkyChart'
+import { RangeControls } from './components/RangeControls'
 import { ResidualsChart } from './components/ResidualsChart'
 import { SecTrace } from './components/SecTrace'
-import { StatsRow } from './components/StatsRow'
-import { AnalysisInsights } from './components/AnalysisInsights'
 import { useGuinierRange } from './hooks/useGuinierRange'
 import { useHistory } from './hooks/useHistory'
 import { useCloudSnapshots } from './hooks/useCloudSnapshots'
 import { computeGuinier } from './lib/guinier'
 import { computePorod } from './lib/porod'
+import { computeMolecularWeight } from './lib/molecularWeight'
 import { collectInsights } from './lib/analysisHeuristics'
 import { autoDetectRegions, averageFrames, subtractBuffer } from './lib/secSaxs'
 import { buildExportCsv, downloadCsv } from './lib/csvExport'
 import { generateSampleSecFrames } from './lib/sampleData'
+import { color } from './theme'
 import type { SaxsData } from './types/saxs'
 import type { AnalysisSnapshot, HistoryEntry } from './types/history'
+import { RailLabel } from './styles/rail.styles'
 import {
 	AppRoot,
 	AppBody,
+	SessionRailSlot,
+	ResultsRailSlot,
+	DrawerBackdrop,
 	AppContent,
-	TopRow,
-	DropZoneWrap,
-	ToolbarCard,
-	ToolbarHeader,
-	PrimaryAction,
-	SecondaryRow,
-	SecondaryAction,
-	AnalysisGrid,
-	LeftColumn,
-	RightColumn,
-	ResidualsWrapper,
-	EmptyStateWrapper,
-	EmptyStateLogo,
+	Panel,
+	PanelHead,
+	PanelTitle,
+	PanelHeadRight,
+	PanelNote,
+	SubHead,
+	SubHeadRule,
+	PlotPairGrid,
 	ErrorCallout,
-	SecDivider,
-	NoFitCard,
+	EmptyStage,
+	EmptyInner,
+	EmptyHeading,
+	EmptyLead,
+	OrRule,
+	StartList,
+	StartCard,
+	StartIcon,
+	StartBody,
+	StartTitle,
+	StartSub,
+	FitRangeBar,
+	FitRangeSlider,
+	FitRangeReadout,
+	FitRangeValue,
+	FitRangeArrow,
+	FitRangeUnit,
 } from './App.styles'
+import { RailButton } from './styles/rail.styles'
+import { FileDropZone } from './components/FileDropZone'
 
 export function App() {
 	const [frames, setFrames] = useState<SaxsData[]>([])
@@ -67,6 +76,7 @@ export function App() {
 	const [modal, setModal] = useState<ModalState>(INITIAL_MODAL_STATE)
 	const [isConfirmingClear, setIsConfirmingClear] = useState(false)
 	const [saveToCloud, setSaveToCloud] = useState(false)
+	const [isRailOpen, setIsRailOpen] = useState(false)
 
 	const handleHoverQ = useCallback((q: number | null) => setHoveredQ(q), [])
 
@@ -137,6 +147,14 @@ export function App() {
 		[activeCurve, guinierResult],
 	)
 
+	const mwResult = useMemo(
+		() =>
+			activeCurve && guinierResult
+				? computeMolecularWeight(activeCurve, guinierResult)
+				: null,
+		[activeCurve, guinierResult],
+	)
+
 	const rawInsights = useMemo(
 		() =>
 			activeCurve && guinierResult
@@ -187,6 +205,7 @@ export function App() {
 			setSignalRange(sr)
 			guinier.resetRange(newFrames[0]?.q.length)
 			hist.clearHistory()
+			setIsRailOpen(false)
 
 			setModal((s) => ({ ...s, stageIndex: 5 }))
 			await tick(180)
@@ -227,6 +246,13 @@ export function App() {
 		)
 	}
 
+	const fileHandlers = {
+		onLoad: (data: SaxsData[]) => void loadFrames(data),
+		onError: handleFileError,
+		onReadStart: handleReadStart,
+		onReadProgress: handleReadProgress,
+	}
+
 	function handleExportCSV() {
 		if (frames.length === 0) return
 		const built = buildExportCsv({
@@ -239,6 +265,7 @@ export function App() {
 			activeCurve,
 			guinierResult,
 			porodResult,
+			mwResult,
 		})
 		downloadCsv(built)
 	}
@@ -275,208 +302,266 @@ export function App() {
 		hist.clearHistory()
 	}
 
+	/**
+	 * Name the run, not its first frame. SEC frames are conventionally
+	 * `<run>_00123.dat`, so a whole run showing "lysozyme_00001" reads as a
+	 * single curve. Strip the frame counter for multi-frame sets only - a lone
+	 * curve legitimately keeps whatever it was called.
+	 */
+	const datasetName = (() => {
+		const raw = frames[0]?.filename
+		if (!raw) return null
+		const stem = raw.replace(/\.[^.]+$/, '')
+		if (!isSec) return stem
+		return stem.replace(/[_-]?\d+$/, '') || stem
+	})()
+
+	const cloudPanelProps = {
+		isConfigured: cloud.isConfigured,
+		isSignedIn: cloud.isSignedIn,
+		items: cloud.items,
+		isLoading: cloud.isLoading,
+		isBusy: cloud.isBusy,
+		onRestore: (id: string) => void cloud.restore(id),
+		onDelete: (id: string) => void cloud.remove(id),
+		onUpload: handleUploadEntry,
+	}
+
+	const qValues = activeCurve?.q ?? frames[0]?.q ?? null
+
 	return (
 		<AppRoot>
 			<WelcomeModal />
-			<AppNavbar
-				framesCount={frames.length}
-				isHistoryOpen={hist.isHistoryOpen}
-				onToggleHistory={() => hist.setIsHistoryOpen((v) => !v)}
+
+			<AppTopbar
+				datasetName={datasetName}
+				frameCount={frames.length}
+				isSec={isSec}
+				canAct={frames.length > 0}
+				onExport={handleExportCSV}
+				onSnapshot={() => hist.setIsSavingSnapshot(true)}
+				onToggleSessionRail={() => setIsRailOpen((v) => !v)}
 			/>
 
-			{/* ── Body (content + optional snapshot sidebar) ────── */}
 			<AppBody>
+				<DrawerBackdrop
+					$open={isRailOpen}
+					onClick={() => setIsRailOpen(false)}
+				/>
+
+				<SessionRailSlot $open={isRailOpen}>
+					<SessionRail
+						datasetName={datasetName}
+						frameCount={frames.length}
+						isSec={isSec}
+						qMin={qValues?.[0] ?? null}
+						qMax={qValues?.[qValues.length - 1] ?? null}
+						bufferRange={bufferRange}
+						signalRange={signalRange}
+						entries={hist.history.entries}
+						activeId={hist.history.activeId}
+						cloud={cloudPanelProps}
+						onRestore={hist.handleRestore}
+						onExportSession={hist.handleExportSession}
+						onImportSession={hist.handleImportSession}
+						onClearSession={() => setIsConfirmingClear(true)}
+						onLoadFiles={(data) => void loadFrames(data)}
+						onFileError={handleFileError}
+						onReadStart={handleReadStart}
+						onReadProgress={handleReadProgress}
+					/>
+				</SessionRailSlot>
+
+				<ResultsRailSlot>
+					<ResultsRail
+						result={guinierResult}
+						pointsUsed={guinier.deferredHi - guinier.deferredLo + 1}
+						totalPoints={activeCurve?.q.length ?? 0}
+						porodResult={porodResult}
+						mwResult={mwResult}
+						insights={insights}
+					/>
+				</ResultsRailSlot>
+
 				<AppContent>
-					{/* Drop zone + toolbar */}
-					<TopRow>
-						<DropZoneWrap>
-							<FileDropZone
-								onLoad={loadFrames}
-								onError={handleFileError}
-								onReadStart={handleReadStart}
-								onReadProgress={handleReadProgress}
-							/>
-						</DropZoneWrap>
-						<ToolbarCard elevation={Elevation.ONE}>
-							<ToolbarHeader>Actions</ToolbarHeader>
-							<PrimaryAction
-								type='button'
-								onClick={() => loadFrames(generateSampleSecFrames(), true)}
-							>
-								<Icon icon='lab-test' size={14} />
-								<span className='pa-label'>Load sample SEC run</span>
-								<Icon
-									icon='arrow-right'
-									size={12}
-									className='pa-chevron'
-								/>
-							</PrimaryAction>
-							<SecondaryRow>
-								<SecondaryAction
-									type='button'
-									$intent='export'
-									onClick={handleExportCSV}
-									disabled={frames.length === 0}
-									aria-label='Export current analysis as CSV'
-									title='Export current analysis as CSV'
-								>
-									<Icon icon='download' size={13} />
-									<span>Export</span>
-								</SecondaryAction>
-								<SecondaryAction
-									type='button'
-									$intent='snapshot'
-									onClick={() => hist.setIsSavingSnapshot(true)}
-									disabled={frames.length === 0 || hist.isSavingSnapshot}
-									aria-label='Save snapshot of current session'
-									title='Save snapshot of current session'
-								>
-									<Icon icon='bookmark' size={13} />
-									<span>Snapshot</span>
-								</SecondaryAction>
-								<SecondaryAction
-									type='button'
-									$intent='destructive'
-									onClick={() => setIsConfirmingClear(true)}
-									disabled={frames.length === 0}
-									aria-label='Clear loaded data'
-									title='Clear loaded data'
-								>
-									<Icon icon='trash' size={13} />
-									<span>Clear</span>
-								</SecondaryAction>
-							</SecondaryRow>
-						</ToolbarCard>
-					</TopRow>
-
 					{error && <ErrorCallout icon='warning-sign'>{error}</ErrorCallout>}
-
 					{cloud.error && (
 						<ErrorCallout icon='cloud'>{cloud.error}</ErrorCallout>
 					)}
 
-					{/* Empty state */}
-					{frames.length === 0 && (
-						<EmptyStateWrapper>
-							<NonIdealState
-								icon={
-									<EmptyStateLogo
-										src={`${import.meta.env.BASE_URL}assets/qtrace-logo.png`}
-										alt=''
-									/>
-								}
-								title='No data loaded'
-								description='Drop .dat frame files above or load the sample SEC run to begin.'
-							/>
-						</EmptyStateWrapper>
-					)}
+					{frames.length === 0 ? (
+						<EmptyStage>
+							<EmptyInner>
+								<div style={{ textAlign: 'center' }}>
+									<EmptyHeading>Load a scattering dataset</EmptyHeading>
+									<EmptyLead>
+										QTrace reads <code>.dat</code> frame files from the
+										beamline, ATSAS or RAW. Everything is computed in your
+										browser — nothing is uploaded unless you save a snapshot
+										to your account.
+									</EmptyLead>
+								</div>
 
-					{/* SEC trace */}
-					{frames.length > 1 && (
-						<>
-							<SecTrace
-								frames={frames}
-								bufferRange={bufferRange}
-								signalRange={signalRange}
-								onBufferChange={setBufferRange}
-								onSignalChange={(r) => {
-									guinier.skipGuinierResetRef.current = true
-									setSignalRange(r)
-								}}
-							/>
-							<SecDivider />
-						</>
-					)}
+								<FileDropZone {...fileHandlers} />
 
-					{/* Analysis panels */}
-					{activeCurve && (
-						<>
-							<AnalysisGrid>
-								{/* Left column */}
-								<LeftColumn>
-									<FullCurveChart
-										data={activeCurve}
-										result={guinierResult ?? undefined}
-										title={
-											isSec
-												? 'Buffer-subtracted - log I(q)'
-												: 'Scattering curve - log I(q)'
+								<OrRule>
+									<span aria-hidden />
+									<RailLabel>or start from</RailLabel>
+									<span aria-hidden />
+								</OrRule>
+
+								<StartList>
+									<StartCard
+										type='button'
+										$primary
+										onClick={() =>
+											void loadFrames(generateSampleSecFrames(), true)
 										}
-										hoveredQ={hoveredQ}
-										onHoverQ={handleHoverQ}
-									/>
-									<GuinierFitCard
-										activeCurve={activeCurve}
-										iMin={guinier.iMin}
-										iMax={guinier.iMax}
-										lo={guinier.lo}
-										hi={guinier.hi}
-										onChange={({ iMin: a, iMax: b }) => {
-											guinier.setIMin(a)
-											guinier.setIMax(b)
-										}}
-										onAutoFind={guinier.handleAutoFind}
-									/>
-									{guinierResult && (
-										<StatsRow
-											result={guinierResult}
-											pointsUsed={guinier.deferredHi - guinier.deferredLo + 1}
-											porodResult={porodResult ?? undefined}
-										/>
-									)}
-								</LeftColumn>
+									>
+										<StartIcon $primary>
+											<Icon icon='lab-test' size={16} />
+										</StartIcon>
+										<StartBody>
+											<StartTitle>Load the sample SEC run</StartTitle>
+											<StartSub>
+												Synthetic frames — see the whole workflow in one click
+											</StartSub>
+										</StartBody>
+										<Icon icon='chevron-right' size={14} color={color.ink450} />
+									</StartCard>
 
-								{/* Right column */}
-								<RightColumn>
-									{guinierResult ? (
-										<>
-											<GuinierChart data={activeCurve} result={guinierResult} />
-											<ResidualsWrapper>
-												<ResidualsChart result={guinierResult} />
-											</ResidualsWrapper>
-										</>
-									) : (
-										<NoFitCard elevation={Elevation.ONE}>
-											<NonIdealState
-												icon='regression-chart'
-												title='No Guinier fit'
-												description='Adjust the fit range on the left to compute a Guinier analysis.'
+									{cloud.isConfigured && cloud.isSignedIn && (
+										<StartCard
+											type='button'
+											disabled={cloud.items.length === 0}
+											onClick={() => setIsRailOpen(true)}
+										>
+											<StartIcon>
+												<Icon icon='cloud' size={16} />
+											</StartIcon>
+											<StartBody>
+												<StartTitle>Reopen a saved snapshot</StartTitle>
+												<StartSub>
+													{cloud.items.length === 0
+														? 'No snapshots in your account yet'
+														: `${cloud.items.length} snapshot${cloud.items.length === 1 ? '' : 's'} in your account`}
+												</StartSub>
+											</StartBody>
+											<Icon
+												icon='chevron-right'
+												size={14}
+												color={color.ink450}
 											/>
-										</NoFitCard>
+										</StartCard>
 									)}
-								</RightColumn>
-							</AnalysisGrid>
+								</StartList>
+							</EmptyInner>
+						</EmptyStage>
+					) : (
+						<>
+							{/* The chromatogram governs everything below it, so it leads. */}
+							{isSec && (
+								<SecTrace
+									frames={frames}
+									bufferRange={bufferRange}
+									signalRange={signalRange}
+									onBufferChange={setBufferRange}
+									onSignalChange={(r) => {
+										guinier.skipGuinierResetRef.current = true
+										setSignalRange(r)
+									}}
+								/>
+							)}
 
-							<KratkyChart data={activeCurve} />
+							{activeCurve && (
+								<>
+									{/* The fit and its residuals share an x-axis, so they
+									    share a card - and the range control that drives them
+									    both sits directly underneath. */}
+									<Panel>
+										<PanelHead>
+											<PanelTitle>Guinier fit</PanelTitle>
+											<PanelHeadRight>
+												<PanelNote>
+													{guinier.deferredHi - guinier.deferredLo + 1} of{' '}
+													{activeCurve.q.length} points
+												</PanelNote>
+												<RailButton
+													type='button'
+													$accent
+													onClick={guinier.handleAutoFind}
+												>
+													<Icon icon='locate' size={12} />
+													Auto-find range
+												</RailButton>
+											</PanelHeadRight>
+										</PanelHead>
 
-							{guinierResult && insights.length > 0 && (
-								<AnalysisInsights insights={insights} />
+										{guinierResult ? (
+											<>
+												<GuinierChart
+													data={activeCurve}
+													result={guinierResult}
+												/>
+												<SubHead>
+													<RailLabel>Residuals</RailLabel>
+													<SubHeadRule />
+												</SubHead>
+												<ResidualsChart result={guinierResult} />
+											</>
+										) : (
+											<Callout icon='regression-chart'>
+												No Guinier fit yet — widen the range below, or use
+												auto-find.
+											</Callout>
+										)}
+
+										<FitRangeBar>
+											<RailLabel>Fit range</RailLabel>
+											<FitRangeSlider>
+												<RangeControls
+													data={activeCurve}
+													compact
+													iMin={guinier.iMin}
+													iMax={guinier.iMax}
+													onChange={({ iMin, iMax }) => {
+														guinier.setIMin(iMin)
+														guinier.setIMax(iMax)
+													}}
+												/>
+											</FitRangeSlider>
+											<FitRangeReadout>
+												<FitRangeValue>
+													{activeCurve.q[guinier.lo]?.toFixed(4)}
+												</FitRangeValue>
+												<FitRangeArrow>→</FitRangeArrow>
+												<FitRangeValue>
+													{activeCurve.q[guinier.hi]?.toFixed(4)}
+												</FitRangeValue>
+												<FitRangeUnit>Å⁻¹</FitRangeUnit>
+											</FitRangeReadout>
+										</FitRangeBar>
+									</Panel>
+
+									<PlotPairGrid>
+										<FullCurveChart
+											data={activeCurve}
+											result={guinierResult ?? undefined}
+											title={
+												isSec
+													? 'Scattering curve — buffer-subtracted'
+													: 'Scattering curve'
+											}
+											hoveredQ={hoveredQ}
+											onHoverQ={handleHoverQ}
+										/>
+										<KratkyChart data={activeCurve} />
+									</PlotPairGrid>
+								</>
 							)}
 						</>
 					)}
 				</AppContent>
-
-				{/* ── Snapshot sidebar ─────────────────────────────── */}
-				{hist.isHistoryOpen && (
-					<HistoryPanel
-						entries={hist.history.entries}
-						activeId={hist.history.activeId}
-						onRestore={hist.handleRestore}
-						onExport={hist.handleExportSession}
-						onImport={hist.handleImportSession}
-						onClose={() => hist.setIsHistoryOpen(false)}
-						cloud={{
-							isConfigured: cloud.isConfigured,
-							isSignedIn: cloud.isSignedIn,
-							items: cloud.items,
-							isLoading: cloud.isLoading,
-							isBusy: cloud.isBusy,
-							onRestore: (id) => void cloud.restore(id),
-							onDelete: (id) => void cloud.remove(id),
-							onUpload: handleUploadEntry,
-						}}
-					/>
-				)}
 			</AppBody>
 
 			<ProcessingModal

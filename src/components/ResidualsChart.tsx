@@ -9,18 +9,17 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { Elevation } from '@blueprintjs/core';
 import { AXIS_STYLE, CHART } from '../chartTheme';
 import type { GuinierResult } from '../types/saxs';
-import { ChartCardTitle } from '../styles/shared.styles';
-import { ResidualsCard, ChartInner, TooltipBox, TooltipRow } from './ResidualsChart.styles';
+import { ChartFrame } from '../styles/shared.styles';
+import { TooltipBox, TooltipRow } from './ResidualsChart.styles';
 
 interface Props { result: GuinierResult; }
 
 const Dot = (props: Record<string, number>) => {
   const { cx, cy } = props;
   if (cx == null || cy == null) return null;
-  return <circle cx={cx} cy={cy} r={3} fill={CHART.dataViolet} fillOpacity={0.85} />;
+  return <circle cx={cx} cy={cy} r={3} fill={CHART.residual} fillOpacity={0.85} />;
 };
 
 const TIP = ({ active, payload }: { active?: boolean; payload?: { payload: { x: number; y: number } }[] }) => {
@@ -29,7 +28,7 @@ const TIP = ({ active, payload }: { active?: boolean; payload?: { payload: { x: 
   return (
     <TooltipBox>
       <TooltipRow $color={CHART.tickColor}>q² = {x.toExponential(3)}</TooltipRow>
-      <TooltipRow $color={CHART.dataViolet}>residual = {y.toFixed(4)}</TooltipRow>
+      <TooltipRow $color={CHART.residual}>residual = {y.toFixed(4)}</TooltipRow>
     </TooltipBox>
   );
 };
@@ -45,11 +44,7 @@ export const ResidualsChart = memo(function ResidualsChart({ result }: Props) {
   const absMax = Math.max(...resid.map(p => Math.abs(p.y))) * 1.3;
 
   return (
-    <ResidualsCard elevation={Elevation.ONE}>
-      <ChartCardTitle>
-        <span>Fit residuals</span>
-      </ChartCardTitle>
-      <ChartInner>
+    <ChartFrame $short>
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 8, right: 20, bottom: 32, left: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={CHART.gridColor} />
@@ -75,7 +70,6 @@ export const ResidualsChart = memo(function ResidualsChart({ result }: Props) {
             <Scatter data={resid} isAnimationActive={false} shape={Dot as any} />
           </ScatterChart>
         </ResponsiveContainer>
-      </ChartInner>
-    </ResidualsCard>
+    </ChartFrame>
   );
 })

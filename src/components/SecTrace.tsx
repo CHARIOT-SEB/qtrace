@@ -14,7 +14,6 @@ import {
 import {
 	Button,
 	ButtonGroup,
-	Elevation,
 	RangeSlider,
 	Tag,
 } from '@blueprintjs/core'
@@ -53,7 +52,7 @@ const TIP = ({
 	return (
 		<TooltipBox>
 			<TooltipRow $color={CHART.tickColor}>{label}</TooltipRow>
-			<TooltipRow $color='#e5e8eb'>
+			<TooltipRow $color={CHART.titleColor}>
 				mean I: {payload[0].value.toExponential(3)}
 			</TooltipRow>
 		</TooltipBox>
@@ -132,7 +131,7 @@ export function SecTrace({
 	const labelStep = Math.max(1, Math.ceil((last + 1) / 5))
 
 	return (
-		<ChartCard elevation={Elevation.ONE}>
+		<ChartCard>
 			<ChartCardTitle>
 				<span>SEC Chromatogram</span>
 				<ChartTitleControls>

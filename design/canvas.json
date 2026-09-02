@@ -1,0 +1,47 @@
+{
+  "artboards": [
+    { "file": "Styles.dc.html", "x": 0, "y": 0, "w": 900, "h": 1420, "title": "Design system" },
+    { "file": "Main.dc.html", "x": 1020, "y": 0, "w": 1440, "h": 1040, "title": "Analysis workspace" },
+    { "file": "Empty.dc.html", "x": 2580, "y": 0, "w": 1440, "h": 1040, "title": "First run" },
+    { "file": "DirectionB.dc.html", "x": 1020, "y": 1560, "w": 900, "h": 640, "title": "Direction B — stepped pipeline" },
+    { "file": "DirectionC.dc.html", "x": 2020, "y": 1560, "w": 900, "h": 640, "title": "Direction C — dark console" }
+  ],
+  "annotations": [
+    {
+      "id": "thesis",
+      "x": 1020,
+      "y": -190,
+      "w": 620,
+      "text": "The restructure: context on the left, work in the middle, the verdict on the right.\n\nToday everything is one scroll — the numbers you came for sit mid-page and the reasons they might be wrong sit at the very bottom, below the fold. Here the chromatogram that governs the whole analysis stays pinned, and Rg / fit quality / insights never scroll away."
+    },
+    {
+      "id": "pairing",
+      "x": 1700,
+      "y": -190,
+      "w": 380,
+      "text": "Guinier and residuals now share one card, because they share an x-axis — the residuals are how you judge the fit, so they belong next to it, not three sections down."
+    },
+    {
+      "id": "encoding",
+      "x": 0,
+      "y": -190,
+      "w": 620,
+      "text": "Chart colour does two separate jobs and today they collide: green currently means both 'in the fit' and 'qRg is fine'.\n\nSplit here — teal ramp = what you selected, status trio = whether to trust it. Both sets were run through the palette validator; the current palette fails it on chroma and contrast."
+    },
+    {
+      "id": "directions",
+      "x": 1020,
+      "y": 1400,
+      "w": 560,
+      "text": "Two alternate structures, kept low-fi on purpose — enough to choose between, not to build from. Say if either is closer and I'll take it up to the fidelity of the workspace artboard."
+    },
+    {
+      "id": "caveat",
+      "x": 2580,
+      "y": 1210,
+      "w": 460,
+      "text": "Values shown are sample data from a synthetic lysozyme-like SEC run, not real measurements — plots are generated from a sphere form factor with Rg 24.8 Å so the five charts stay physically consistent with each other."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

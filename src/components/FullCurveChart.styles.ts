@@ -4,9 +4,14 @@ import { CHART } from '../chartTheme'
 export const TooltipBox = styled.div`
   background: ${CHART.tooltipBg};
   border: 1px solid ${CHART.tooltipBorder};
-  padding: 6px 10px;
+  box-shadow: ${CHART.tooltipShadow};
+  padding: 7px 10px;
   font-size: 12px;
-  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
   line-height: 1.6;
 `
 
@@ -24,7 +29,7 @@ interface InFitRowProps {
 
 export const InFitRow = styled.div<InFitRowProps>`
   margin-top: 3px;
-  color: ${({ $inFit }) => ($inFit ? CHART.dataGreen : CHART.dataGray)};
+  color: ${({ $inFit }) => ($inFit ? CHART.markIn : CHART.markOut)};
   font-weight: 600;
   font-size: 11px;
 `

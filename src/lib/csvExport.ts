@@ -1,4 +1,9 @@
-import type { GuinierResult, PorodResult, SaxsData } from '../types/saxs'
+import type {
+	GuinierResult,
+	MolecularWeightResult,
+	PorodResult,
+	SaxsData,
+} from '../types/saxs'
 import { frameIntensity } from './secSaxs'
 
 const APP_VERSION = '0.1.0'
@@ -14,6 +19,7 @@ export interface ExportSession {
 	activeCurve: SaxsData | null
 	guinierResult: GuinierResult | null
 	porodResult: PorodResult | null
+	mwResult: MolecularWeightResult | null
 }
 
 // ── Formatting helpers ────────────────────────────────────────────────────
@@ -256,6 +262,52 @@ function buildPorodSection(session: ExportSession): string[] {
 	return lines
 }
 
+function buildMolecularWeightSection(session: ExportSession): string[] {
+	const { mwResult } = session
+	if (!mwResult) return []
+
+	const lines: string[] = []
+	lines.push('')
+	lines.push('# Section: Molecular_Weight')
+	lines.push(csvRow(['metric', 'value', 'units', 'source']))
+	lines.push(
+		csvRow([
+			'mw_vc',
+			fmtNum(mwResult.molecularWeight),
+			'Da',
+			'Rambo & Tainer 2013, protein parameters c=0.1231 k=1',
+		]),
+	)
+	lines.push(
+		csvRow([
+			'volume_of_correlation',
+			fmtNum(mwResult.volumeOfCorrelation),
+			'Angstrom^2',
+			'Vc = I(0) / integral q*I(q) dq',
+		]),
+	)
+	lines.push(
+		csvRow(['qR', fmtNum(mwResult.qR), 'Angstrom^3', 'QR = Vc^2 / Rg']),
+	)
+	lines.push(
+		csvRow([
+			'qI_integral',
+			fmtNum(mwResult.qIIntegral),
+			'intensity*inv_A^2',
+			'over the measured range, as published',
+		]),
+	)
+	lines.push(
+		csvRow([
+			'qI_integral_top_decile_fraction',
+			fmtNum(mwResult.tailFraction),
+			'dimensionless',
+			'high values mean the integral has not converged',
+		]),
+	)
+	return lines
+}
+
 function buildSecChromatogramSection(session: ExportSession): string[] {
 	const { frames, isSec, bufferRange, signalRange } = session
 	if (!isSec) return []
@@ -385,6 +437,7 @@ export function buildExportCsv(session: ExportSession): BuiltCsv {
 		buildGuinierSection(session),
 		buildGuinierPointsSection(session),
 		buildPorodSection(session),
+		buildMolecularWeightSection(session),
 		buildSecChromatogramSection(session),
 		buildAveragedCurvesSection(session),
 		buildScatteringCurveSection(session),

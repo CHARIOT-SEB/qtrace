@@ -1,88 +1,111 @@
 import styled from 'styled-components'
-import { Button, Callout, Card } from '@blueprintjs/core'
-import { palette, media } from '../theme'
+import { color } from '../theme'
 
-export const InsightsCard = styled(Card)`
-  margin-top: 16px;
+export const InsightsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
 `
 
 export const InsightsHeader = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  margin-bottom: 10px;
   flex-wrap: wrap;
+  padding-bottom: 9px;
 `
 
-export const InsightsTitle = styled.span`
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: ${palette.c2};
-  margin: 0;
+export const InsightsBadges = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
 `
 
-interface BadgeProps {
-  $variant: 'error' | 'warning'
+type Severity = 'error' | 'warning' | 'info'
+
+const TONE: Record<Severity, [string, string, string]> = {
+  error: [color.badInk, color.badBg, color.badBorder],
+  warning: [color.warnInk, color.warnBg, color.warnBorder],
+  info: [color.accent, color.accentSoft, color.accentBorder],
 }
 
-export const InsightsBadge = styled.span<BadgeProps>`
-  font-size: 10px;
+export const InsightsBadge = styled.span<{ $variant: 'error' | 'warning' }>`
+  font-size: 9.5px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 2px 7px;
   border-radius: 10px;
-  background: ${({ $variant }) =>
-    $variant === 'error'
-      ? 'rgba(205, 66, 70, 0.12)'
-      : 'rgba(200, 118, 25, 0.1)'};
-  color: ${({ $variant }) =>
-    $variant === 'error' ? '#9d2c2f' : '#8a5100'};
-  border: 1px solid
-    ${({ $variant }) =>
-      $variant === 'error'
-        ? 'rgba(205, 66, 70, 0.25)'
-        : 'rgba(200, 118, 25, 0.25)'};
+  white-space: nowrap;
+  color: ${({ $variant }) => TONE[$variant][0]};
+  background: ${({ $variant }) => TONE[$variant][1]};
+  border: 1px solid ${({ $variant }) => TONE[$variant][2]};
 `
 
-export const InsightCallout = styled(Callout)`
-  margin-bottom: 8px !important;
-
-  &:last-child {
-    margin-bottom: 0 !important;
-  }
+export const InsightBox = styled.div<{ $severity: Severity }>`
+  border: 1px solid ${({ $severity }) => TONE[$severity][2]};
+  background: ${({ $severity }) => TONE[$severity][1]};
+  border-radius: 7px;
+  padding: 10px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
 `
 
 export const InsightHeader = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
-  flex-wrap: wrap;
+  min-width: 0;
+`
 
-  ${media.sm} {
-    gap: 6px;
-  }
+export const InsightIcon = styled.span<{ $severity: Severity }>`
+  display: flex;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: ${({ $severity }) => TONE[$severity][0]};
 `
 
 export const InsightMessage = styled.span`
-  flex: 1;
-  font-size: 13px;
+  flex-grow: 1;
+  min-width: 0;
+  font-size: 12.5px;
   line-height: 1.45;
+  color: ${color.ink900};
+  text-wrap: pretty;
 `
 
-export const InsightWhyBtn = styled(Button)`
-  flex-shrink: 0;
-  font-size: 11px !important;
-  margin-top: -1px;
-  color: ${palette.c2} !important;
+export const InsightWhyBtn = styled.button<{ $severity: Severity }>`
+  appearance: none;
+  align-self: flex-start;
+  margin-left: 24px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  color: ${({ $severity }) => TONE[$severity][0]};
+
+  &:focus-visible {
+    outline: 2px solid ${color.accent};
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 `
 
-export const InsightExplanation = styled.p`
-  margin: 10px 0 0;
-  font-size: 12px;
+export const InsightExplanation = styled.p<{ $severity: Severity }>`
+  margin: 0 0 0 24px;
+  padding-left: 9px;
+  border-left: 2px solid ${({ $severity }) => TONE[$severity][2]};
+  font-size: 11.5px;
   line-height: 1.6;
-  color: ${palette.c2};
+  color: ${color.ink500};
+  text-wrap: pretty;
 `

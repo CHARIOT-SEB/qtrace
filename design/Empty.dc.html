@@ -1,0 +1,185 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #2f4550; background: #f1f4f5;
+         -webkit-font-smoothing: antialiased; }
+  a { color: #0f5b68; text-decoration: none; }
+  a:hover { color: #16262e; }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace; font-variant-numeric: tabular-nums; }
+  .lbl { font-size: 10px; font-weight: 600; letter-spacing: 0.11em; text-transform: uppercase;
+         color: #55707c; }
+  .card { background: #ffffff; border: 1px solid #dde6e8; border-radius: 8px; }
+
+  .grid { stroke: #e8eef0; stroke-width: 1; }
+  .axis { stroke: #c3d4d8; stroke-width: 1; }
+  .tick { font-family: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace; font-size: 9.5px; fill: #7d949e; }
+  .axname { font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 10px; font-weight: 500; fill: #55707c; }
+  .sec-o { fill: #93b7bf; opacity: .5; }
+  .sec-b { fill: #4a8f9d; }
+  .sec-s { fill: #0f5b68; }
+  .g-out { fill: #7d949e; opacity: .38; }
+  .g-in  { fill: #0f5b68; }
+  .fitline { stroke: #16262e; stroke-width: 2; }
+  .res-stem { stroke: #6b5ca8; stroke-width: 1.4; opacity: .34; }
+  .res-dot { fill: #6b5ca8; }
+  .c-out { fill: #7d949e; opacity: .45; }
+  .c-in  { fill: #0f5b68; }
+
+      body { width: 1440px; height: 1040px; overflow: hidden; }
+    </style>
+</helmet>
+
+<div style="display:flex;flex-direction:column;width:1440px;height:1040px;background:#f1f4f5">
+  
+<header style="display:flex;align-items:center;gap:16px;height:56px;padding:0 18px;background:#ffffff;border-bottom:1px solid #dde6e8;flex-shrink:0">
+  <div style="display:flex;align-items:center;gap:9px">
+    
+<svg viewBox="0 0 28 28" width="26" height="26" style="display:block;flex-shrink:0">
+  <rect width="28" height="28" rx="7" fill="#16262e"/>
+  <path d="M6 8.5c3.6 0 3.2 11 6.2 11S16 12 22 12" fill="none" stroke="#8fd3d8" stroke-width="2.1" stroke-linecap="round"/>
+  <circle cx="6" cy="8.5" r="1.9" fill="#fff"/>
+</svg>
+    <span style="font-size:15px;font-weight:600;letter-spacing:-0.01em;color:#16262e">QTrace</span>
+  </div>
+  <div style="width:1px;height:22px;background:#dde6e8"></div>
+  <span style="font-size:12.5px;color:#7d949e">No dataset loaded</span>
+  <div style="flex-grow:1"></div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 12px;border:1px solid #dde6e8;background:#ffffff;border-radius:6px;font:inherit;font-size:12.5px;font-weight:500;color:#7d949e;cursor:pointer;opacity:0.5"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>Export</button>
+    <button style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border:none;background:{{accent}};border-radius:6px;font:inherit;font-size:12.5px;font-weight:500;color:#fff;cursor:pointer;box-shadow:0 1px 2px rgba(22,38,46,.16);opacity:0.45"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>Snapshot</button>
+    <div style="width:1px;height:22px;background:#dde6e8;margin:0 2px"></div>
+    <div style="width:28px;height:28px;border-radius:50%;background:#e4eff1;border:1px solid #dde6e8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#0f5b68">SB</div>
+  </div>
+</header>
+  <div style="flex-grow:1;display:flex;min-height:0">
+
+    
+<aside style="width:264px;flex-shrink:0;background:#ffffff;border-right:1px solid #dde6e8;display:flex;flex-direction:column;padding:16px 14px;gap:14px">
+      <section>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 0 9px">
+  <span class="lbl">Dataset</span>
+</div>
+<div style="border:1px dashed #c3d4d8;border-radius:7px;padding:14px 12px;text-align:center">
+  <p style="margin:0;font-size:11.5px;line-height:1.55;color:#7d949e">Nothing loaded yet.</p>
+</div></section>
+      <section style="flex-grow:1;display:flex;flex-direction:column">
+        
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 0 9px">
+  <span class="lbl">Snapshots</span>
+</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div>
+            <div style="display:flex;align-items:center;gap:6px;padding:0 0 5px 2px">
+              <span style="color:#0f5b68;display:flex;transform:scale(.8);transform-origin:left"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M7 19h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6 10.5 4.25 4.25 0 0 0 7 19z"/></svg></span>
+              <span style="font-size:10.5px;font-weight:500;color:#7d949e">Saved to account</span>
+            </div>
+            
+<div style="display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:6px;background:transparent;border:1px solid transparent;cursor:pointer">
+  <span style="color:#0f5b68;display:flex"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M7 19h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6 10.5 4.25 4.25 0 0 0 7 19z"/></svg></span>
+  <div style="flex-grow:1;min-width:0">
+    <div style="font-size:12.5px;font-weight:500;color:#16262e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Monomer peak, tight fit</div>
+    <div class="mono" style="font-size:10.5px;color:#7d949e;margin-top:1px">2 Sep · Rg 24.8 Å</div>
+  </div>
+</div>
+            
+<div style="display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:6px;background:transparent;border:1px solid transparent;cursor:pointer">
+  <span style="color:#0f5b68;display:flex"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M7 19h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6 10.5 4.25 4.25 0 0 0 7 19z"/></svg></span>
+  <div style="flex-grow:1;min-width:0">
+    <div style="font-size:12.5px;font-weight:500;color:#16262e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Aggregate shoulder</div>
+    <div class="mono" style="font-size:10.5px;color:#7d949e;margin-top:1px">29 Aug · Rg 41.2 Å</div>
+  </div>
+</div>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <main style="flex-grow:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 56px;gap:26px">
+      <div style="width:100%;max-width:520px;display:flex;flex-direction:column;gap:22px">
+
+        <div style="text-align:center">
+          <h1 style="margin:0 0 8px;font-size:25px;font-weight:600;letter-spacing:-0.02em;color:#16262e;text-wrap:pretty">Load a scattering dataset</h1>
+          <p style="margin:0;font-size:13.5px;line-height:1.6;color:#55707c;text-wrap:pretty">QTrace reads <span class="mono" style="font-size:12.5px">.dat</span> frame files from the beamline, ATSAS or RAW. Everything is computed in your browser — nothing is uploaded unless you save a snapshot to your account.</p>
+        </div>
+
+        <div style="border:2px dashed #c3d4d8;background:#ffffff;border-radius:12px;padding:34px 24px;display:flex;flex-direction:column;align-items:center;gap:13px">
+          <span style="display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:13px;background:#e4eff1;color:#0f5b68"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 20V8"/><path d="M7 12l5-5 5 5"/><path d="M4 4h16"/></svg></span>
+          <div style="text-align:center">
+            <div style="font-size:14.5px;font-weight:600;color:#16262e">Drop frame files here</div>
+            <div style="font-size:12px;color:#7d949e;margin-top:3px">A single curve, or a whole SEC run</div>
+          </div>
+          <button style="height:36px;padding:0 16px;border:1px solid #dde6e8;background:#ffffff;border-radius:7px;font:inherit;font-size:12.5px;font-weight:500;color:#2f4550;cursor:pointer">Browse files</button>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="flex-grow:1;height:1px;background:#dde6e8"></span>
+          <span class="lbl">or start from</span>
+          <span style="flex-grow:1;height:1px;background:#dde6e8"></span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:9px">
+          
+<button style="display:flex;align-items:center;gap:12px;text-align:left;padding:14px 15px;border:1px solid #c4dee2;background:#e4eff1;border-radius:8px;font:inherit;cursor:pointer;min-height:64px">
+  <span style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;flex-shrink:0;background:#0f5b68;color:#fff"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10 3v6.5L4.8 18A2 2 0 0 0 6.5 21h11a2 2 0 0 0 1.7-3L14 9.5V3"/><path d="M9 3h6"/><path d="M7.5 15h9"/></svg></span>
+  <span style="flex-grow:1;min-width:0">
+    <span style="display:block;font-size:13px;font-weight:600;color:#16262e">Load the sample SEC run</span>
+    <span style="display:block;font-size:11.5px;color:#55707c;margin-top:2px">240 synthetic frames — see the whole workflow in one click</span>
+  </span>
+  <span style="color:#7d949e;display:flex"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M9 6l6 6-6 6"/></svg></span>
+</button>
+          
+<button style="display:flex;align-items:center;gap:12px;text-align:left;padding:14px 15px;border:1px solid #dde6e8;background:#ffffff;border-radius:8px;font:inherit;cursor:pointer;min-height:64px">
+  <span style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;flex-shrink:0;background:#f1f4f5;color:#55707c"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M7 19h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6 10.5 4.25 4.25 0 0 0 7 19z"/></svg></span>
+  <span style="flex-grow:1;min-width:0">
+    <span style="display:block;font-size:13px;font-weight:600;color:#16262e">Reopen a saved snapshot</span>
+    <span style="display:block;font-size:11.5px;color:#55707c;margin-top:2px">3 snapshots in your account</span>
+  </span>
+  <span style="color:#7d949e;display:flex"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M9 6l6 6-6 6"/></svg></span>
+</button>
+        </div>
+      </div>
+    </main>
+
+    
+<aside style="width:316px;flex-shrink:0;background:#ffffff;border-left:1px solid #dde6e8;display:flex;flex-direction:column;padding:16px 14px;gap:14px">
+      <section>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 0 9px">
+  <span class="lbl">Result</span>
+</div>
+<div style="border:1px dashed #c3d4d8;border-radius:7px;padding:14px 12px;text-align:center">
+  <p style="margin:0;font-size:11.5px;line-height:1.55;color:#7d949e">Rg, I(0) and fit quality appear here once a Guinier range is set.</p>
+</div></section>
+      <section>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 0 9px">
+  <span class="lbl">Analysis insights</span>
+</div>
+<div style="border:1px dashed #c3d4d8;border-radius:7px;padding:14px 12px;text-align:center">
+  <p style="margin:0;font-size:11.5px;line-height:1.55;color:#7d949e">QTrace flags the reasons a fit may be wrong — aggregation, repulsion, too few points — and explains each one.</p>
+</div></section>
+      <div style="flex-grow:1"></div>
+      <div style="border-top:1px solid #dde6e8;padding-top:10px;display:flex;align-items:center;gap:7px">
+        <span style="color:#7d949e;display:flex"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+        <p style="margin:0;font-size:10.5px;line-height:1.55;color:#7d949e">Data stays in this browser until you save it.</p>
+      </div>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#0f5b68","options":["#0f5b68","#1c6ea8","#7a3d8f","#16262e"],"section":"Theme"},"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#0f5b68' };
+  }
+}
+</script>
+</body>
+</html>
