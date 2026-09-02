@@ -62,3 +62,21 @@ export interface GuinierResult {
   iMin: number;
   iMax: number;
 }
+
+/**
+ * Molecular mass via the volume of correlation, for proteins.
+ * Rambo & Tainer, Nature 496, 477-481 (2013).
+ */
+export interface MolecularWeightResult {
+  /** Volume of correlation Vc = I(0) / ∫ q·I(q) dq, in Ų */
+  volumeOfCorrelation: number;
+  /** QR = Vc² / Rg, in ų - the quantity that scales with mass */
+  qR: number;
+  /** Molecular mass in Da, from the protein parameterisation */
+  molecularWeight: number;
+  /** The ∫ q·I(q) dq the estimate rests on */
+  qIIntegral: number;
+  /** Share of that integral coming from the top decile of q. A large value
+   *  means the integral has not converged and the mass is unreliable. */
+  tailFraction: number;
+}

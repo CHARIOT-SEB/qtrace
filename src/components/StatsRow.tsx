@@ -1,5 +1,9 @@
 import { memo } from 'react'
-import type { GuinierResult, PorodResult } from '../types/saxs'
+import type {
+	GuinierResult,
+	MolecularWeightResult,
+	PorodResult,
+} from '../types/saxs'
 import {
 	StatsBlock,
 	StatsGrid,
@@ -22,6 +26,7 @@ interface Props {
 	pointsUsed: number
 	totalPoints?: number
 	porodResult?: PorodResult
+	mwResult?: MolecularWeightResult
 }
 
 function fmt(n: number, d = 2) {
@@ -45,6 +50,7 @@ export const StatsRow = memo(function StatsRow({
 	pointsUsed,
 	totalPoints,
 	porodResult,
+	mwResult,
 }: Props) {
 	const grade = gradeQRg(result.qRgMax)
 
@@ -102,6 +108,27 @@ export const StatsRow = memo(function StatsRow({
 						<StatValue>{pointsUsed}</StatValue>
 					</StatValueRow>
 					{totalPoints ? <StatSub>of {totalPoints}</StatSub> : null}
+				</StatCard>
+
+				{/* Named by method. The point of showing a mass is being able to
+				    set it against the other routes to one. */}
+				<StatCard $span>
+					<StatLabel>MW — Vc</StatLabel>
+					<StatValueRow>
+						<StatValue>
+							{mwResult ? fmt(mwResult.molecularWeight / 1000, 1) : '-'}
+						</StatValue>
+						<StatUnit>kDa</StatUnit>
+					</StatValueRow>
+					{mwResult && (
+						<StatSub
+							title={`Volume of correlation Vc = ${fmt(mwResult.volumeOfCorrelation, 1)} Å², QR = ${fmtInt(mwResult.qR)} ų. Rambo & Tainer (2013), protein parameters. ${fmt(mwResult.tailFraction * 100, 1)}% of the underlying integral falls in the top tenth of the q range — a large share means it has not converged.`}
+						>
+							{mwResult.tailFraction > 0.1
+								? 'q range may be too short'
+								: `Vc ${fmtInt(mwResult.volumeOfCorrelation)} Å²`}
+						</StatSub>
+					)}
 				</StatCard>
 
 				<StatCard $span>

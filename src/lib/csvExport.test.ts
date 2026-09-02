@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { buildExportCsv, type ExportSession } from './csvExport'
 import { computeGuinier } from './guinier'
 import { computePorod } from './porod'
+import { computeMolecularWeight } from './molecularWeight'
 import { averageFrames, subtractBuffer } from './secSaxs'
 import { makeGuinierCurve, makeSecRun } from '../test/fixtures'
 import type { SaxsData } from '../types/saxs'
@@ -47,6 +48,7 @@ function singleFrameSession(overrides: Partial<ExportSession> = {}): ExportSessi
 		activeCurve: curve,
 		guinierResult,
 		porodResult: computePorod(curve, guinierResult!),
+		mwResult: computeMolecularWeight(curve, guinierResult!),
 		...overrides,
 	}
 }
@@ -69,6 +71,7 @@ function secSession(): ExportSession {
 		activeCurve,
 		guinierResult,
 		porodResult: computePorod(activeCurve, guinierResult!),
+		mwResult: computeMolecularWeight(activeCurve, guinierResult!),
 	}
 }
 

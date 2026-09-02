@@ -21,6 +21,7 @@ import { useHistory } from './hooks/useHistory'
 import { useCloudSnapshots } from './hooks/useCloudSnapshots'
 import { computeGuinier } from './lib/guinier'
 import { computePorod } from './lib/porod'
+import { computeMolecularWeight } from './lib/molecularWeight'
 import { collectInsights } from './lib/analysisHeuristics'
 import { autoDetectRegions, averageFrames, subtractBuffer } from './lib/secSaxs'
 import { buildExportCsv, downloadCsv } from './lib/csvExport'
@@ -146,6 +147,14 @@ export function App() {
 		[activeCurve, guinierResult],
 	)
 
+	const mwResult = useMemo(
+		() =>
+			activeCurve && guinierResult
+				? computeMolecularWeight(activeCurve, guinierResult)
+				: null,
+		[activeCurve, guinierResult],
+	)
+
 	const rawInsights = useMemo(
 		() =>
 			activeCurve && guinierResult
@@ -256,6 +265,7 @@ export function App() {
 			activeCurve,
 			guinierResult,
 			porodResult,
+			mwResult,
 		})
 		downloadCsv(built)
 	}
@@ -368,6 +378,7 @@ export function App() {
 						pointsUsed={guinier.deferredHi - guinier.deferredLo + 1}
 						totalPoints={activeCurve?.q.length ?? 0}
 						porodResult={porodResult}
+						mwResult={mwResult}
 						insights={insights}
 					/>
 				</ResultsRailSlot>

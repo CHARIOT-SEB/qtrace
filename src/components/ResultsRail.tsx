@@ -1,6 +1,10 @@
 import { Icon } from '@blueprintjs/core'
 import type { AnalysisInsight } from '../lib/analysisHeuristics'
-import type { GuinierResult, PorodResult } from '../types/saxs'
+import type {
+	GuinierResult,
+	MolecularWeightResult,
+	PorodResult,
+} from '../types/saxs'
 import { color } from '../theme'
 import { StatsRow } from './StatsRow'
 import { AnalysisInsights } from './AnalysisInsights'
@@ -20,6 +24,7 @@ interface Props {
 	pointsUsed: number
 	totalPoints: number
 	porodResult: PorodResult | null
+	mwResult: MolecularWeightResult | null
 	insights: AnalysisInsight[]
 	className?: string
 }
@@ -29,6 +34,7 @@ export function ResultsRail({
 	pointsUsed,
 	totalPoints,
 	porodResult,
+	mwResult,
 	insights,
 	className,
 }: Props) {
@@ -47,6 +53,7 @@ export function ResultsRail({
 						pointsUsed={pointsUsed}
 						totalPoints={totalPoints}
 						porodResult={porodResult ?? undefined}
+						mwResult={mwResult ?? undefined}
 					/>
 				) : (
 					<EmptyNote>

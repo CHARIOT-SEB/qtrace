@@ -192,7 +192,7 @@ r^2 is deliberately not used to gate the background fit: form-factor
 oscillations dominate it even where B is recovered to four significant figures.
 The gate is the point count.
 
-#### Molecular weight - three routes, not two - STILL TO DO
+#### Molecular weight - three routes, not two - ONE OF THREE DONE
 
 The roadmap previously said MW "falls out nearly free". That was wrong. Asked
 which method she uses, the primary user's answer was that she uses **all** of
@@ -222,12 +222,57 @@ absolute MW**. So:
   explicit flag and warn when I(0)/c implies an implausible mass - a silent
   assumption about units is exactly what produced item 2.
 - **From the Porod volume** - inherits everything above.
-- **From the volume of correlation** (Rambo-Tainer). Vc = I(0) / integral of
-  q*I(q) dq. That integral weights by q rather than q^2, so it converges much
-  faster and genuinely survives a truncated range.
+- **From the volume of correlation** (Rambo-Tainer) - **DONE 2026-09-02**, in
+  `src/lib/molecularWeight.ts`.
+
+  Source fixed by the primary user: Rambo, R. P. & Tainer, J. A., *Nature* 496,
+  477-481 (2013). Proteins only - she does not work on RNA, so the RNA
+  parameterisation is deliberately absent and the code says so.
+
+      Vc = I(0) / integral of q*I(q) dq     [A^2]
+      QR = Vc^2 / Rg                        [A^3]
+      MW = (QR / c)^k,  c = 0.1231, k = 1   [Da]
+
+  The paper leaves c and k to its supplementary material, noting they are
+  "empirically determined and specific to the class of macromolecular particle".
+  BioXTAS RAW documents the protein values and flags that the paper writes the
+  law as mass = (QR/c)^(1/k), so its k is the reciprocal of the one used here -
+  identical at k = 1.
+
+  The integral runs over the measured range with no background removal and no
+  extrapolation, which is what the published method and the common
+  implementations do. That keeps the number comparable with ATSAS and RAW rather
+  than marginally more self-consistent and quietly different.
+
+  **Validated on the real BSA run: 69.5 kDa against a 66.4 kDa monomer, 4.7%
+  out**, in line with the ~4% average error the paper reports. Tail fraction
+  1.6%, so the integral had converged.
+
+  Tests pin the published definitions, concentration independence (the central
+  claim of the method - a scale factor on I cancels exactly), the scaling with
+  Rg, and that it survives truncation better than the Porod volume does.
+
+  A uniform sphere is deliberately *not* used as a mass reference: the constants
+  are fitted to real protein shapes and hydration, and the sphere fixture comes
+  out at 264 kDa against 426 kDa from density. The sphere tests cover arithmetic
+  only.
 
 Display: one figure per method, side by side, so they can be compared - not a
-single blended number and not a range (decision, 2026-08-30).
+single blended number and not a range (decision, 2026-08-30). The Vc card is in
+the results rail, labelled by method, with Vc and QR in its tooltip and a
+warning in place of the Vc value when the integral has not converged.
+
+**Still outstanding:**
+
+- The **I(0) route**, her main method. Needs a sample concentration in mg/mL,
+  which the B21 headers do not carry, so it is an input surface that has to flow
+  through snapshots, cloud saves and export - the larger piece of work.
+- The **Porod volume route**. Vp is now correct, but the Vp-to-MW factor is a
+  separate empirical constant that is not in Rambo & Tainer and still needs its
+  own source.
+- Insight checks for Porod and MW quality: a large extrapolated fraction, an
+  unconverged Vc integral, and disagreement between routes once there is more
+  than one to disagree.
 
 **Convention:** match ATSAS. She works in ATSAS/PRIMUS and ScAtter and writes up
 ATSAS-4 CHROMIXS and PRIMUS numbers, so results need to be directly comparable
