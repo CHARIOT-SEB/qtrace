@@ -21,10 +21,25 @@ export interface LinearFit {
 }
 
 export interface PorodResult {
-  /** Porod invariant Q = ∫ q²·I(q) dq */
+  /** Porod invariant Q = ∫ q²·I(q) dq, background-corrected and extrapolated */
   porodInvariant: number;
   /** Estimated hydrated particle volume Vp = 2π²·I(0) / Q, in ų */
   porodVolume: number;
+  /** Flat background fitted in the Porod region and removed from Q. Diagnostic
+   *  only - the measured intensities are left untouched everywhere else. */
+  background: number;
+  /** Porod constant K from I(q) = B + K/q⁴ */
+  porodConstant: number;
+  /** Contribution to Q from below the first measured q, via the Guinier model */
+  qLow: number;
+  /** Contribution to Q from the measured range, background-subtracted */
+  qMeasured: number;
+  /** Contribution to Q from the q⁻⁴ tail beyond the last measured q */
+  qHigh: number;
+  /** First q of the background fit window, NaN when no region was usable */
+  backgroundFitQMin: number;
+  /** Points in the background fit window, 0 when no region was usable */
+  backgroundFitPoints: number;
 }
 
 export interface GuinierResult {

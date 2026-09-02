@@ -1,89 +1,136 @@
 import { describe, expect, it } from 'vitest'
 import { computePorod } from './porod'
-import { makeSphereCurve, sphereVolume } from '../test/fixtures'
-import type { SaxsData } from '../types/saxs'
+import { computeGuinier } from './guinier'
+import { makeSphereCurve, sphereRg, sphereVolume } from '../test/fixtures'
+import type { GuinierResult, SaxsData } from '../types/saxs'
 
-/** Sphere of this radius backs every volume assertion below. */
 const R = 50
 const TRUE_VOLUME = sphereVolume(R)
 
-/** A realistic experimental window - the tail is nowhere near measured. */
-function realisticCurve(): SaxsData {
-	return makeSphereCurve(R, { qMin: 1e-4, qMax: 0.3, n: 20000 })
+/** A sphere curve over a realistic experimental window. */
+function sphere(qMax = 0.5, background = 0): SaxsData {
+	const base = makeSphereCurve(R, { qMin: 0.0045, qMax, n: 2000 })
+	return background === 0
+		? base
+		: { ...base, I: base.I.map((v) => v + background) }
+}
+
+/** Guinier fit over the valid range of a curve, for the I(0) and Rg Porod needs. */
+function guinierOf(data: SaxsData): GuinierResult {
+	const iMax = data.q.findIndex((q) => q * sphereRg(R) > 1.0) - 1
+	return computeGuinier(data, 0, iMax)!
 }
 
 describe('computePorod', () => {
-	it('integrates q^2 I(q) by the trapezoidal rule', () => {
-		// For I(q) = 1 the invariant has the closed form (qMax^3 - qMin^3) / 3.
-		const n = 5000
-		const qMin = 0.01
-		const qMax = 1
-		const q = Array.from(
-			{ length: n },
-			(_, i) => qMin + (i * (qMax - qMin)) / (n - 1),
-		)
-		const data: SaxsData = { q, I: q.map(() => 1), err: q.map(() => 0.01) }
+	it('recovers a flat background from the Porod region', () => {
+		// Accuracy improves with the size of the background: one far below the
+		// particle's own q^-4 tail is intrinsically hard to separate from it.
+		// What matters downstream is that removing it makes the volume
+		// background-independent, which the test below pins to three decimals.
+		const errors = [0.001, 0.01, 0.1].map((B) => {
+			const r = computePorod(sphere(0.5, B), guinierOf(sphere(0.5)))!
+			return Math.abs(r.background - B) / B
+		})
 
-		const expected = (qMax ** 3 - qMin ** 3) / 3
-		expect(computePorod(data, 1)!.porodInvariant).toBeCloseTo(expected, 6)
+		for (const e of errors) expect(e).toBeLessThan(0.05)
+		expect(errors).toEqual([...errors].sort((a, b) => b - a))
 	})
 
-	it('skips segments touching a non-positive intensity', () => {
-		const data: SaxsData = {
-			q: [0.1, 0.2, 0.3],
-			I: [1, -1, 1],
-			err: [0.1, 0.1, 0.1],
+	it('reports a background near zero when there is none', () => {
+		const data = sphere(0.5)
+		const r = computePorod(data, guinierOf(data))!
+		// Relative to the intensity scale, not absolutely - I(0) is 100 here.
+		expect(Math.abs(r.background)).toBeLessThan(1e-4)
+	})
+
+	it('gives the same volume whatever the background level', () => {
+		// The whole point of fitting B: the invariant weights by q^2, so an
+		// unremoved background contributes B*q^3/3 and grows with the range.
+		const reference = guinierOf(sphere(0.5))
+		const volumes = [0, 0.001, 0.01, 0.1].map(
+			(B) => computePorod(sphere(0.5, B), reference)!.porodVolume,
+		)
+		for (const v of volumes) {
+			expect(v / volumes[0]).toBeCloseTo(1, 3)
 		}
-		// Both segments touch the negative point, so nothing is integrated.
-		expect(computePorod(data, 1)).toBeNull()
+	})
+
+	it('recovers the true particle volume within 1%', () => {
+		// Was an it.fails marker for ROADMAP item 3 - the old implementation
+		// integrated only the measured range and came out ~7% high.
+		const data = sphere(0.5)
+		const r = computePorod(data, guinierOf(data))!
+		expect(Math.abs(r.porodVolume - TRUE_VOLUME) / TRUE_VOLUME).toBeLessThan(
+			0.01,
+		)
+	})
+
+	it('survives a truncated q range', () => {
+		const ratios = [0.3, 0.4, 0.5].map((qMax) => {
+			const data = sphere(qMax)
+			return computePorod(data, guinierOf(data))!.porodVolume / TRUE_VOLUME
+		})
+		// The old code drifted from 1.07 to 1.04 across this range.
+		for (const ratio of ratios) expect(Math.abs(ratio - 1)).toBeLessThan(0.02)
+	})
+
+	it('splits the invariant into three contributions that sum to the whole', () => {
+		const data = sphere(0.5)
+		const r = computePorod(data, guinierOf(data))!
+
+		expect(r.qLow + r.qMeasured + r.qHigh).toBeCloseTo(r.porodInvariant, 10)
+		expect(r.qLow).toBeGreaterThanOrEqual(0)
+		expect(r.qMeasured).toBeGreaterThan(0)
+		// The measured range should dominate a well-collected curve.
+		expect(r.qMeasured / r.porodInvariant).toBeGreaterThan(0.9)
+	})
+
+	it('adds the q^-4 tail in closed form as K / qMax', () => {
+		const data = sphere(0.5)
+		const r = computePorod(data, guinierOf(data))!
+		expect(r.qHigh).toBeCloseTo(r.porodConstant / data.q[data.q.length - 1], 12)
+		expect(r.porodConstant).toBeGreaterThan(0)
+	})
+
+	it('reports the background fit window it used', () => {
+		const data = sphere(0.5)
+		const r = computePorod(data, guinierOf(data))!
+		expect(r.backgroundFitPoints).toBe(1000)
+		expect(r.backgroundFitQMin).toBeCloseTo(data.q[1000], 10)
+	})
+
+	it('falls back to the raw measured integral without a usable Porod region', () => {
+		const data = sphere(0.5)
+		const short: SaxsData = {
+			q: data.q.slice(0, 30),
+			I: data.I.slice(0, 30),
+			err: data.err.slice(0, 30),
+		}
+		const r = computePorod(short, guinierOf(data))!
+		expect(r.backgroundFitPoints).toBe(0)
+		expect(r.background).toBe(0)
+		expect(r.qHigh).toBe(0)
+		expect(Number.isNaN(r.backgroundFitQMin)).toBe(true)
+		expect(r.porodInvariant).toBeGreaterThan(0)
 	})
 
 	it('returns null for degenerate input', () => {
+		const data = sphere(0.5)
+		const g = guinierOf(data)
 		const one: SaxsData = { q: [0.1], I: [1], err: [0.1] }
-		expect(computePorod(one, 1)).toBeNull()
 
-		const ok = realisticCurve()
-		expect(computePorod(ok, 0)).toBeNull()
-		expect(computePorod(ok, -5)).toBeNull()
-		expect(computePorod(ok, NaN)).toBeNull()
+		expect(computePorod(one, g)).toBeNull()
+		expect(computePorod(data, { ...g, I0: 0 })).toBeNull()
+		expect(computePorod(data, { ...g, I0: -5 })).toBeNull()
+		expect(computePorod(data, { ...g, I0: NaN })).toBeNull()
 	})
 
-	it('converges on the true particle volume as the q range extends', () => {
-		// Vp = 2*pi^2*I(0)/Q is exact only for Q integrated to infinity, so the
-		// formula is validated by watching the error shrink as qMax grows.
-		const ratios = [0.5, 1, 2, 5].map((qMax) => {
-			const d = makeSphereCurve(R, { qMin: 1e-4, qMax, n: 20000 })
-			return computePorod(d, 100)!.porodVolume / TRUE_VOLUME
-		})
-
-		expect(ratios).toEqual([...ratios].sort((a, b) => b - a))
-		expect(ratios.at(-1)).toBeCloseTo(1, 2)
+	it('still returns a volume when Rg is unusable', () => {
+		// A NaN Rg only kills the low-q term, which is the smallest of the three.
+		const data = sphere(0.5)
+		const g = guinierOf(data)
+		const r = computePorod(data, { ...g, Rg: NaN })!
+		expect(r.qLow).toBe(0)
+		expect(r.porodVolume).toBeGreaterThan(0)
 	})
-
-	/**
-	 * Current behaviour, pinned so a change in the integration is deliberate.
-	 * `computePorod` integrates only the measured range - no q -> 0 term, no
-	 * Porod q^-4 tail beyond qMax, no flat background subtraction - so the
-	 * invariant is too small and the volume correspondingly too large.
-	 *
-	 * See ROADMAP.md item 2.
-	 */
-	it('currently overestimates the volume by ~7% over a realistic q range', () => {
-		const vp = computePorod(realisticCurve(), 100)!.porodVolume
-		expect(vp / TRUE_VOLUME).toBeGreaterThan(1.05)
-		expect(vp / TRUE_VOLUME).toBeLessThan(1.09)
-	})
-
-	/**
-	 * The target for ROADMAP.md item 2. Vitest reports a passing `.fails` test
-	 * as a failure, so once extrapolation lands this turns red and forces the
-	 * marker to be promoted to a normal `it`.
-	 */
-	it.fails(
-		'should recover the true volume within 1% once extrapolation exists',
-		() => {
-			const vp = computePorod(realisticCurve(), 100)!.porodVolume
-			expect(Math.abs(vp - TRUE_VOLUME) / TRUE_VOLUME).toBeLessThan(0.01)
-		},
-	)
 })

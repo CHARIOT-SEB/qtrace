@@ -46,7 +46,7 @@ function singleFrameSession(overrides: Partial<ExportSession> = {}): ExportSessi
 		signalCurve: null,
 		activeCurve: curve,
 		guinierResult,
-		porodResult: computePorod(curve, guinierResult!.I0),
+		porodResult: computePorod(curve, guinierResult!),
 		...overrides,
 	}
 }
@@ -68,7 +68,7 @@ function secSession(): ExportSession {
 		signalCurve,
 		activeCurve,
 		guinierResult,
-		porodResult: computePorod(activeCurve, guinierResult!.I0),
+		porodResult: computePorod(activeCurve, guinierResult!),
 	}
 }
 

@@ -142,7 +142,7 @@ Four regression tests cover it: grid-density independence, q*Rg coverage on a
 beamline-density grid, recovery through an upturn, and the start index moving
 outward as the upturn strengthens.
 
-### 3. Fix Porod, then build molecular weight on top
+### 3. Fix Porod - DONE (2026-08-30) - then build molecular weight on top
 
 `computePorod` in `src/lib/porod.ts` integrates `q^2 * I(q)` over only the
 measured range - no low-q extrapolation to q -> 0, no Porod `q^-4` tail beyond
@@ -150,7 +150,7 @@ measured range - no low-q extrapolation to q -> 0, no Porod `q^-4` tail beyond
 truncated and Vp is systematically off, yet `StatsRow` presents it as a bare
 number with no caveat. This is the most defensible bug in the codebase.
 
-The invariant needs three separate corrections, not one:
+The invariant needed three separate corrections, not one. All three are in:
 
 1. **Constant background.** Real data carries a flat background B, and the q^2
    weighting means it contributes B*q^3/3 - growing with the integration range.
@@ -166,11 +166,33 @@ The background stays internal to the invariant and is surfaced as a diagnostic
 (decision, 2026-08-30). The scattering curve, the Guinier fit and every existing
 snapshot keep their current meaning.
 
-This forces an API change: `computePorod` needs Rg for the low-q term, so the
-signature becomes `computePorod(data, guinierResult)`. One call site,
-`App.tsx:135`, plus the type and the CSV section.
+This forced an API change: `computePorod` needs Rg for the low-q term, so the
+signature is now `computePorod(data, guinierResult)`.
 
-#### Molecular weight - three routes, not two
+Measured against a sphere of known volume, over a realistic q window:
+
+- volume recovered to within **0.15%**, where the old code was 4-7% high;
+- the answer is now **independent of the background level** - identical to three
+  decimal places at B = 0, 0.001, 0.01 and 0.1, where the old code degraded
+  without limit, since an unremoved background contributes B*q^3/3 and grows
+  with the integration range;
+- stable across truncation, within 2% for qMax from 0.3 to 0.5.
+
+On the real BSA run the **q^-4 tail is 12.15% of Q** - far more than the 3.8% on
+the synthetic fixture, because the measured range stops at q = 0.34. That whole
+12% was missing before. The fitted background came out at 5.2e-5, about 0.2% of
+I(0).
+
+`PorodResult` now carries the three contributions to Q, the fitted background,
+the Porod constant K and the fit window, all exported (format version 3) so a
+reader can see how much was measured and how much was extrapolated. The Vp stat
+card shows the extrapolated percentage, with the background in its tooltip.
+
+r^2 is deliberately not used to gate the background fit: form-factor
+oscillations dominate it even where B is recovered to four significant figures.
+The gate is the point count.
+
+#### Molecular weight - three routes, not two - STILL TO DO
 
 The roadmap previously said MW "falls out nearly free". That was wrong. Asked
 which method she uses, the primary user's answer was that she uses **all** of

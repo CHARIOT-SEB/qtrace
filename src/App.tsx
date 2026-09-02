@@ -132,7 +132,7 @@ export function App() {
 	const porodResult = useMemo(
 		() =>
 			activeCurve && guinierResult
-				? computePorod(activeCurve, guinierResult.I0)
+				? computePorod(activeCurve, guinierResult)
 				: null,
 		[activeCurve, guinierResult],
 	)

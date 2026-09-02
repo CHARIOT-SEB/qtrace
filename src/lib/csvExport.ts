@@ -2,7 +2,7 @@ import type { GuinierResult, PorodResult, SaxsData } from '../types/saxs'
 import { frameIntensity } from './secSaxs'
 
 const APP_VERSION = '0.1.0'
-const EXPORT_FORMAT_VERSION = 2
+const EXPORT_FORMAT_VERSION = 3
 
 export interface ExportSession {
 	frames: SaxsData[]
@@ -209,6 +209,49 @@ function buildPorodSection(session: ExportSession): string[] {
 	)
 	lines.push(
 		csvRow(['porod_volume', fmtNum(porodResult.porodVolume), 'Angstrom^3']),
+	)
+
+	// The three pieces of Q, so a reader can see how much was measured and how
+	// much was extrapolated rather than taking the total on trust.
+	lines.push(
+		csvRow(['porod_q_low', fmtNum(porodResult.qLow), 'intensity*inv_A^3']),
+	)
+	lines.push(
+		csvRow([
+			'porod_q_measured',
+			fmtNum(porodResult.qMeasured),
+			'intensity*inv_A^3',
+		]),
+	)
+	lines.push(
+		csvRow(['porod_q_high', fmtNum(porodResult.qHigh), 'intensity*inv_A^3']),
+	)
+
+	// Background diagnostics. This is subtracted only inside the invariant -
+	// the exported intensities elsewhere are as measured.
+	lines.push(
+		csvRow(['porod_background', fmtNum(porodResult.background), 'intensity']),
+	)
+	lines.push(
+		csvRow([
+			'porod_constant_K',
+			fmtNum(porodResult.porodConstant),
+			'intensity*inv_A^-4',
+		]),
+	)
+	lines.push(
+		csvRow([
+			'porod_background_fit_q_min',
+			fmtNum(porodResult.backgroundFitQMin),
+			'inv_A',
+		]),
+	)
+	lines.push(
+		csvRow([
+			'porod_background_fit_points',
+			porodResult.backgroundFitPoints,
+			'',
+		]),
 	)
 	return lines
 }

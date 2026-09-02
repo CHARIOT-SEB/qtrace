@@ -88,6 +88,19 @@ export const StatsRow = memo(function StatsRow({
 					{porodResult ? fmt(porodResult.porodVolume, 0) : '-'}
 					<StatUnit>Å³</StatUnit>
 				</StatValue>
+				{porodResult && porodResult.porodInvariant > 0 && (
+					<StatUncertainty
+						title={`Flat background ${porodResult.background.toExponential(2)} fitted from q = ${fmt(porodResult.backgroundFitQMin, 3)} and removed from the invariant. The measured q range never reaches q → ∞, so the q⁻⁴ tail beyond it is extrapolated.`}
+					>
+						{fmt(
+							((porodResult.qLow + porodResult.qHigh) /
+								porodResult.porodInvariant) *
+								100,
+							0,
+						)}
+						% extrapolated
+					</StatUncertainty>
+				)}
 			</StatCard>
 		</StatsGrid>
 	)
