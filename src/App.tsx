@@ -1,4 +1,11 @@
-import { useCallback, useDeferredValue, useMemo, useState } from 'react'
+import {
+	useCallback,
+	useDeferredValue,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react'
 import { Alert, Callout, Icon, Intent } from '@blueprintjs/core'
 import {
 	ProcessingModal,
@@ -16,6 +23,7 @@ import { KratkyChart } from './components/KratkyChart'
 import { RangeControls } from './components/RangeControls'
 import { ResidualsChart } from './components/ResidualsChart'
 import { SecTrace } from './components/SecTrace'
+import { useAuth } from './auth/AuthProvider'
 import { useGuinierRange } from './hooks/useGuinierRange'
 import { useHistory } from './hooks/useHistory'
 import { useCloudSnapshots } from './hooks/useCloudSnapshots'
@@ -77,6 +85,10 @@ export function App() {
 	const [isConfirmingClear, setIsConfirmingClear] = useState(false)
 	const [saveToCloud, setSaveToCloud] = useState(false)
 	const [isRailOpen, setIsRailOpen] = useState(false)
+
+	const { user } = useAuth()
+	const signedInUserId = user?.id ?? null
+	const previousUserId = useRef(signedInUserId)
 
 	const handleHoverQ = useCallback((q: number | null) => setHoveredQ(q), [])
 
@@ -293,14 +305,37 @@ export function App() {
 		void cloud.save(entry.name ?? entry.label, entry.snapshot)
 	}
 
-	function handleClear() {
+	/**
+	 * Wipe every trace of the current analysis - loaded frames, the regions and
+	 * fit range derived from them, and the session history. Shared by the
+	 * clear-session action and by leaving an account.
+	 */
+	function resetWorkspace() {
 		setFrames([])
 		setError(null)
 		setBufferRange([0, 0])
 		setSignalRange([0, 0])
+		setHoveredQ(null)
+		setModal(INITIAL_MODAL_STATE)
+		setSaveToCloud(false)
+		setIsConfirmingClear(false)
+		setIsRailOpen(false)
 		guinier.resetRange()
 		hist.clearHistory()
 	}
+
+	/**
+	 * Signing in from a signed-out session keeps what's on screen - that work
+	 * came off the user's own machine. Leaving an account, or switching to a
+	 * different one, must not leave the previous account's data sitting there
+	 * for whoever uses the browser next.
+	 */
+	useEffect(() => {
+		const previous = previousUserId.current
+		previousUserId.current = signedInUserId
+		if (previous && previous !== signedInUserId) resetWorkspace()
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- account change only
+	}, [signedInUserId])
 
 	/**
 	 * Name the run, not its first frame. SEC frames are conventionally
@@ -590,10 +625,7 @@ export function App() {
 				confirmButtonText='Clear data'
 				cancelButtonText='Cancel'
 				onCancel={() => setIsConfirmingClear(false)}
-				onConfirm={() => {
-					setIsConfirmingClear(false)
-					handleClear()
-				}}
+				onConfirm={() => resetWorkspace()}
 			>
 				<p>
 					<strong>Clear the current session?</strong>

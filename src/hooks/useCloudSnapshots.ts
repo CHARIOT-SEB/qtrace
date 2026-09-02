@@ -34,26 +34,49 @@ export function useCloudSnapshots({ applySnapshot }: UseCloudSnapshotsOptions) {
 	 */
 	const datasetIdByFrames = useRef(new WeakMap<SaxsData[], string>())
 
-	const isSignedIn = Boolean(user)
+	const userId = user?.id ?? null
+	const isSignedIn = Boolean(userId)
+
+	/**
+	 * Bumped whenever the signed-in account changes. Every async call captures
+	 * it and drops its result if it no longer matches, so a list or download
+	 * that was in flight at sign-out can't write the old account's data back
+	 * into state after the reset.
+	 */
+	const epoch = useRef(0)
 
 	const refresh = useCallback(async () => {
-		if (!user) {
-			setItems([])
-			return
-		}
+		if (!userId) return
+		const era = epoch.current
 		setIsLoading(true)
 		try {
-			setItems(await listSnapshots())
+			const next = await listSnapshots()
+			if (era !== epoch.current) return
+			setItems(next)
 			setError(null)
 		} catch (e) {
+			if (era !== epoch.current) return
 			setError(message(e, 'Could not load your saved snapshots.'))
 		}
-		setIsLoading(false)
-	}, [user])
+		if (era === epoch.current) setIsLoading(false)
+	}, [userId])
 
+	/**
+	 * Nothing from one account may survive into the next. Signing out empties
+	 * the list, the error banner and the frames->dataset cache - a cached
+	 * dataset id belongs to the account that uploaded it and means nothing to
+	 * anyone else - and signing in as someone else clears the same state before
+	 * loading their snapshots.
+	 */
 	useEffect(() => {
+		epoch.current += 1
+		setItems([])
+		setError(null)
+		setIsLoading(false)
+		setIsBusy(false)
+		datasetIdByFrames.current = new WeakMap()
 		void refresh()
-	}, [refresh])
+	}, [userId, refresh])
 
 	/**
 	 * Save an analysis state to the account, uploading its frames first if that
@@ -61,11 +84,12 @@ export function useCloudSnapshots({ applySnapshot }: UseCloudSnapshotsOptions) {
 	 */
 	const save = useCallback(
 		async (name: string, snapshot: AnalysisSnapshot) => {
-			if (!user) return false
+			if (!userId) return false
 			if (snapshot.frames.length === 0) {
 				setError('Load some data before saving to your account.')
 				return false
 			}
+			const era = epoch.current
 			setIsBusy(true)
 			setError(null)
 			try {
@@ -76,19 +100,22 @@ export function useCloudSnapshots({ applySnapshot }: UseCloudSnapshotsOptions) {
 						snapshot.frames[0]?.filename ?? name,
 					)
 					datasetId = dataset.id
+					if (era !== epoch.current) return false
 					datasetIdByFrames.current.set(snapshot.frames, datasetId)
 				}
 				const created = await createSnapshot({ datasetId, name, snapshot })
+				if (era !== epoch.current) return false
 				setItems((prev) => [created, ...prev])
 				setIsBusy(false)
 				return true
 			} catch (e) {
+				if (era !== epoch.current) return false
 				setError(message(e, 'Could not save this snapshot to your account.'))
 				setIsBusy(false)
 				return false
 			}
 		},
-		[user],
+		[userId],
 	)
 
 	/** Download the frames behind a saved snapshot and apply it to the app. */
@@ -96,10 +123,12 @@ export function useCloudSnapshots({ applySnapshot }: UseCloudSnapshotsOptions) {
 		async (id: string) => {
 			const entry = items.find((s) => s.id === id)
 			if (!entry) return false
+			const era = epoch.current
 			setIsBusy(true)
 			setError(null)
 			try {
 				const frames = await downloadDataset(entry.datasetId)
+				if (era !== epoch.current) return false
 				datasetIdByFrames.current.set(frames, entry.datasetId)
 				applySnapshot({
 					frames,
@@ -111,6 +140,7 @@ export function useCloudSnapshots({ applySnapshot }: UseCloudSnapshotsOptions) {
 				setIsBusy(false)
 				return true
 			} catch (e) {
+				if (era !== epoch.current) return false
 				setError(message(e, 'Could not open that snapshot.'))
 				setIsBusy(false)
 				return false
@@ -120,11 +150,14 @@ export function useCloudSnapshots({ applySnapshot }: UseCloudSnapshotsOptions) {
 	)
 
 	const remove = useCallback(async (id: string) => {
+		const era = epoch.current
 		setError(null)
 		try {
 			await deleteSnapshot(id)
+			if (era !== epoch.current) return
 			setItems((prev) => prev.filter((s) => s.id !== id))
 		} catch (e) {
+			if (era !== epoch.current) return
 			setError(message(e, 'Could not delete that snapshot.'))
 		}
 	}, [])

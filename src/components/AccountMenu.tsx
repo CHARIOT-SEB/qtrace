@@ -42,7 +42,13 @@ export function AccountMenu() {
 			content={
 				<Menu>
 					<MenuDivider title={user.email ?? 'Signed in'} />
-					<MenuItem icon='log-out' text='Sign out' onClick={() => signOut()} />
+					<MenuItem
+						icon='log-out'
+						text='Sign out'
+						// The session is dropped locally either way, so a failed
+						// server call has nothing left to report here.
+						onClick={() => void signOut().catch(() => {})}
+					/>
 				</Menu>
 			}
 		>

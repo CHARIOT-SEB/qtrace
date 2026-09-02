@@ -83,7 +83,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			async signOut() {
 				if (!supabase) return
 				const { error } = await supabase.auth.signOut()
-				if (error) throw error
+				// A refused or unreachable server must not leave the app looking
+				// signed in with the account's data on screen. Drop the session
+				// here so the signed-out state is reached either way.
+				if (error) {
+					setSession(null)
+					throw error
+				}
 			},
 		}),
 		[isReady, session],
