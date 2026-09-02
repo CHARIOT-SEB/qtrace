@@ -1,16 +1,58 @@
-/* ── Palette tokens ───────────────────────────────────────────────── */
+/* ── Palette tokens ───────────────────────────────────────────────────
+   Mirrors src/theme.ts. Keep the two in step - theme.ts is the source of
+   truth for anything styled-components reads; these exist for the Blueprint
+   overrides below, which are plain CSS.                                   */
 :root {
-  --c1: #2f4550; /* charcoal-blue - text, navbar, primary data       */
-  --c2: #586f7c; /* blue-slate    - secondary text, axis labels      */
-  --c3: #8aaab5; /* mid-tone      - muted labels, buffer bars        */
-  --c4: #b8dbd9; /* light-blue    - borders, dividers, grid lines    */
-  --c5: #f4f4f9; /* ghost-white   - app background, hover fills      */
+  /* Ink */
+  --ink-900: #16262e;
+  --ink-700: #2f4550;
+  --ink-500: #55707c;
+  --ink-450: #6c8792;
+  --ink-400: #7d949e;
+
+  /* Surface */
+  --line: #dde6e8;
+  --line-strong: #c3d4d8;
+  --surface: #ffffff;
+  --canvas: #f1f4f5;
+
+  /* Accent */
+  --accent: #0f5b68;
+  --accent-soft: #e4eff1;
+  --accent-border: #c4dee2;
+
+  /* Status */
+  --good-ink: #1d6b45;
+  --good-bg: #eaf6f0;
+  --good-border: #bfe3d0;
+  --warn-ink: #8a5a00;
+  --warn-bg: #fbf3e3;
+  --warn-border: #eddcb4;
+  --bad-ink: #8a1f2f;
+  --bad-bg: #fbecee;
+  --bad-border: #eec6cb;
+
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Legacy aliases - still referenced by a few unmigrated rules */
+  --c1: var(--ink-700);
+  --c2: var(--ink-500);
+  --c3: var(--ink-450);
+  --c4: var(--line);
+  --c5: var(--canvas);
 }
 
 /* ── Global resets ───────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -18,14 +60,21 @@ html, body {
 }
 
 body {
-  background: var(--c5);
-  color: var(--c1);
-  font-family: 'Inter', sans-serif;
-  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  background: var(--canvas);
+  color: var(--ink-700);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
 }
 
-/* Prevent iOS from auto-zooming on input focus by ensuring 16px font on small screens */
+/* Every measured value is set in mono with tabular figures so digits stop
+   shifting sideways as a fit updates. */
+.tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Prevent iOS auto-zoom on input focus by ensuring 16px font on small screens */
 @media (max-width: 768px) {
   .bp6-input,
   .bp6-input.bp6-large,
@@ -36,113 +85,146 @@ body {
   }
 }
 
-/* ── Blueprint overrides - Navbar ────────────────────────────────── */
-.bp6-navbar {
-  background-color: var(--c2) !important;
-  box-shadow: none !important;
-  border-bottom: 1px solid var(--c1) !important;
-}
-.bp6-navbar .bp6-navbar-heading,
-.bp6-navbar .bp6-text-muted {
-  color: var(--c5) !important;
-}
-.bp6-navbar .bp6-navbar-divider {
-  border-color: var(--c2) !important;
-}
-
 /* ── Blueprint overrides - Cards ─────────────────────────────────── */
 .bp6-card {
-  background-color: #ffffff !important;
-  border: 1px solid var(--c4) !important;
-  box-shadow: 0 1px 3px rgba(47,69,80,0.08) !important;
+  background-color: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
 }
 
 /* ── Blueprint overrides - Buttons ──────────────────────────────── */
 .bp6-button:not([class*='bp6-intent']) {
-  color: var(--c1) !important;
-  background: #fff !important;
-  border: 1px solid var(--c4) !important;
+  color: var(--ink-700) !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 6px !important;
   box-shadow: none !important;
+  font-weight: 500;
 }
 .bp6-button:not([class*='bp6-intent']):hover {
-  background: #eef6f6 !important;
-  border-color: var(--c3) !important;
+  background: var(--canvas) !important;
+  border-color: var(--line-strong) !important;
+}
+.bp6-button.bp6-intent-primary {
+  background: var(--accent) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  box-shadow: 0 1px 2px rgba(22, 38, 46, 0.16) !important;
+  font-weight: 500;
+}
+.bp6-button.bp6-intent-primary:hover {
+  background: #0c4b56 !important;
+}
+.bp6-button:focus-visible {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 1px;
 }
 
 /* ── Blueprint overrides - Tags ──────────────────────────────────── */
 .bp6-tag {
-  background: var(--c4) !important;
-  color: var(--c1) !important;
+  background: var(--accent-soft) !important;
+  color: var(--accent) !important;
+  border: 1px solid var(--accent-border) !important;
+  border-radius: 4px !important;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.bp6-tag.bp6-intent-success {
+  background: var(--good-bg) !important;
+  color: var(--good-ink) !important;
+  border-color: var(--good-border) !important;
+}
+.bp6-tag.bp6-intent-warning {
+  background: var(--warn-bg) !important;
+  color: var(--warn-ink) !important;
+  border-color: var(--warn-border) !important;
+}
+.bp6-tag.bp6-intent-danger {
+  background: var(--bad-bg) !important;
+  color: var(--bad-ink) !important;
+  border-color: var(--bad-border) !important;
 }
 
 /* ── Blueprint overrides - Slider ────────────────────────────────── */
 .bp6-slider-progress.bp6-intent-primary {
-  background: var(--c2) !important;
+  background: var(--accent) !important;
+}
+.bp6-slider-track {
+  background: var(--line) !important;
 }
 .bp6-slider-handle {
-  background: #fff !important;
-  border: 2px solid var(--c2) !important;
-  box-shadow: 0 1px 3px rgba(47,69,80,0.2) !important;
+  background: var(--surface) !important;
+  border: 2px solid var(--accent) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 2px rgba(22, 38, 46, 0.18) !important;
 }
 .bp6-slider-handle:hover,
 .bp6-slider-handle.bp6-active {
-  border-color: var(--c1) !important;
+  border-color: var(--ink-900) !important;
 }
 .bp6-slider-label {
-  color: var(--c2) !important;
+  color: var(--ink-450) !important;
   background: transparent !important;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
 }
 .bp6-slider-handle .bp6-slider-label {
-  background: var(--c5) !important;
+  background: var(--canvas) !important;
   border-radius: 3px !important;
-  padding: 0 3px !important;
-}
-.bp6-slider-axis .bp6-slider-label {
-  font-size: 11px;
+  padding: 0 4px !important;
 }
 
 /* ── Blueprint overrides - Callout ───────────────────────────────── */
 .bp6-callout {
-  background: var(--c5) !important;
-  border: 1px solid var(--c4) !important;
-  color: var(--c1) !important;
+  background: var(--canvas) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 7px !important;
+  color: var(--ink-700) !important;
 }
-
-/* Intent-specific callouts (used by AnalysisInsights) keep their accent colours */
 .bp6-callout.bp6-intent-danger {
-  background: rgba(205, 66, 70, 0.07) !important;
-  border-color: rgba(205, 66, 70, 0.28) !important;
+  background: var(--bad-bg) !important;
+  border-color: var(--bad-border) !important;
 }
-.bp6-callout.bp6-intent-danger .bp6-icon { color: #cd4246 !important; }
-
+.bp6-callout.bp6-intent-danger .bp6-icon {
+  color: var(--bad-ink) !important;
+}
 .bp6-callout.bp6-intent-warning {
-  background: rgba(200, 118, 25, 0.08) !important;
-  border-color: rgba(200, 118, 25, 0.3) !important;
+  background: var(--warn-bg) !important;
+  border-color: var(--warn-border) !important;
 }
-.bp6-callout.bp6-intent-warning .bp6-icon { color: #c87619 !important; }
-
+.bp6-callout.bp6-intent-warning .bp6-icon {
+  color: var(--warn-ink) !important;
+}
 .bp6-callout.bp6-intent-primary {
-  background: rgba(76, 144, 240, 0.07) !important;
-  border-color: rgba(76, 144, 240, 0.28) !important;
+  background: var(--accent-soft) !important;
+  border-color: var(--accent-border) !important;
 }
-.bp6-callout.bp6-intent-primary .bp6-icon { color: #4c90f0 !important; }
+.bp6-callout.bp6-intent-primary .bp6-icon {
+  color: var(--accent) !important;
+}
 
 /* ── Blueprint overrides - Divider ───────────────────────────────── */
 .bp6-divider {
-  border-color: var(--c4) !important;
+  border-color: var(--line) !important;
 }
 
 /* ── Blueprint overrides - Non-ideal state ───────────────────────── */
 .bp6-non-ideal-state-title {
-  color: var(--c1) !important;
+  color: var(--ink-900) !important;
+  font-weight: 600;
 }
 .bp6-non-ideal-state-description,
 .bp6-non-ideal-state .bp6-icon {
-  color: var(--c3) !important;
+  color: var(--ink-450) !important;
 }
 
-/* ── Processing modal backdrop ───────────────────────────────────── */
+/* ── Overlays ────────────────────────────────────────────────────── */
 .bp6-overlay-backdrop {
-  background: rgba(47, 69, 80, 0.45) !important;
-  backdrop-filter: blur(1px);
+  background: rgba(22, 38, 46, 0.42) !important;
+  backdrop-filter: blur(2px);
+}
+.bp6-dialog {
+  border-radius: 10px !important;
+  box-shadow: 0 12px 40px rgba(22, 38, 46, 0.22) !important;
 }

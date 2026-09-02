@@ -1,28 +1,24 @@
 import { memo, useState } from 'react'
-import { Elevation, Intent } from '@blueprintjs/core'
+import { Icon, type IconName } from '@blueprintjs/core'
 import type {
 	AnalysisInsight,
 	InsightSeverity,
 } from '../lib/analysisHeuristics'
+import { RailLabel } from '../styles/rail.styles'
 import {
-	InsightsCard,
+	InsightsList,
 	InsightsHeader,
-	InsightsTitle,
+	InsightsBadges,
 	InsightsBadge,
-	InsightCallout,
+	InsightBox,
 	InsightHeader,
+	InsightIcon,
 	InsightMessage,
 	InsightWhyBtn,
 	InsightExplanation,
 } from './AnalysisInsights.styles'
 
-function toIntent(severity: InsightSeverity): Intent {
-	if (severity === 'error') return Intent.DANGER
-	if (severity === 'warning') return Intent.WARNING
-	return Intent.PRIMARY
-}
-
-function toIcon(severity: InsightSeverity): string {
+function toIcon(severity: InsightSeverity): IconName {
 	if (severity === 'error') return 'error'
 	if (severity === 'warning') return 'warning-sign'
 	return 'info-sign'
@@ -32,22 +28,31 @@ function toIcon(severity: InsightSeverity): string {
 const InsightCard = memo(
 	function InsightCard({ insight }: { insight: AnalysisInsight }) {
 		const [open, setOpen] = useState(false)
+		const severity = insight.severity
 
 		return (
-			<InsightCallout
-				intent={toIntent(insight.severity)}
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				icon={toIcon(insight.severity) as any}
-			>
+			<InsightBox $severity={severity}>
 				<InsightHeader>
+					<InsightIcon $severity={severity}>
+						<Icon icon={toIcon(severity)} size={14} />
+					</InsightIcon>
 					<InsightMessage>{insight.message}</InsightMessage>
-					<InsightWhyBtn minimal small onClick={() => setOpen((o) => !o)}>
-						{open ? 'Less' : 'Why?'}
-					</InsightWhyBtn>
 				</InsightHeader>
 				{/* Plain conditional - no Collapse/useLayoutEffect layout reads */}
-				{open && <InsightExplanation>{insight.explanation}</InsightExplanation>}
-			</InsightCallout>
+				{open ? (
+					<InsightExplanation $severity={severity}>
+						{insight.explanation}
+					</InsightExplanation>
+				) : null}
+				<InsightWhyBtn
+					type='button'
+					$severity={severity}
+					aria-expanded={open}
+					onClick={() => setOpen((o) => !o)}
+				>
+					{open ? 'Less' : 'Why?'}
+				</InsightWhyBtn>
+			</InsightBox>
 		)
 	},
 	(prev, next) =>
@@ -70,23 +75,27 @@ export const AnalysisInsights = memo(function AnalysisInsights({
 	const warnCount = insights.filter((i) => i.severity === 'warning').length
 
 	return (
-		<InsightsCard elevation={Elevation.ONE}>
+		<>
 			<InsightsHeader>
-				<InsightsTitle>Analysis Insights</InsightsTitle>
-				{errorCount > 0 && (
-					<InsightsBadge $variant='error'>
-						{errorCount} issue{errorCount > 1 ? 's' : ''}
-					</InsightsBadge>
-				)}
-				{warnCount > 0 && (
-					<InsightsBadge $variant='warning'>
-						{warnCount} warning{warnCount > 1 ? 's' : ''}
-					</InsightsBadge>
-				)}
+				<RailLabel>Analysis insights</RailLabel>
+				<InsightsBadges>
+					{errorCount > 0 && (
+						<InsightsBadge $variant='error'>
+							{errorCount} issue{errorCount > 1 ? 's' : ''}
+						</InsightsBadge>
+					)}
+					{warnCount > 0 && (
+						<InsightsBadge $variant='warning'>
+							{warnCount} warning{warnCount > 1 ? 's' : ''}
+						</InsightsBadge>
+					)}
+				</InsightsBadges>
 			</InsightsHeader>
-			{insights.map((insight) => (
-				<InsightCard key={insight.id} insight={insight} />
-			))}
-		</InsightsCard>
+			<InsightsList>
+				{insights.map((insight) => (
+					<InsightCard key={insight.id} insight={insight} />
+				))}
+			</InsightsList>
+		</>
 	)
 })

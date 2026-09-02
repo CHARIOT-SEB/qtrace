@@ -1,20 +1,26 @@
 import { memo } from 'react'
-import { Elevation, Intent } from '@blueprintjs/core'
 import type { GuinierResult, PorodResult } from '../types/saxs'
 import {
+	StatsBlock,
 	StatsGrid,
 	StatCard,
+	HeroCard,
 	StatLabel,
+	HeroLabel,
+	StatValueRow,
 	StatValue,
+	HeroValue,
 	StatUnit,
-	StatUncertainty,
-	QRgValueRow,
-	QRgTag,
+	HeroUnit,
+	StatSub,
+	HeroSub,
+	StatusTag,
 } from './StatsRow.styles'
 
 interface Props {
 	result: GuinierResult
 	pointsUsed: number
+	totalPoints?: number
 	porodResult?: PorodResult
 }
 
@@ -22,86 +28,99 @@ function fmt(n: number, d = 2) {
 	return Number.isFinite(n) ? n.toFixed(d) : '-'
 }
 
+function fmtInt(n: number) {
+	return Number.isFinite(n) ? Math.round(n).toLocaleString() : '-'
+}
+
+/** qRg max grades the fit; NaN is unphysical and grades as BAD. */
+function gradeQRg(qRgMax: number): 'ok' | 'warn' | 'bad' {
+	if (!Number.isFinite(qRgMax)) return 'bad'
+	if (qRgMax <= 1.3) return 'ok'
+	if (qRgMax <= 1.5) return 'warn'
+	return 'bad'
+}
+
 export const StatsRow = memo(function StatsRow({
 	result,
 	pointsUsed,
+	totalPoints,
 	porodResult,
 }: Props) {
-	const qrgIntent = !Number.isFinite(result.qRgMax)
-		? Intent.DANGER
-		: result.qRgMax <= 1.3
-			? Intent.SUCCESS
-			: result.qRgMax <= 1.5
-				? Intent.WARNING
-				: Intent.DANGER
+	const grade = gradeQRg(result.qRgMax)
+
+	const extrapolated =
+		porodResult && porodResult.porodInvariant > 0
+			? ((porodResult.qLow + porodResult.qHigh) / porodResult.porodInvariant) *
+				100
+			: null
 
 	return (
-		<StatsGrid>
-			<StatCard elevation={Elevation.ONE}>
-				<StatLabel>Rg</StatLabel>
-				<StatValue>
-					{fmt(result.Rg, 2)}
-					<StatUnit>Å</StatUnit>
-				</StatValue>
+		<StatsBlock>
+			<HeroCard>
+				<HeroLabel>Radius of gyration</HeroLabel>
+				<StatValueRow>
+					<HeroValue>{fmt(result.Rg, 2)}</HeroValue>
+					<HeroUnit>Å</HeroUnit>
+				</StatValueRow>
 				{Number.isFinite(result.dRg) && (
-					<StatUncertainty>± {fmt(result.dRg, 2)} Å</StatUncertainty>
+					<HeroSub>± {fmt(result.dRg, 2)} Å</HeroSub>
 				)}
-			</StatCard>
+			</HeroCard>
 
-			<StatCard elevation={Elevation.ONE}>
-				<StatLabel>I(0)</StatLabel>
-				<StatValue>{fmt(result.I0, 2)}</StatValue>
-				{Number.isFinite(result.dI0) && (
-					<StatUncertainty>± {fmt(result.dI0, 2)}</StatUncertainty>
-				)}
-			</StatCard>
+			<StatsGrid>
+				<StatCard>
+					<StatLabel>I(0)</StatLabel>
+					<StatValueRow>
+						<StatValue>{fmt(result.I0, 2)}</StatValue>
+					</StatValueRow>
+					{Number.isFinite(result.dI0) && (
+						<StatSub>± {fmt(result.dI0, 2)}</StatSub>
+					)}
+				</StatCard>
 
-			<StatCard elevation={Elevation.ONE}>
-				<StatLabel>q · Rg max</StatLabel>
-				<StatValue>
-					<QRgValueRow>
-						{fmt(result.qRgMax, 2)}
-						<QRgTag intent={qrgIntent} minimal>
-							{qrgIntent === Intent.SUCCESS
-								? 'OK'
-								: qrgIntent === Intent.WARNING
-									? 'WARN'
-									: 'BAD'}
-						</QRgTag>
-					</QRgValueRow>
-				</StatValue>
-			</StatCard>
+				<StatCard>
+					<StatLabel>q · Rg max</StatLabel>
+					<StatValueRow>
+						<StatValue>{fmt(result.qRgMax, 2)}</StatValue>
+						<StatusTag $kind={grade}>
+							{grade === 'ok' ? 'OK' : grade === 'warn' ? 'WARN' : 'BAD'}
+						</StatusTag>
+					</StatValueRow>
+					<StatSub>limit 1.30</StatSub>
+				</StatCard>
 
-			<StatCard elevation={Elevation.ONE}>
-				<StatLabel>R²</StatLabel>
-				<StatValue>{fmt(result.fit.r2, 4)}</StatValue>
-			</StatCard>
+				<StatCard>
+					<StatLabel>R²</StatLabel>
+					<StatValueRow>
+						<StatValue>{fmt(result.fit.r2, 4)}</StatValue>
+					</StatValueRow>
+				</StatCard>
 
-			<StatCard elevation={Elevation.ONE}>
-				<StatLabel>Points used</StatLabel>
-				<StatValue>{pointsUsed}</StatValue>
-			</StatCard>
+				<StatCard>
+					<StatLabel>Points used</StatLabel>
+					<StatValueRow>
+						<StatValue>{pointsUsed}</StatValue>
+					</StatValueRow>
+					{totalPoints ? <StatSub>of {totalPoints}</StatSub> : null}
+				</StatCard>
 
-			<StatCard elevation={Elevation.ONE}>
-				<StatLabel>Vp</StatLabel>
-				<StatValue>
-					{porodResult ? fmt(porodResult.porodVolume, 0) : '-'}
-					<StatUnit>Å³</StatUnit>
-				</StatValue>
-				{porodResult && porodResult.porodInvariant > 0 && (
-					<StatUncertainty
-						title={`Flat background ${porodResult.background.toExponential(2)} fitted from q = ${fmt(porodResult.backgroundFitQMin, 3)} and removed from the invariant. The measured q range never reaches q → ∞, so the q⁻⁴ tail beyond it is extrapolated.`}
-					>
-						{fmt(
-							((porodResult.qLow + porodResult.qHigh) /
-								porodResult.porodInvariant) *
-								100,
-							0,
-						)}
-						% extrapolated
-					</StatUncertainty>
-				)}
-			</StatCard>
-		</StatsGrid>
+				<StatCard $span>
+					<StatLabel>Porod volume</StatLabel>
+					<StatValueRow>
+						<StatValue>
+							{porodResult ? fmtInt(porodResult.porodVolume) : '-'}
+						</StatValue>
+						<StatUnit>Å³</StatUnit>
+					</StatValueRow>
+					{extrapolated !== null && (
+						<StatSub
+							title={`Flat background ${porodResult!.background.toExponential(2)} fitted from q = ${fmt(porodResult!.backgroundFitQMin, 3)} and removed from the invariant. The measured q range never reaches q → ∞, so the q⁻⁴ tail beyond it is extrapolated.`}
+						>
+							{fmt(extrapolated, 0)}% extrapolated beyond measured q
+						</StatSub>
+					)}
+				</StatCard>
+			</StatsGrid>
+		</StatsBlock>
 	)
 })

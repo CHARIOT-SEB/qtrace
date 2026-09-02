@@ -9,7 +9,6 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts'
-import { Elevation } from '@blueprintjs/core'
 import { AXIS_STYLE, CHART } from '../chartTheme'
 import type { GuinierResult, SaxsData } from '../types/saxs'
 import { ChartCard, ChartCardTitle, ChartFrame } from '../styles/shared.styles'
@@ -66,15 +65,15 @@ const TIP = ({
 			<TooltipRow $color={CHART.tickColor}>
 				q² = {q2.toExponential(3)} Å⁻²
 			</TooltipRow>
-			<TooltipRow $color='#e5e8eb'>I = {y.toExponential(3)}</TooltipRow>
-			<TooltipRow $color='#e5e8eb'>ln I = {lnI.toFixed(3)}</TooltipRow>
+			<TooltipRow $color={CHART.titleColor}>I = {y.toExponential(3)}</TooltipRow>
+			<TooltipRow $color={CHART.titleColor}>ln I = {lnI.toFixed(3)}</TooltipRow>
 			{inFit && qRg != null && (
 				<TooltipRow $color={CHART.tickColor}>
 					q·Rg = {qRg.toFixed(3)}
 				</TooltipRow>
 			)}
 			{inFit && residual != null && (
-				<TooltipRow $color={CHART.dataViolet}>
+				<TooltipRow $color={CHART.residual}>
 					residual = {residual.toFixed(4)}
 				</TooltipRow>
 			)}
@@ -91,9 +90,7 @@ export const FullCurveChart = memo(function FullCurveChart({
 	onHoverQ,
 }: Props) {
 	const outside: ScatterPt[] = []
-	const insideValid: ScatterPt[] = []
-	const insideWarning: ScatterPt[] = []
-	const insideInvalid: ScatterPt[] = []
+	const inside: ScatterPt[] = []
 
 	for (let i = 0; i < data.q.length; i++) {
 		if (data.I[i] > 0) {
@@ -104,33 +101,35 @@ export const FullCurveChart = memo(function FullCurveChart({
 			const inFit = !!result && i >= result.iMin && i <= result.iMax
 
 			if (inFit && result) {
-				const qRg = q * result.Rg
-				const residual = lnI - (result.fit.slope * q2 + result.fit.intercept)
-				const pt: ScatterPt = {
+				inside.push({
 					x: q,
 					y: I,
 					q2,
 					lnI,
 					inFit: true,
-					qRg,
-					residual,
-				}
-				// qRg NaN (unphysical fit) falls through to insideInvalid - correct visual signal
-				if (qRg <= 1.3) insideValid.push(pt)
-				else if (qRg <= 1.5) insideWarning.push(pt)
-				else insideInvalid.push(pt)
+					qRg: q * result.Rg,
+					residual: lnI - (result.fit.slope * q2 + result.fit.intercept),
+				})
 			} else {
 				outside.push({ x: q, y: I, q2, lnI, inFit: false })
 			}
 		}
 	}
 
-	const allPts = [
-		...outside,
-		...insideValid,
-		...insideWarning,
-		...insideInvalid,
-	]
+	/**
+	 * Colour here answers only "is this point in the fit". Whether the fit has
+	 * run past the Guinier regime is a different question, so it gets its own
+	 * mark: a line at the q where qRg crosses 1.3, drawn only when the fit
+	 * actually reaches it. Previously both questions shared one colour scale
+	 * and a green point could not say which of the two it meant.
+	 */
+	const qRgLimitQ = result && result.Rg > 0 ? 1.3 / result.Rg : null
+	const showQRgLimit =
+		qRgLimitQ !== null &&
+		Number.isFinite(qRgLimitQ) &&
+		inside.some((p) => (p.qRg ?? 0) > 1.3)
+
+	const allPts = [...outside, ...inside]
 	const yMin = Math.min(...allPts.map((p) => p.y))
 	const yMax = Math.max(...allPts.map((p) => p.y))
 	const xMin = Math.min(...allPts.map((p) => p.x))
@@ -138,7 +137,7 @@ export const FullCurveChart = memo(function FullCurveChart({
 	const ticks = logTicks(yMin, yMax)
 
 	return (
-		<ChartCard elevation={Elevation.ONE}>
+		<ChartCard>
 			<ChartCardTitle>
 				<span>{title ?? 'Scattering curve - log I(q) vs q'}</span>
 			</ChartCardTitle>
@@ -158,6 +157,7 @@ export const FullCurveChart = memo(function FullCurveChart({
 							dataKey='x'
 							type='number'
 							domain={[xMin * 0.98, xMax * 1.02]}
+							tickFormatter={(v: number) => v.toFixed(2)}
 							tick={AXIS_STYLE.tick}
 							label={{
 								value: 'q (Å⁻¹)',
@@ -174,12 +174,12 @@ export const FullCurveChart = memo(function FullCurveChart({
 							ticks={ticks}
 							tickFormatter={(v: number) => v.toExponential(0)}
 							tick={AXIS_STYLE.tick}
-							width={56}
+							width={64}
 							label={{
 								value: 'I(q)',
 								angle: -90,
 								position: 'insideLeft',
-								offset: 12,
+								offset: -2,
 								...AXIS_STYLE.label,
 							}}
 						/>
@@ -190,26 +190,27 @@ export const FullCurveChart = memo(function FullCurveChart({
 						<Scatter
 							data={outside}
 							isAnimationActive={false}
-							shape={Dot(result ? CHART.dataGray : CHART.dataBlue) as any}
+							shape={Dot(result ? CHART.markOut : CHART.markIn) as any}
 						/>
 						{result && (
-							<>
-								<Scatter
-									data={insideValid}
-									isAnimationActive={false}
-									shape={Dot(CHART.dataGreen, 3) as any}
-								/>
-								<Scatter
-									data={insideWarning}
-									isAnimationActive={false}
-									shape={Dot(CHART.dataOrangeWarn, 3) as any}
-								/>
-								<Scatter
-									data={insideInvalid}
-									isAnimationActive={false}
-									shape={Dot(CHART.dataRedInvalid, 3) as any}
-								/>
-							</>
+							<Scatter
+								data={inside}
+								isAnimationActive={false}
+								shape={Dot(CHART.markIn, 3) as any}
+							/>
+						)}
+						{showQRgLimit && (
+							<ReferenceLine
+								x={qRgLimitQ as number}
+								stroke={CHART.qrgWarn}
+								strokeDasharray='4 3'
+								label={{
+									value: 'qRg 1.3',
+									position: 'top',
+									fill: CHART.qrgWarn,
+									fontSize: 10,
+								}}
+							/>
 						)}
 						{hoveredQ !== null && (
 							<ReferenceLine

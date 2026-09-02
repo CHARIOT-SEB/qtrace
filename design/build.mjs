@@ -86,7 +86,7 @@ const baseCss = `
   a:hover { color: ${T.ink900}; }
   .mono { font-family: ${MONO}; font-variant-numeric: tabular-nums; }
   .lbl { font-size: 10px; font-weight: 600; letter-spacing: 0.11em; text-transform: uppercase;
-         color: ${T.ink400}; }
+         color: ${T.ink500}; }
   .card { background: ${T.surface}; border: 1px solid ${T.line}; border-radius: 8px; }
 `;
 

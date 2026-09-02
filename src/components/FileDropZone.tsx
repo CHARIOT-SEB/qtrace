@@ -1,12 +1,13 @@
 import { useRef, useState } from 'react'
-import { Elevation } from '@blueprintjs/core'
-import { parseDat } from '../lib/parseDat'
+import { Icon } from '@blueprintjs/core'
+import { readDatFiles } from '../lib/readDatFiles'
 import type { SaxsData } from '../types/saxs'
 import {
 	DropCard,
-	DropIcon,
+	DropIconTile,
 	DropPrimary,
 	DropSecondary,
+	DropBrowse,
 	HiddenInput,
 } from './FileDropZone.styles'
 
@@ -26,50 +27,20 @@ export function FileDropZone({
 	const inputRef = useRef<HTMLInputElement>(null)
 	const [drag, setDrag] = useState(false)
 
-	function readFiles(files: FileList | File[]) {
-		const arr = Array.from(files)
-		if (arr.length === 0) return
-		arr.sort((a, b) =>
-			a.name.localeCompare(b.name, undefined, { numeric: true }),
-		)
-
-		onReadStart?.(arr.length)
-
-		const results: (SaxsData | null)[] = new Array(arr.length).fill(null)
-		let completed = 0
-
-		arr.forEach((file, idx) => {
-			const reader = new FileReader()
-			const finish = () => {
-				completed++
-				onReadProgress?.(completed, arr.length)
-				if (completed < arr.length) return
-				const valid = results.filter((d): d is SaxsData => d !== null)
-				const skipped = arr.length - valid.length
-				if (valid.length === 0) {
-					onError(
-						'Could not parse any files. Expecting q, I(q), [err] columns.',
-					)
-				} else {
-					if (skipped > 0)
-						onError(`${skipped} file(s) could not be parsed and were skipped.`)
-					onLoad(valid)
-				}
-			}
-			reader.onload = () => {
-				results[idx] = parseDat(String(reader.result ?? ''), file.name)
-				finish()
-			}
-			reader.onerror = () => finish()
-			reader.readAsText(file)
-		})
-	}
+	const handlers = { onLoad, onError, onReadStart, onReadProgress }
 
 	return (
 		<DropCard
-			elevation={Elevation.ONE}
+			role='button'
+			tabIndex={0}
 			$isDragging={drag}
 			onClick={() => inputRef.current?.click()}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault()
+					inputRef.current?.click()
+				}
+			}}
 			onDragOver={(e) => {
 				e.preventDefault()
 				setDrag(true)
@@ -78,23 +49,28 @@ export function FileDropZone({
 			onDrop={(e) => {
 				e.preventDefault()
 				setDrag(false)
-				readFiles(e.dataTransfer.files)
+				readDatFiles(e.dataTransfer.files, handlers)
 			}}
 		>
-			<DropIcon icon='upload' size={20} />
-			<DropPrimary>
-				Drop <code>.dat</code> frame files here, or click to browse
-			</DropPrimary>
-			<DropSecondary>
-				Multiple files accepted - sorted by filename for SEC-SAXS frame order
-			</DropSecondary>
+			<DropIconTile>
+				<Icon icon='upload' size={22} />
+			</DropIconTile>
+			<div>
+				<DropPrimary>Drop frame files here</DropPrimary>
+				<DropSecondary>
+					A single curve, or a whole SEC run — sorted by filename for frame
+					order
+				</DropSecondary>
+			</div>
+			<DropBrowse>Browse files</DropBrowse>
 			<HiddenInput
 				ref={inputRef}
 				type='file'
 				accept='.dat,.txt,.csv'
 				multiple
 				onChange={(e) => {
-					if (e.target.files) readFiles(e.target.files)
+					if (e.target.files) readDatFiles(e.target.files, handlers)
+					e.target.value = ''
 				}}
 			/>
 		</DropCard>

@@ -9,10 +9,9 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts'
-import { Elevation, Tag } from '@blueprintjs/core'
 import { AXIS_STYLE, CHART } from '../chartTheme'
 import type { GuinierResult, SaxsData } from '../types/saxs'
-import { ChartCard, ChartCardTitle, ChartFrame } from '../styles/shared.styles'
+import { ChartFrame } from '../styles/shared.styles'
 import { TooltipBox, TooltipRow } from './GuinierChart.styles'
 
 interface Props {
@@ -42,7 +41,7 @@ const TIP = ({
 			<TooltipRow $color={CHART.tickColor}>
 				q² = {x.toExponential(3)} Å⁻²
 			</TooltipRow>
-			<TooltipRow $color='#e5e8eb'>ln I = {y.toFixed(3)}</TooltipRow>
+			<TooltipRow $color={CHART.titleColor}>ln I = {y.toFixed(3)}</TooltipRow>
 		</TooltipBox>
 	)
 }
@@ -61,20 +60,41 @@ export const GuinierChart = memo(function GuinierChart({
 		y: result.fit.slope * x + result.fit.intercept,
 	}))
 
-	const xMin = Math.min(...all.map((p) => p.x))
-	const xMax = Math.max(...all.map((p) => p.x))
-	const yMin = Math.min(...all.map((p) => p.y))
-	const yMax = Math.max(...all.map((p) => p.y))
+	/**
+	 * A Guinier plot is a low-q plot. Showing the whole measured q² range puts
+	 * the fitted region in the leftmost 2% of the axis - the panel ends up not
+	 * showing the thing it is named after. So the view follows the fit: the
+	 * selected range plus roughly half again of context on either side, so you
+	 * can see where the linear region stops being linear and judge the edges.
+	 */
+	const fitLoX = result.xs.length > 0 ? Math.min(...result.xs) : 0
+	const fitHiX = result.xs.length > 0 ? Math.max(...result.xs) : 0
+	const span = Math.max(fitHiX - fitLoX, Number.EPSILON)
+	const dataMaxX = Math.max(...all.map((p) => p.x))
+
+	const xMin = Math.max(0, fitLoX - span * 0.35)
+	const xMax = Math.min(dataMaxX, fitHiX + span * 0.9)
+
+	/**
+	 * Scale y to what is in view - but robustly. Buffer subtraction can leave a
+	 * few points at near-zero intensity, and ln of those is hugely negative; a
+	 * plain min/max lets one such point stretch the axis until the fit is a
+	 * flat line at the top. Clip to the 2nd/98th percentile of what is in view,
+	 * then make sure the fitted region is inside the window regardless.
+	 */
+	const inView = all.filter((p) => p.x >= xMin && p.x <= xMax)
+	const ys = (inView.length > 4 ? inView : all).map((p) => p.y).sort((a, b) => a - b)
+	const at = (f: number) => ys[Math.min(ys.length - 1, Math.floor(f * ys.length))]
+
+	const fitYs = [...result.ys, ...fitLine.map((p) => p.y)]
+	const yLo = Math.min(at(0.02), ...fitYs)
+	const yHi = Math.max(at(0.98), ...fitYs)
+	const pad = Math.max((yHi - yLo) * 0.12, 0.05)
+	const yMin = yLo - pad
+	const yMax = yHi + pad
 
 	return (
-		<ChartCard elevation={Elevation.ONE}>
-			<ChartCardTitle>
-				<span>Guinier plot - ln I(q) vs q²</span>
-				<Tag minimal>
-					pts {result.iMin + 1}–{result.iMax + 1} / {data.q.length}
-				</Tag>
-			</ChartCardTitle>
-			<ChartFrame $tall>
+		<ChartFrame $tall>
 				<ResponsiveContainer width='100%' height='100%'>
 					<ComposedChart
 						data={fitLine}
@@ -84,7 +104,8 @@ export const GuinierChart = memo(function GuinierChart({
 						<XAxis
 							dataKey='x'
 							type='number'
-							domain={[xMin * 0.98, xMax * 1.02]}
+							domain={[xMin, xMax]}
+							allowDataOverflow
 							tickFormatter={(v: number) => v.toExponential(1)}
 							tick={AXIS_STYLE.tick}
 							label={{
@@ -97,7 +118,8 @@ export const GuinierChart = memo(function GuinierChart({
 						<YAxis
 							dataKey='y'
 							type='number'
-							domain={[yMin - 0.5, yMax + 0.5]}
+							domain={[yMin, yMax]}
+							allowDataOverflow
 							tickFormatter={(v: number) => v.toFixed(1)}
 							tick={AXIS_STYLE.tick}
 							width={64}
@@ -117,19 +139,19 @@ export const GuinierChart = memo(function GuinierChart({
 						<Scatter
 							data={all}
 							isAnimationActive={false}
-							shape={Dot(CHART.dataGray) as any}
+							shape={Dot(CHART.markOut) as any}
 						/>
 						{/* Guinier region highlighted */}
 						<Scatter
 							data={region}
 							isAnimationActive={false}
-							shape={Dot(CHART.dataGreen, 3) as any}
+							shape={Dot(CHART.markIn, 3) as any}
 						/>
 						{/* Fit line uses chart-level data={fitLine} */}
 						<Line
 							dataKey='y'
 							type='linear'
-							stroke={CHART.dataOrange}
+							stroke={CHART.fitLine}
 							strokeWidth={2}
 							strokeDasharray='6 4'
 							dot={false}
@@ -137,7 +159,6 @@ export const GuinierChart = memo(function GuinierChart({
 						/>
 					</ComposedChart>
 				</ResponsiveContainer>
-			</ChartFrame>
-		</ChartCard>
+		</ChartFrame>
 	)
 })

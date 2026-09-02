@@ -8,7 +8,6 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts'
-import { Elevation } from '@blueprintjs/core'
 import { AXIS_STYLE, CHART } from '../chartTheme'
 import type { SaxsData } from '../types/saxs'
 import { ChartCard, ChartCardTitle, ChartFrame } from '../styles/shared.styles'
@@ -22,7 +21,7 @@ const Dot = (props: Record<string, number>) => {
 	const { cx, cy } = props
 	if (cx == null || cy == null) return null
 	return (
-		<circle cx={cx} cy={cy} r={2} fill={CHART.dataBlue} fillOpacity={0.85} />
+		<circle cx={cx} cy={cy} r={2} fill={CHART.markIn} fillOpacity={0.85} />
 	)
 }
 
@@ -38,7 +37,7 @@ const TIP = ({
 	return (
 		<TooltipBox>
 			<TooltipRow $color={CHART.tickColor}>q = {x.toFixed(4)} Å⁻¹</TooltipRow>
-			<TooltipRow $color='#e5e8eb'>q²·I = {y.toExponential(3)}</TooltipRow>
+			<TooltipRow $color={CHART.titleColor}>q²·I = {y.toExponential(3)}</TooltipRow>
 		</TooltipBox>
 	)
 }
@@ -54,7 +53,7 @@ export const KratkyChart = memo(function KratkyChart({ data }: Props) {
 	const yMax = Math.max(...pts.map((p) => p.y))
 
 	return (
-		<ChartCard elevation={Elevation.ONE}>
+		<ChartCard>
 			<ChartCardTitle>
 				<span>Kratky plot - q²·I(q) vs q</span>
 			</ChartCardTitle>
@@ -81,12 +80,12 @@ export const KratkyChart = memo(function KratkyChart({ data }: Props) {
 							domain={[yMin, yMax * 1.1]}
 							tickFormatter={(v: number) => v.toExponential(1)}
 							tick={AXIS_STYLE.tick}
-							width={56}
+							width={64}
 							label={{
 								value: 'q²·I(q)',
 								angle: -90,
 								position: 'insideLeft',
-								offset: 12,
+								offset: -2,
 								...AXIS_STYLE.label,
 							}}
 						/>

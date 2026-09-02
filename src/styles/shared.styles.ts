@@ -1,21 +1,29 @@
 import styled from 'styled-components'
-import { Card } from '@blueprintjs/core'
-import { palette, media } from '../theme'
+import { color, media } from '../theme'
 
-export const ChartCard = styled(Card)`
-  margin-bottom: 0;
+/**
+ * Chart chrome.
+ *
+ * The charts no longer carry their own card - panels in App.styles.ts provide
+ * the surface and the heading, so several plots can share one card where they
+ * share an axis (the Guinier fit and its residuals) without nesting borders.
+ */
+export const ChartCard = styled.div`
+  background: ${color.surface};
+  border: 1px solid ${color.line};
+  border-radius: 8px;
+  padding: 14px;
   min-width: 0;
   max-width: 100%;
   overflow: hidden;
 `
 
 export const ChartCardTitle = styled.div`
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: ${palette.c2};
-  margin: 0 0 12px;
+  letter-spacing: -0.005em;
+  color: ${color.ink900};
+  margin: 0 0 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -25,6 +33,7 @@ export const ChartCardTitle = styled.div`
 
 interface ChartFrameProps {
   $tall?: boolean
+  $short?: boolean
   $fill?: boolean
 }
 
@@ -34,16 +43,20 @@ interface ChartFrameProps {
  */
 export const ChartFrame = styled.div<ChartFrameProps>`
   width: 100%;
-  height: ${({ $tall, $fill }) => ($fill ? '100%' : $tall ? '460px' : '320px')};
-  min-height: ${({ $fill }) => ($fill ? '200px' : 'auto')};
+  height: ${({ $tall, $short, $fill }) =>
+    $fill ? '100%' : $short ? '132px' : $tall ? '400px' : '260px'};
+  min-height: ${({ $fill }) => ($fill ? '160px' : 'auto')};
 
   ${media.lg} {
-    height: ${({ $tall, $fill }) => ($fill ? '100%' : $tall ? '380px' : '280px')};
+    height: ${({ $tall, $short, $fill }) =>
+      $fill ? '100%' : $short ? '124px' : $tall ? '340px' : '230px'};
   }
   ${media.md} {
-    height: ${({ $tall, $fill }) => ($fill ? '100%' : $tall ? '320px' : '240px')};
+    height: ${({ $tall, $short, $fill }) =>
+      $fill ? '100%' : $short ? '116px' : $tall ? '300px' : '210px'};
   }
   ${media.sm} {
-    height: ${({ $tall, $fill }) => ($fill ? '100%' : $tall ? '260px' : '200px')};
+    height: ${({ $tall, $short, $fill }) =>
+      $fill ? '100%' : $short ? '104px' : $tall ? '250px' : '186px'};
   }
 `
