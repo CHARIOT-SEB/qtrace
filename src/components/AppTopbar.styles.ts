@@ -7,6 +7,9 @@ export const Bar = styled.header`
   gap: 16px;
   height: ${layout.topbar}px;
   padding: 0 18px;
+  position: sticky;
+  top: 0;
+  z-index: 14;
   background: ${color.surface};
   border-bottom: 1px solid ${color.line};
   flex-shrink: 0;
@@ -120,6 +123,12 @@ export const Actions = styled.div`
   }
 `
 
+/** The button's text label. Named so the phone rule can hide the label
+ *  without also hiding Blueprint's icon, which is a <span> too. */
+export const BtnLabel = styled.span`
+  white-space: nowrap;
+`
+
 type Variant = 'primary' | 'secondary'
 
 export const BarButton = styled.button<{ $variant: Variant }>`
@@ -167,9 +176,15 @@ export const BarButton = styled.button<{ $variant: Variant }>`
   ${media.md} {
     /* Icon-only below the medium breakpoint - the label is the first thing to go */
     padding: 0 9px;
-    & > span {
+    ${BtnLabel} {
       display: none;
     }
+  }
+
+  @media (pointer: coarse) {
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: center;
   }
 `
 

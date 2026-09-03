@@ -1,10 +1,20 @@
 {
+  "pages": [
+    { "id": "page-1", "name": "Desktop" },
+    { "id": "page-2", "name": "Phone" }
+  ],
   "artboards": [
-    { "file": "Styles.dc.html", "x": 0, "y": 0, "w": 900, "h": 1420, "title": "Design system" },
-    { "file": "Main.dc.html", "x": 1020, "y": 0, "w": 1440, "h": 1040, "title": "Analysis workspace" },
-    { "file": "Empty.dc.html", "x": 2580, "y": 0, "w": 1440, "h": 1040, "title": "First run" },
-    { "file": "DirectionB.dc.html", "x": 1020, "y": 1560, "w": 900, "h": 640, "title": "Direction B — stepped pipeline" },
-    { "file": "DirectionC.dc.html", "x": 2020, "y": 1560, "w": 900, "h": 640, "title": "Direction C — dark console" }
+    { "file": "Styles.dc.html", "x": 0, "y": 0, "w": 900, "h": 1420, "title": "Design system", "page": "page-1" },
+    { "file": "Main.dc.html", "x": 1020, "y": 0, "w": 1440, "h": 1040, "title": "Analysis workspace", "page": "page-1" },
+    { "file": "Empty.dc.html", "x": 2580, "y": 0, "w": 1440, "h": 1040, "title": "First run", "page": "page-1" },
+    { "file": "DirectionB.dc.html", "x": 1020, "y": 1560, "w": 900, "h": 640, "title": "Direction B — stepped pipeline", "page": "page-1" },
+    { "file": "DirectionC.dc.html", "x": 2020, "y": 1560, "w": 900, "h": 640, "title": "Direction C — dark console", "page": "page-1" },
+
+    { "file": "MobileEmpty.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "title": "Phone — first run", "page": "page-2" },
+    { "file": "MobileChromatogram.dc.html", "x": 490, "y": 0, "w": 390, "h": 844, "title": "Phone — chromatogram tab", "page": "page-2" },
+    { "file": "MobileFit.dc.html", "x": 980, "y": 0, "w": 390, "h": 844, "title": "Phone — fit tab", "page": "page-2" },
+    { "file": "MobileResults.dc.html", "x": 1470, "y": 0, "w": 390, "h": 844, "title": "Phone — results expanded", "page": "page-2" },
+    { "file": "MobileSession.dc.html", "x": 1960, "y": 0, "w": 390, "h": 844, "title": "Phone — session drawer", "page": "page-2" }
   ],
   "annotations": [
     {
@@ -12,6 +22,7 @@
       "x": 1020,
       "y": -190,
       "w": 620,
+      "page": "page-1",
       "text": "The restructure: context on the left, work in the middle, the verdict on the right.\n\nToday everything is one scroll — the numbers you came for sit mid-page and the reasons they might be wrong sit at the very bottom, below the fold. Here the chromatogram that governs the whole analysis stays pinned, and Rg / fit quality / insights never scroll away."
     },
     {
@@ -19,6 +30,7 @@
       "x": 1700,
       "y": -190,
       "w": 380,
+      "page": "page-1",
       "text": "Guinier and residuals now share one card, because they share an x-axis — the residuals are how you judge the fit, so they belong next to it, not three sections down."
     },
     {
@@ -26,6 +38,7 @@
       "x": 0,
       "y": -190,
       "w": 620,
+      "page": "page-1",
       "text": "Chart colour does two separate jobs and today they collide: green currently means both 'in the fit' and 'qRg is fine'.\n\nSplit here — teal ramp = what you selected, status trio = whether to trust it. Both sets were run through the palette validator; the current palette fails it on chroma and contrast."
     },
     {
@@ -33,6 +46,7 @@
       "x": 1020,
       "y": 1400,
       "w": 560,
+      "page": "page-1",
       "text": "Two alternate structures, kept low-fi on purpose — enough to choose between, not to build from. Say if either is closer and I'll take it up to the fidelity of the workspace artboard."
     },
     {
@@ -40,8 +54,25 @@
       "x": 2580,
       "y": 1210,
       "w": 460,
+      "page": "page-1",
       "text": "Values shown are sample data from a synthetic lysozyme-like SEC run, not real measurements — plots are generated from a sphere form factor with Rg 24.8 Å so the five charts stay physically consistent with each other."
+    },
+    {
+      "id": "phone-thesis",
+      "x": 0,
+      "y": -230,
+      "w": 700,
+      "page": "page-2",
+      "text": "The three-zone workspace does not survive a 390px screen, so it folds rather than shrinks.\n\nVerdict → a 52px sticky summary bar (Rg + the qRg grade, the two numbers you actually glance at) that expands into the full readout on tap. Laying the results rail out full-width instead cost a whole screenful of tiles before the first plot.\n\nWork → one tabbed panel. Four full-height charts stacked is a two-thousand-pixel scroll, so a plot is a tap away rather than a scroll away.\n\nContext → stays the drawer it already was."
+    },
+    {
+      "id": "phone-targets",
+      "x": 980,
+      "y": -230,
+      "w": 480,
+      "page": "page-2",
+      "text": "Every control here is at least 44px on a touch device — the desktop build had them at 15–32px. Slider handles grow to 22px and lose their labels, because the two handle labels overlapped each other as soon as the range got narrow; the readout beside the slider says the range instead.\n\nNo painted status bar or keyboard: the real ones render on top of this on a device."
     }
   ],
-  "launch": { "view": "canvas" }
+  "launch": { "view": "canvas", "page": "page-2" }
 }

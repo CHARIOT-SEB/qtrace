@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #2f4550; background: #f1f4f5;
+         -webkit-font-smoothing: antialiased; }
+  a { color: #0f5b68; text-decoration: none; }
+  a:hover { color: #16262e; }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace; font-variant-numeric: tabular-nums; }
+  .lbl { font-size: 10px; font-weight: 600; letter-spacing: 0.11em; text-transform: uppercase;
+         color: #55707c; }
+  .card { background: #ffffff; border: 1px solid #dde6e8; border-radius: 8px; }
+
+  .grid { stroke: #e8eef0; stroke-width: 1; }
+  .axis { stroke: #c3d4d8; stroke-width: 1; }
+  .tick { font-family: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace; font-size: 9.5px; fill: #7d949e; }
+  .axname { font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 10px; font-weight: 500; fill: #55707c; }
+  .sec-o { fill: #93b7bf; opacity: .5; }
+  .sec-b { fill: #4a8f9d; }
+  .sec-s { fill: #0f5b68; }
+  .g-out { fill: #7d949e; opacity: .38; }
+  .g-in  { fill: #0f5b68; }
+  .fitline { stroke: #16262e; stroke-width: 2; }
+  .res-stem { stroke: #6b5ca8; stroke-width: 1.4; opacity: .34; }
+  .res-dot { fill: #6b5ca8; }
+  .c-out { fill: #7d949e; opacity: .45; }
+  .c-in  { fill: #0f5b68; }
+
+      body { width: 390px; height: 844px; overflow: hidden; background: #f1f4f5; }
+    </style>
+</helmet>
+
+<div style="display:flex;flex-direction:column;width:390px;height:844px;background:#f1f4f5">
+  
+  
+<header style="display:flex;align-items:center;gap:9px;height:52px;padding:0 12px;background:#ffffff;border-bottom:1px solid #dde6e8;flex-shrink:0">
+  
+<svg viewBox="0 0 28 28" width="26" height="26" style="display:block;flex-shrink:0">
+  <rect width="28" height="28" rx="7" fill="#16262e"/>
+  <path d="M6 8.5c3.6 0 3.2 11 6.2 11S16 12 22 12" fill="none" stroke="#8fd3d8" stroke-width="2.1" stroke-linecap="round"/>
+  <circle cx="6" cy="8.5" r="1.9" fill="#fff"/>
+</svg>
+  <div style="display:flex;align-items:center;gap:7px;height:32px;padding:0 9px;background:#f1f4f5;border:1px solid #dde6e8;border-radius:6px;min-width:0">
+         <span style="color:#0f5b68;display:flex;transform:scale(.82)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></span>
+         <span class="mono" style="font-size:12px;font-weight:500;color:#16262e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:96px">lysozyme_sec_01</span>
+       </div>
+  <span style="flex-grow:1"></span>
+  
+    <button style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:8px;cursor:pointer;flex-shrink:0;
+      border:1px solid #dde6e8;
+      background:#ffffff;
+      color:#55707c;
+      opacity:1"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
+    <button style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:8px;cursor:pointer;flex-shrink:0;
+      border:1px solid #dde6e8;
+      background:#ffffff;
+      color:#55707c;
+      opacity:1"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg></button>
+    <button style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:8px;cursor:pointer;flex-shrink:0;
+      border:none;
+      background:{{accent}};
+      color:#fff;
+      opacity:1"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
+</header>
+  
+<button style="display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:0 12px;border:none;border-bottom:1px solid #dde6e8;background:#ffffff;font:inherit;text-align:left;cursor:pointer;flex-shrink:0">
+  <span class="lbl" style="font-size:10px">Rg</span>
+  <span class="mono" style="font-size:17px;font-weight:500;letter-spacing:-0.01em;color:{{accent}}">24.82</span>
+  <span class="mono" style="font-size:11px;color:undefined">Å</span>
+  <span style="display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;background:#eaf6f0;border:1px solid #bfe3d0;color:#1d6b45;font-size:9.5px;font-weight:600;letter-spacing:0.06em">OK</span>
+  <span style="flex-grow:1"></span>
+  <span style="display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;background:#fbf3e3;border:1px solid #eddcb4;color:#8a5a00;font-size:9.5px;font-weight:600">1 to check</span>
+  <span style="display:flex;color:undefined;transform:rotate(180deg)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M6 9l6 6 6-6"/></svg></span>
+</button>
+  <div style="background:#ffffff;border-bottom:1px solid #dde6e8;padding:12px;display:flex;flex-direction:column;gap:12px;overflow:hidden">
+    <div style="background:#ffffff;border:1px solid #dde6e8;border-radius:8px;padding:13px 14px">
+      <span class="lbl" style="font-size:10px">Radius of gyration</span>
+      <div style="display:flex;align-items:baseline;gap:5px;margin-top:3px">
+        <span class="mono" style="font-size:34px;font-weight:500;line-height:1.05;letter-spacing:-0.02em;color:{{accent}}">24.82</span>
+        <span class="mono" style="font-size:13px;color:undefined">Å</span>
+      </div>
+      <span class="mono" style="font-size:11.5px;color:#55707c">± 0.31 Å  (95% CI)</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:8px">
+      
+<div style="background:#ffffff;border:1px solid #dde6e8;border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;gap:2px;min-width:0">
+  <span class="lbl" style="font-size:9.5px">I(0)</span>
+  <div style="display:flex;align-items:baseline;gap:6px">
+    <span class="mono" style="font-size:19px;font-weight:500;line-height:1.05;color:#16262e">101.4</span>
+    
+    
+  </div>
+  <span class="mono" style="font-size:10px;color:#55707c">± 1.2</span>
+</div>
+      
+<div style="background:#ffffff;border:1px solid #dde6e8;border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;gap:2px;min-width:0">
+  <span class="lbl" style="font-size:9.5px">q · Rg max</span>
+  <div style="display:flex;align-items:baseline;gap:6px">
+    <span class="mono" style="font-size:19px;font-weight:500;line-height:1.05;color:#16262e">1.27</span>
+    
+    <span style="display:inline-flex;padding:2px 6px;border-radius:4px;background:#eaf6f0;border:1px solid #bfe3d0;color:#1d6b45;font-size:9px;font-weight:600">OK</span>
+  </div>
+  <span class="mono" style="font-size:10px;color:#55707c">limit 1.30</span>
+</div>
+      
+<div style="background:#ffffff;border:1px solid #dde6e8;border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;gap:2px;min-width:0">
+  <span class="lbl" style="font-size:9.5px">R²</span>
+  <div style="display:flex;align-items:baseline;gap:6px">
+    <span class="mono" style="font-size:19px;font-weight:500;line-height:1.05;color:#16262e">0.9981</span>
+    
+    
+  </div>
+  
+</div>
+      
+<div style="background:#ffffff;border:1px solid #dde6e8;border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;gap:2px;min-width:0">
+  <span class="lbl" style="font-size:9.5px">Points used</span>
+  <div style="display:flex;align-items:baseline;gap:6px">
+    <span class="mono" style="font-size:19px;font-weight:500;line-height:1.05;color:#16262e">36</span>
+    
+    
+  </div>
+  <span class="mono" style="font-size:10px;color:#55707c">of 62</span>
+</div>
+    </div>
+    <div style="border:1px solid #eddcb4;background:#fbf3e3;border-radius:7px;padding:10px 11px;display:flex;gap:8px;align-items:flex-start">
+      <span style="color:#8a5a00;display:flex;margin-top:1px;transform:scale(.85);transform-origin:top left"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg></span>
+      <div style="flex-grow:1;min-width:0">
+        <span style="font-size:12.5px;line-height:1.45;color:#16262e">The lowest four points sit below the fitted line.</span>
+        <button style="display:block;margin-top:6px;padding:0;border:none;background:none;font:inherit;font-size:11.5px;font-weight:500;color:#8a5a00;text-decoration:underline;min-height:32px">Why?</button>
+      </div>
+    </div>
+  </div>
+  <main style="flex-grow:1;min-height:0;padding:12px;overflow:hidden">
+    
+<div style="display:flex;gap:6px;overflow:hidden;flex-shrink:0">
+  <button style="flex:1 0 auto;min-height:44px;padding:0 13px;border-radius:7px;cursor:pointer;font:inherit;font-size:12.5px;white-space:nowrap;
+      font-weight:500;
+      border:1px solid #dde6e8;
+      background:#ffffff;
+      color:#55707c">Chromatogram</button><button style="flex:1 0 auto;min-height:44px;padding:0 13px;border-radius:7px;cursor:pointer;font:inherit;font-size:12.5px;white-space:nowrap;
+      font-weight:600;
+      border:1px solid #c4dee2;
+      background:#e4eff1;
+      color:#0f5b68">Guinier fit</button><button style="flex:1 0 auto;min-height:44px;padding:0 13px;border-radius:7px;cursor:pointer;font:inherit;font-size:12.5px;white-space:nowrap;
+      font-weight:500;
+      border:1px solid #dde6e8;
+      background:#ffffff;
+      color:#55707c">Curve</button><button style="flex:1 0 auto;min-height:44px;padding:0 13px;border-radius:7px;cursor:pointer;font:inherit;font-size:12.5px;white-space:nowrap;
+      font-weight:500;
+      border:1px solid #dde6e8;
+      background:#ffffff;
+      color:#55707c">Kratky</button>
+</div>
+  </main>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#0f5b68","options":["#0f5b68","#1c6ea8","#7a3d8f","#16262e"],"section":"Theme"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#0f5b68' };
+  }
+}
+</script>
+</body>
+</html>

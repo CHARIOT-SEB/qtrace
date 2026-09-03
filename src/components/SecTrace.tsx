@@ -19,6 +19,7 @@ import {
 } from '@blueprintjs/core'
 import { frameIntensity } from '../lib/secSaxs'
 import { AXIS_STYLE, CHART } from '../chartTheme'
+import { useIsPhone } from '../hooks/useMediaQuery'
 import type { SaxsData } from '../types/saxs'
 import { ChartCard, ChartCardTitle, ChartFrame } from '../styles/shared.styles'
 import {
@@ -67,6 +68,7 @@ export function SecTrace({
 	onSignalChange,
 }: Props) {
 	const [viewMode, setViewMode] = useState<'bars' | 'dots'>('bars')
+	const isPhone = useIsPhone()
 
 	// Local slider positions for instant visual feedback - parent is only notified on release.
 	const [localBuffer, setLocalBuffer] = useState<[number, number]>(bufferRange)
@@ -130,6 +132,16 @@ export function SecTrace({
 	// on narrow viewports without overlapping.
 	const labelStep = Math.max(1, Math.ceil((last + 1) / 5))
 
+	/* On a phone even five is too many - they collide with the handle labels,
+	   and the "Frames 4-9 (6 frames averaged)" readout below each slider
+	   already states the range. */
+	const sliderLabels = isPhone
+		? ({ labelRenderer: false } as const)
+		: ({
+				labelStepSize: labelStep,
+				labelRenderer: (i: number) => `#${i + 1}`,
+			} as const)
+
 	return (
 		<ChartCard>
 			<ChartCardTitle>
@@ -179,12 +191,12 @@ export function SecTrace({
 								dataKey='value'
 								tickFormatter={(v: number) => v.toExponential(1)}
 								tick={AXIS_STYLE.tick}
-								width={56}
+								width={64}
 								label={{
 									value: 'mean I(q)',
 									angle: -90,
 									position: 'insideLeft',
-									offset: 12,
+									offset: -2,
 									...AXIS_STYLE.label,
 								}}
 							/>
@@ -221,12 +233,12 @@ export function SecTrace({
 								type='number'
 								tickFormatter={(v: number) => v.toExponential(1)}
 								tick={AXIS_STYLE.tick}
-								width={56}
+								width={64}
 								label={{
 									value: 'mean I(q)',
 									angle: -90,
 									position: 'insideLeft',
-									offset: 12,
+									offset: -2,
 									...AXIS_STYLE.label,
 								}}
 							/>
@@ -254,8 +266,7 @@ export function SecTrace({
 						min={0}
 						max={last}
 						stepSize={1}
-						labelStepSize={labelStep}
-						labelRenderer={(i) => `#${i + 1}`}
+						{...sliderLabels}
 						value={localBuffer}
 						onChange={setLocalBuffer}
 						onRelease={onBufferChange}
@@ -277,8 +288,7 @@ export function SecTrace({
 						min={0}
 						max={last}
 						stepSize={1}
-						labelStepSize={labelStep}
-						labelRenderer={(i) => `#${i + 1}`}
+						{...sliderLabels}
 						value={localSignal}
 						onChange={setLocalSignal}
 						onRelease={onSignalChange}

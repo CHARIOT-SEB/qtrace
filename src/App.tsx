@@ -34,6 +34,7 @@ import { collectInsights } from './lib/analysisHeuristics'
 import { autoDetectRegions, averageFrames, subtractBuffer } from './lib/secSaxs'
 import { buildExportCsv, downloadCsv } from './lib/csvExport'
 import { generateSampleSecFrames } from './lib/sampleData'
+import { useIsPhone } from './hooks/useMediaQuery'
 import { color } from './theme'
 import type { SaxsData } from './types/saxs'
 import type { AnalysisSnapshot, HistoryEntry } from './types/history'
@@ -53,6 +54,8 @@ import {
 	SubHead,
 	SubHeadRule,
 	PlotPairGrid,
+	PlotTabs,
+	PlotTab,
 	ErrorCallout,
 	EmptyStage,
 	EmptyInner,
@@ -75,6 +78,8 @@ import {
 import { RailButton } from './styles/rail.styles'
 import { FileDropZone } from './components/FileDropZone'
 
+type PlotTabId = 'sec' | 'fit' | 'curve' | 'kratky'
+
 export function App() {
 	const [frames, setFrames] = useState<SaxsData[]>([])
 	const [bufferRange, setBufferRange] = useState<[number, number]>([0, 0])
@@ -85,6 +90,8 @@ export function App() {
 	const [isConfirmingClear, setIsConfirmingClear] = useState(false)
 	const [saveToCloud, setSaveToCloud] = useState(false)
 	const [isRailOpen, setIsRailOpen] = useState(false)
+	const [plotTab, setPlotTab] = useState<PlotTabId>('fit')
+	const isPhone = useIsPhone()
 
 	const { user } = useAuth()
 	const signedInUserId = user?.id ?? null
@@ -281,6 +288,20 @@ export function App() {
 		})
 		downloadCsv(built)
 	}
+
+	/**
+	 * Phone plot switcher. Four full-height charts stacked on a 390px screen is
+	 * a two-thousand-pixel scroll, so on a phone only one is mounted at a time.
+	 * Above the breakpoint every plot renders and `showPlot` is always true.
+	 */
+	const plotTabs: { id: PlotTabId; label: string }[] = [
+		...(isSec ? ([{ id: 'sec', label: 'Chromatogram' }] as const) : []),
+		{ id: 'fit', label: 'Guinier fit' },
+		{ id: 'curve', label: 'Curve' },
+		{ id: 'kratky', label: 'Kratky' },
+	]
+	const activeTab = plotTabs.some((t) => t.id === plotTab) ? plotTab : 'fit'
+	const showPlot = (id: PlotTabId) => !isPhone || activeTab === id
 
 	const savedSnapshotCount = hist.history.entries.filter(
 		(e) => e.isNamed,
@@ -494,8 +515,25 @@ export function App() {
 						</EmptyStage>
 					) : (
 						<>
+							{isPhone && (
+								<PlotTabs role='tablist' aria-label='Plot'>
+									{plotTabs.map((t) => (
+										<PlotTab
+											key={t.id}
+											type='button'
+											role='tab'
+											aria-selected={t.id === activeTab}
+											$active={t.id === activeTab}
+											onClick={() => setPlotTab(t.id)}
+										>
+											{t.label}
+										</PlotTab>
+									))}
+								</PlotTabs>
+							)}
+
 							{/* The chromatogram governs everything below it, so it leads. */}
-							{isSec && (
+							{isSec && showPlot('sec') && (
 								<SecTrace
 									frames={frames}
 									bufferRange={bufferRange}
@@ -513,6 +551,7 @@ export function App() {
 									{/* The fit and its residuals share an x-axis, so they
 									    share a card - and the range control that drives them
 									    both sits directly underneath. */}
+									{showPlot('fit') && (
 									<Panel>
 										<PanelHead>
 											<PanelTitle>Guinier fit</PanelTitle>
@@ -556,7 +595,7 @@ export function App() {
 											<FitRangeSlider>
 												<RangeControls
 													data={activeCurve}
-													compact
+													labels={isPhone ? 'none' : 'handles'}
 													iMin={guinier.iMin}
 													iMax={guinier.iMax}
 													onChange={({ iMin, iMax }) => {
@@ -577,20 +616,24 @@ export function App() {
 											</FitRangeReadout>
 										</FitRangeBar>
 									</Panel>
+									)}
 
+									{/* Side by side on a wide screen; one per tab on a phone. */}
 									<PlotPairGrid>
-										<FullCurveChart
-											data={activeCurve}
-											result={guinierResult ?? undefined}
-											title={
-												isSec
-													? 'Scattering curve — buffer-subtracted'
-													: 'Scattering curve'
-											}
-											hoveredQ={hoveredQ}
-											onHoverQ={handleHoverQ}
-										/>
-										<KratkyChart data={activeCurve} />
+										{showPlot('curve') && (
+											<FullCurveChart
+												data={activeCurve}
+												result={guinierResult ?? undefined}
+												title={
+													isSec
+														? 'Scattering curve — buffer-subtracted'
+														: 'Scattering curve'
+												}
+												hoveredQ={hoveredQ}
+												onHoverQ={handleHoverQ}
+											/>
+										)}
+										{showPlot('kratky') && <KratkyChart data={activeCurve} />}
 									</PlotPairGrid>
 								</>
 							)}

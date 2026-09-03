@@ -121,6 +121,16 @@ body {
   outline-offset: 1px;
 }
 
+/* Touch: Blueprint's small buttons are 24px, which is not a thumb target. */
+@media (pointer: coarse) {
+  .bp6-button {
+    min-height: 44px;
+  }
+  .bp6-button.bp6-small {
+    min-height: 36px;
+  }
+}
+
 /* ── Blueprint overrides - Tags ──────────────────────────────────── */
 .bp6-tag {
   background: var(--accent-soft) !important;

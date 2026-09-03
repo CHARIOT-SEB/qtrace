@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { color, font, media } from '../theme'
+import { color, font } from '../theme'
 
 /** Small caps section label. Set on ink-500 rather than a lighter grey - at
  *  10px with this much tracking anything lighter drops below 4.5:1. */
@@ -102,7 +102,10 @@ export const RailButton = styled.button<{ $accent?: boolean }>`
     cursor: not-allowed;
   }
 
-  ${media.sm} {
-    min-height: 32px;
+  /* A 27px control is fine under a mouse and not under a thumb. */
+  @media (pointer: coarse) {
+    min-height: 44px;
+    padding: 0 14px;
+    font-size: 12.5px;
   }
 `

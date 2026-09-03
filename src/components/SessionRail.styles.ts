@@ -62,6 +62,10 @@ export const LinkButton = styled.button`
     outline-offset: 2px;
     border-radius: 2px;
   }
+
+  @media (pointer: coarse) {
+    min-height: 44px;
+  }
 `
 
 export const RegionList = styled.div`
@@ -137,6 +141,7 @@ export const SnapshotRowEl = styled.div<{ $active?: boolean }>`
   align-items: center;
   gap: 9px;
   padding: 8px 9px;
+  min-height: 44px;
   border-radius: 6px;
   cursor: pointer;
   min-width: 0;
@@ -228,6 +233,10 @@ export const DangerLink = styled(LinkButton)`
 
   &:hover {
     color: ${color.badInk};
+  }
+
+  @media (pointer: coarse) {
+    min-height: 44px;
   }
 `
 

@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #2f4550; background: #f1f4f5;
+         -webkit-font-smoothing: antialiased; }
+  a { color: #0f5b68; text-decoration: none; }
+  a:hover { color: #16262e; }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace; font-variant-numeric: tabular-nums; }
+  .lbl { font-size: 10px; font-weight: 600; letter-spacing: 0.11em; text-transform: uppercase;
+         color: #55707c; }
+  .card { background: #ffffff; border: 1px solid #dde6e8; border-radius: 8px; }
+
+  .grid { stroke: #e8eef0; stroke-width: 1; }
+  .axis { stroke: #c3d4d8; stroke-width: 1; }
+  .tick { font-family: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace; font-size: 9.5px; fill: #7d949e; }
+  .axname { font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 10px; font-weight: 500; fill: #55707c; }
+  .sec-o { fill: #93b7bf; opacity: .5; }
+  .sec-b { fill: #4a8f9d; }
+  .sec-s { fill: #0f5b68; }
+  .g-out { fill: #7d949e; opacity: .38; }
+  .g-in  { fill: #0f5b68; }
+  .fitline { stroke: #16262e; stroke-width: 2; }
+  .res-stem { stroke: #6b5ca8; stroke-width: 1.4; opacity: .34; }
+  .res-dot { fill: #6b5ca8; }
+  .c-out { fill: #7d949e; opacity: .45; }
+  .c-in  { fill: #0f5b68; }
+
+      body { width: 390px; height: 844px; overflow: hidden; background: #f1f4f5; }
+    </style>
+</helmet>
+
+<div style="display:flex;flex-direction:column;width:390px;height:844px;background:#f1f4f5">
+  
+  
+<header style="display:flex;align-items:center;gap:9px;height:52px;padding:0 12px;background:#ffffff;border-bottom:1px solid #dde6e8;flex-shrink:0">
+  
+<svg viewBox="0 0 28 28" width="26" height="26" style="display:block;flex-shrink:0">
+  <rect width="28" height="28" rx="7" fill="#16262e"/>
+  <path d="M6 8.5c3.6 0 3.2 11 6.2 11S16 12 22 12" fill="none" stroke="#8fd3d8" stroke-width="2.1" stroke-linecap="round"/>
+  <circle cx="6" cy="8.5" r="1.9" fill="#fff"/>
+</svg>
+  
+  <span style="flex-grow:1"></span>
+  
+    <button style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:8px;cursor:pointer;flex-shrink:0;
+      border:1px solid #dde6e8;
+      background:#ffffff;
+      color:#55707c;
+      opacity:0.55"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
+    <button style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:8px;cursor:pointer;flex-shrink:0;
+      border:1px solid #dde6e8;
+      background:#ffffff;
+      color:#55707c;
+      opacity:0.55"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg></button>
+    <button style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:8px;cursor:pointer;flex-shrink:0;
+      border:none;
+      background:#9fc4c9;
+      color:#fff;
+      opacity:0.55"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
+</header>
+  <main style="flex-grow:1;min-height:0;padding:20px 14px;display:flex;flex-direction:column;gap:20px;overflow:hidden">
+    <div style="text-align:center">
+      <h1 style="margin:0 0 7px;font-size:21px;font-weight:600;letter-spacing:-0.02em;color:#16262e;text-wrap:pretty">Load a scattering dataset</h1>
+      <p style="margin:0;font-size:13px;line-height:1.55;color:#55707c;text-wrap:pretty">Reads <span class="mono" style="font-size:12px">.dat</span> frames from the beamline, ATSAS or RAW — all computed on your device.</p>
+    </div>
+    <div style="border:2px dashed #c3d4d8;background:#ffffff;border-radius:12px;padding:26px 16px;display:flex;flex-direction:column;align-items:center;gap:11px">
+      <span style="display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:13px;background:#e4eff1;color:#0f5b68"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 20V8"/><path d="M7 12l5-5 5 5"/><path d="M4 4h16"/></svg></span>
+      <div style="text-align:center">
+        <div style="font-size:14.5px;font-weight:600;color:#16262e">Drop frame files here</div>
+        <div style="font-size:12px;color:undefined;margin-top:3px">A single curve, or a whole SEC run</div>
+      </div>
+      <span style="display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border:1px solid #dde6e8;background:#ffffff;border-radius:8px;font-size:13px;font-weight:500;color:#2f4550">Browse files</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="flex-grow:1;height:1px;background:#dde6e8"></span>
+      <span class="lbl">or start from</span>
+      <span style="flex-grow:1;height:1px;background:#dde6e8"></span>
+    </div>
+    <button style="display:flex;align-items:center;gap:12px;text-align:left;padding:14px;min-height:64px;border:1px solid #c4dee2;background:#e4eff1;border-radius:8px;font:inherit;cursor:pointer">
+      <span style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;flex-shrink:0;background:{{accent}};color:#fff"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10 3v6.5L4.8 18A2 2 0 0 0 6.5 21h11a2 2 0 0 0 1.7-3L14 9.5V3"/><path d="M9 3h6"/><path d="M7.5 15h9"/></svg></span>
+      <span style="flex-grow:1;min-width:0">
+        <span style="display:block;font-size:13.5px;font-weight:600;color:#16262e">Load the sample SEC run</span>
+        <span style="display:block;font-size:11.5px;color:#55707c;margin-top:2px">See the whole workflow in one tap</span>
+      </span>
+      <span style="color:undefined;display:flex"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M9 6l6 6-6 6"/></svg></span>
+    </button>
+  </main>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#0f5b68","options":["#0f5b68","#1c6ea8","#7a3d8f","#16262e"],"section":"Theme"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#0f5b68' };
+  }
+}
+</script>
+</body>
+</html>

@@ -4,11 +4,21 @@ import { color, font, layout, media } from './theme'
 
 export const AppRoot = styled.div.attrs({ className: 'bp6-light' })`
   min-height: 100vh;
+  min-height: 100dvh;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   background: ${color.canvas};
   color: ${color.ink700};
+
+  /* On a phone the shell stops being a fixed viewport frame: the document
+     scrolls normally so the browser chrome can collapse, and nothing is
+     trapped behind a nested scroll container. */
+  ${media.md} {
+    height: auto;
+    min-height: 100dvh;
+  }
 `
 
 /**
@@ -48,6 +58,16 @@ export const AppBody = styled.div`
     grid-template-areas:
       'right'
       'main';
+  }
+
+  /* Phone: the results become a sticky one-line summary (ResultsRail collapses
+     itself), so it can stay on top without costing a screenful. The body grows
+     with its content and the document does the scrolling. */
+  ${media.md} {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    min-height: 0;
   }
 `
 
@@ -99,47 +119,65 @@ export const ResultsRailSlot = styled.div`
   }
 
   /* Below xl the rail lies down: full width, a bottom rule instead of a side
-     one, and its contents run horizontally so it stays a shallow band. */
+     one, and its contents run horizontally so it stays a shallow band.
+     The sections sit one level deeper than they look: ResultsRail wraps them
+     in a body element (display: contents here) so it can collapse them behind
+     a summary bar on a phone. */
   ${media.xl} {
     & > * {
       width: 100%;
       border-left: none;
       border-bottom: 1px solid ${color.line};
       flex-direction: row;
+      flex-wrap: wrap;
       align-items: flex-start;
       gap: 20px;
       padding: 14px 18px;
       overflow-y: visible;
     }
-    & > * {
-      flex-wrap: wrap;
-    }
     /* Both halves need a floor, or the insights column collapses to one
        word per line while the results block takes everything. */
-    & > * > section {
+    & > * > * > section {
       flex: 1 1 340px;
       min-width: min(320px, 100%);
     }
-    & > * > section:first-child {
+    & > * > * > section:first-child {
       flex: 1 1 380px;
       min-width: min(340px, 100%);
     }
     /* The divider and the footnote are rail furniture - they make no sense
        once the rail is a horizontal band. */
-    & > * > .rail-furniture {
+    & > * > * > .rail-furniture {
       display: none;
     }
   }
 
+  /* Phone: the rail is a sticky summary bar that expands on tap. Its own
+     styles own the layout from here - the band rules above would otherwise
+     leave the sections shrink-wrapped at ~60% width. */
   ${media.md} {
+    position: sticky;
+    top: 0;
+    z-index: 12;
+    display: block;
+
     & > * {
+      width: 100%;
       flex-direction: column;
-      gap: 14px;
+      align-items: stretch;
+      flex-wrap: nowrap;
+      gap: 0;
+      padding: 0;
+      border-bottom: none;
+      overflow: visible;
     }
-    & > * > section,
-    & > * > section:first-child {
-      flex: 1 1 auto;
+    & > * > * > section,
+    & > * > * > section:first-child {
+      flex: 0 0 auto;
       min-width: 0;
+    }
+    & > * > * > .rail-furniture {
+      display: block;
     }
   }
 `
@@ -180,9 +218,59 @@ export const AppContent = styled.main`
   ${media.lg} {
     padding: 14px 14px 24px;
   }
-  ${media.sm} {
-    padding: 12px 10px 20px;
+
+  /* The document scrolls on a phone, not this box - see AppRoot. */
+  ${media.md} {
+    overflow-y: visible;
+    padding: 12px 12px 24px;
     gap: 12px;
+  }
+  ${media.sm} {
+    padding: 10px 10px 20px;
+  }
+`
+
+/* ── Plot tabs (phone only) ────────────────────────────────────────────
+   Four full-height charts stacked on a 390px screen is a two-thousand-pixel
+   scroll. On a phone they become one panel with a segmented switcher, so a
+   plot is always a tap away rather than a scroll away. */
+
+export const PlotTabs = styled.div`
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`
+
+export const PlotTab = styled.button<{ $active: boolean }>`
+  appearance: none;
+  flex: 1 0 auto;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: ${({ $active }) => ($active ? 600 : 500)};
+  white-space: nowrap;
+  border: 1px solid
+    ${({ $active }) => ($active ? color.accentBorder : color.line)};
+  background: ${({ $active }) => ($active ? color.accentSoft : color.surface)};
+  color: ${({ $active }) => ($active ? color.accent : color.ink500)};
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease;
+
+  &:focus-visible {
+    outline: 2px solid ${color.accent};
+    outline-offset: 1px;
   }
 `
 

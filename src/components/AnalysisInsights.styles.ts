@@ -93,6 +93,11 @@ export const InsightWhyBtn = styled.button<{ $severity: Severity }>`
   text-underline-offset: 2px;
   color: ${({ $severity }) => TONE[$severity][0]};
 
+  @media (pointer: coarse) {
+    min-height: 40px;
+    padding-right: 12px;
+  }
+
   &:focus-visible {
     outline: 2px solid ${color.accent};
     outline-offset: 2px;

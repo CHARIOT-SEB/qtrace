@@ -14,6 +14,7 @@ import {
 	Actions,
 	BarButton,
 	RailToggle,
+	BtnLabel,
 } from './AppTopbar.styles'
 
 interface Props {
@@ -72,7 +73,7 @@ export function AppTopbar({
 					title='Session and snapshots'
 				>
 					<Icon icon='panel-stats' size={14} />
-					<span>Session</span>
+					<BtnLabel>Session</BtnLabel>
 				</RailToggle>
 				<BarButton
 					$variant='secondary'
@@ -83,7 +84,7 @@ export function AppTopbar({
 					title='Export current analysis as CSV'
 				>
 					<Icon icon='download' size={14} />
-					<span>Export</span>
+					<BtnLabel>Export</BtnLabel>
 				</BarButton>
 				<BarButton
 					$variant='primary'
@@ -94,7 +95,7 @@ export function AppTopbar({
 					title='Save a snapshot of the current session'
 				>
 					<Icon icon='bookmark' size={14} />
-					<span>Snapshot</span>
+					<BtnLabel>Snapshot</BtnLabel>
 				</BarButton>
 				<BarDivider />
 				<AccountMenu />
